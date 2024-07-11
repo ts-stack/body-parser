@@ -4,34 +4,30 @@
  * MIT Licensed
  */
 
-'use strict'
-
-/**
- * Module dependencies.
- */
-
 import bytes from 'bytes';
+import contentType from 'content-type';
 import debug from 'debug';
-debug('body-parser:raw');
+debug('body-parser:text');
 import read from '../read.mjs';
 import typeis from 'type-is';
 
 /**
- * Create a middleware to parse raw bodies.
+ * Create a middleware to parse text bodies.
  *
  * @param {object} [options]
  * @return {function}
  * @api public
  */
 
-export default function raw (options) {
+export default function text (options: any) {
   var opts = options || {}
 
+  var defaultCharset = opts.defaultCharset || 'utf-8'
   var inflate = opts.inflate !== false
   var limit = typeof opts.limit !== 'number'
     ? bytes.parse(opts.limit || '100kb')
     : opts.limit
-  var type = opts.type || 'application/octet-stream'
+  var type = opts.type || 'text/plain'
   var verify = opts.verify || false
 
   if (verify !== false && typeof verify !== 'function') {
@@ -43,11 +39,11 @@ export default function raw (options) {
     ? typeChecker(type)
     : type
 
-  function parse (buf) {
+  function parse (buf: any) {
     return buf
   }
 
-  return function rawParser (req, res, next) {
+  return function textParser (req: any, res: any, next: any) {
     if (req._body) {
       debug('body already parsed')
       next()
@@ -63,7 +59,7 @@ export default function raw (options) {
       return
     }
 
-    debug('content-type %j', req.headers['content-type'])
+    debug(`content-type ${req.headers['content-type']}`)
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -72,13 +68,31 @@ export default function raw (options) {
       return
     }
 
+    // get charset
+    var charset = getCharset(req) || defaultCharset
+
     // read
     read(req, res, next, parse, debug, {
-      encoding: null,
+      encoding: charset,
       inflate: inflate,
       limit: limit,
       verify: verify
     })
+  }
+}
+
+/**
+ * Get the charset of a request.
+ *
+ * @param {object} req
+ * @api private
+ */
+
+function getCharset (req: any) {
+  try {
+    return (contentType.parse(req).parameters.charset || '').toLowerCase()
+  } catch (e) {
+    return undefined
   }
 }
 
@@ -89,8 +103,8 @@ export default function raw (options) {
  * @return {function}
  */
 
-function typeChecker (type) {
-  return function checkType (req) {
+function typeChecker (type: any) {
+  return function checkType (req: any) {
     return Boolean(typeis(req, type))
   }
 }

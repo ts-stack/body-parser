@@ -4,13 +4,6 @@
  * MIT Licensed
  */
 
-'use strict'
-
-/**
- * Module dependencies.
- * @private
- */
-
 import createError from 'http-errors';
 import destroy from 'destroy';
 import getBody from 'raw-body';
@@ -31,10 +24,10 @@ import zlib from 'zlib';
  * @private
  */
 
-export default function read (req, res, next, parse, debug, options) {
+export default function read (req: any, res: any, next: any, parse: any, debug: any, options: any) {
   var length
   var opts = options
-  var stream
+  var stream: any;
 
   // flag as parsed
   req._body = true
@@ -50,7 +43,7 @@ export default function read (req, res, next, parse, debug, options) {
     stream = contentstream(req, debug, opts.inflate)
     length = stream.length
     stream.length = undefined
-  } catch (err) {
+  } catch (err: any) {
     return next(err)
   }
 
@@ -72,7 +65,7 @@ export default function read (req, res, next, parse, debug, options) {
   debug('read body')
   getBody(stream, opts, function (error, body) {
     if (error) {
-      var _error
+      var _error: any;
 
       if (error.type === 'encoding.unsupported') {
         // echo back charset
@@ -103,7 +96,7 @@ export default function read (req, res, next, parse, debug, options) {
       try {
         debug('verify body')
         verify(req, res, body, encoding)
-      } catch (err) {
+      } catch (err: any) {
         next(createError(403, err, {
           body: body,
           type: err.type || 'entity.verify.failed'
@@ -120,7 +113,7 @@ export default function read (req, res, next, parse, debug, options) {
         ? iconv.decode(body, encoding)
         : body
       req.body = parse(str)
-    } catch (err) {
+    } catch (err: any) {
       next(createError(400, err, {
         body: str,
         type: err.type || 'entity.parse.failed'
@@ -142,7 +135,7 @@ export default function read (req, res, next, parse, debug, options) {
  * @api private
  */
 
-function contentstream (req, debug, inflate) {
+function contentstream (req: any, debug: any, inflate: any) {
   var encoding = (req.headers['content-encoding'] || 'identity').toLowerCase()
   var length = req.headers['content-length']
   var stream
@@ -189,7 +182,7 @@ function contentstream (req, debug, inflate) {
  * @api private
  */
 
-function dump (req, callback) {
+function dump (req: any, callback: any) {
   if (onFinished.isFinished(req)) {
     callback(null)
   } else {

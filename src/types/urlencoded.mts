@@ -5,13 +5,6 @@
  * MIT Licensed
  */
 
-'use strict'
-
-/**
- * Module dependencies.
- * @private
- */
-
 import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
@@ -38,7 +31,7 @@ var parsers = Object.create(null)
  * @public
  */
 
-export default  function urlencoded (options) {
+export default  function urlencoded (options: any) {
   var opts = options || {}
 
   // notice because option default will flip in next major
@@ -68,13 +61,13 @@ export default  function urlencoded (options) {
     ? typeChecker(type)
     : type
 
-  function parse (body) {
+  function parse (body: any) {
     return body.length
       ? queryparse(body)
       : {}
   }
 
-  return function urlencodedParser (req, res, next) {
+  return function urlencodedParser (req: any, res: any, next: any) {
     if (req._body) {
       debug('body already parsed')
       next()
@@ -90,7 +83,7 @@ export default  function urlencoded (options) {
       return
     }
 
-    debug('content-type %j', req.headers['content-type'])
+    debug(`content-type ${req.headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -127,7 +120,7 @@ export default  function urlencoded (options) {
  * @param {object} options
  */
 
-function extendedparser (options) {
+function extendedparser (options: any) {
   var parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
@@ -141,7 +134,7 @@ function extendedparser (options) {
     parameterLimit = parameterLimit | 0
   }
 
-  return function queryparse (body) {
+  return function queryparse (body: any) {
     var paramCount = parameterCount(body, parameterLimit)
 
     if (paramCount === undefined) {
@@ -170,7 +163,7 @@ function extendedparser (options) {
  * @api private
  */
 
-function getCharset (req) {
+function getCharset (req: any) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase()
   } catch (e) {
@@ -186,7 +179,7 @@ function getCharset (req) {
  * @api private
  */
 
-function parameterCount (body, limit) {
+function parameterCount (body: any, limit: any) {
   var count = 0
   var index = 0
 
@@ -210,7 +203,7 @@ function parameterCount (body, limit) {
  * @api private
  */
 
-function parser (name) {
+function parser (name: string) {
   var mod = parsers[name]
 
   if (mod !== undefined) {
@@ -239,7 +232,7 @@ function parser (name) {
  * @param {object} options
  */
 
-function simpleparser (options) {
+function simpleparser (options: any) {
   var parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
@@ -253,7 +246,7 @@ function simpleparser (options) {
     parameterLimit = parameterLimit | 0
   }
 
-  return function queryparse (body) {
+  return function queryparse (body: any) {
     var paramCount = parameterCount(body, parameterLimit)
 
     if (paramCount === undefined) {
@@ -275,8 +268,8 @@ function simpleparser (options) {
  * @return {function}
  */
 
-function typeChecker (type) {
-  return function checkType (req) {
+function typeChecker (type: any) {
+  return function checkType (req: any) {
     return Boolean(typeis(req, type))
   }
 }

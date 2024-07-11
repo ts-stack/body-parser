@@ -19,9 +19,17 @@
     "unpipe": "1.0.0"
   },
   "devDependencies": {
+    "@types/bytes": "^3.1.4",
+    "@types/content-type": "^1.1.8",
+    "@types/debug": "^4.1.12",
+    "@types/depd": "^1.1.36",
     "@types/eslint": "^8.56.10",
+    "@types/http-errors": "^2.0.4",
     "@types/methods": "^1.1.4",
     "@types/node": "^20.14.10",
+    "@types/on-finished": "^2.3.4",
+    "@types/qs": "^6.9.15",
+    "@types/type-is": "^1.6.6",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
     "eslint": "^9.6.0",
@@ -51,8 +59,9 @@
     "node": ">= 18"
   },
   "scripts": {
+    "build": "tsc -b tsconfig.build.json",
     "lint": "eslint .",
-    "test": "mocha --require test/support/env --reporter spec --check-leaks --bail test/",
+    "test": "npm run build && mocha --require test/support/env --reporter spec --check-leaks --bail test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test"
   }

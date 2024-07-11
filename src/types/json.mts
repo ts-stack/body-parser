@@ -5,13 +5,6 @@
  * MIT Licensed
  */
 
-'use strict'
-
-/**
- * Module dependencies.
- * @private
- */
-
 import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
@@ -45,7 +38,7 @@ var JSON_SYNTAX_REGEXP = /#+/g
  * @public
  */
 
-export default function json (options) {
+export default function json (options: any) {
   var opts = options || {}
 
   var limit = typeof opts.limit !== 'number'
@@ -66,7 +59,7 @@ export default function json (options) {
     ? typeChecker(type)
     : type
 
-  function parse (body) {
+  function parse (body: any) {
     if (body.length === 0) {
       // special-case empty json body, as it's a common client-side mistake
       // TODO: maybe make this configurable or part of "strict" option
@@ -85,7 +78,7 @@ export default function json (options) {
     try {
       debug('parse json')
       return JSON.parse(body, reviver)
-    } catch (e) {
+    } catch (e: any) {
       throw normalizeJsonSyntaxError(e, {
         message: e.message,
         stack: e.stack
@@ -93,7 +86,7 @@ export default function json (options) {
     }
   }
 
-  return function jsonParser (req, res, next) {
+  return function jsonParser (req: any, res: any, next: any) {
     if (req._body) {
       debug('body already parsed')
       next()
@@ -109,7 +102,7 @@ export default function json (options) {
       return
     }
 
-    debug('content-type %j', req.headers['content-type'])
+    debug(`content-type ${req.headers['content-type']}`)
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -148,7 +141,7 @@ export default function json (options) {
  * @private
  */
 
-function createStrictSyntaxError (str, char) {
+function createStrictSyntaxError (str: any, char: any) {
   var index = str.indexOf(char)
   var partial = ''
 
@@ -162,9 +155,9 @@ function createStrictSyntaxError (str, char) {
 
   try {
     JSON.parse(partial); /* istanbul ignore next */ throw new SyntaxError('strict violation')
-  } catch (e) {
+  } catch (e: any) {
     return normalizeJsonSyntaxError(e, {
-      message: e.message.replace(JSON_SYNTAX_REGEXP, function (placeholder) {
+      message: e.message.replace(JSON_SYNTAX_REGEXP, function (placeholder: any) {
         return str.substring(index, index + placeholder.length)
       }),
       stack: e.stack
@@ -180,7 +173,7 @@ function createStrictSyntaxError (str, char) {
  * @private
  */
 
-function firstchar (str) {
+function firstchar (str: any) {
   var match = FIRST_CHAR_REGEXP.exec(str)
 
   return match
@@ -195,7 +188,7 @@ function firstchar (str) {
  * @api private
  */
 
-function getCharset (req) {
+function getCharset (req: any) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase()
   } catch (e) {
@@ -211,7 +204,7 @@ function getCharset (req) {
  * @return {SyntaxError}
  */
 
-function normalizeJsonSyntaxError (error, obj) {
+function normalizeJsonSyntaxError (error: any, obj: any) {
   var keys = Object.getOwnPropertyNames(error)
 
   for (var i = 0; i < keys.length; i++) {
@@ -235,8 +228,8 @@ function normalizeJsonSyntaxError (error, obj) {
  * @return {function}
  */
 
-function typeChecker (type) {
-  return function checkType (req) {
+function typeChecker (type: any) {
+  return function checkType (req: any) {
     return Boolean(typeis(req, type))
   }
 }

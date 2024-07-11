@@ -6,15 +6,15 @@
 
 'use strict'
 
-import json from './src/types/json.mjs';
-import raw from './src/types/raw.mjs';
-import text from './src/types/text.mjs';
-import urlencoded from './src/types/urlencoded.mjs';
+import json from './dist/types/json.mjs';
+import raw from './dist/types/raw.mjs';
+import text from './dist/types/text.mjs';
+import urlencoded from './dist/types/urlencoded.mjs';
 import deprecate from 'depd';
-export * from './src/types/json.mjs';
-export * from './src/types/raw.mjs';
-export * from './src/types/text.mjs';
-export * from './src/types/urlencoded.mjs';
+export * from './dist/types/json.mjs';
+export * from './dist/types/raw.mjs';
+export * from './dist/types/text.mjs';
+export * from './dist/types/urlencoded.mjs';
 
 deprecate('body-parser');
 

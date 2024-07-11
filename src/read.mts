@@ -25,18 +25,18 @@ import zlib from 'zlib';
  */
 
 export default function read (req: any, res: any, next: any, parse: any, debug: any, options: any) {
-  var length
-  var opts = options
-  var stream: any;
+  let length;
+  const opts = options
+  let stream: any;
 
   // flag as parsed
   req._body = true
 
   // read options
-  var encoding = opts.encoding !== null
+  const encoding = opts.encoding !== null
     ? opts.encoding
     : null
-  var verify = opts.verify
+  const verify = opts.verify
 
   try {
     // get the content stream
@@ -65,7 +65,7 @@ export default function read (req: any, res: any, next: any, parse: any, debug: 
   debug('read body')
   getBody(stream, opts, function (error, body) {
     if (error) {
-      var _error: any;
+      let _error: any;
 
       if (error.type === 'encoding.unsupported') {
         // echo back charset
@@ -106,7 +106,7 @@ export default function read (req: any, res: any, next: any, parse: any, debug: 
     }
 
     // parse
-    var str = body
+    let str = body
     try {
       debug('parse body')
       str = typeof body !== 'string' && encoding !== null
@@ -136,9 +136,9 @@ export default function read (req: any, res: any, next: any, parse: any, debug: 
  */
 
 function contentstream (req: any, debug: any, inflate: any) {
-  var encoding = (req.headers['content-encoding'] || 'identity').toLowerCase()
-  var length = req.headers['content-length']
-  var stream
+  const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase()
+  const length = req.headers['content-length']
+  let stream: any;
 
   debug('content-encoding "%s"', encoding)
 

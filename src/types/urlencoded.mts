@@ -21,7 +21,7 @@ import querystring from 'node:querystring';
  * Cache of parser modules.
  */
 
-var parsers = Object.create(null)
+const parsers = Object.create(null)
 
 /**
  * Create a middleware to parse urlencoded bodies.
@@ -32,32 +32,32 @@ var parsers = Object.create(null)
  */
 
 export default  function urlencoded (options: any) {
-  var opts = options || {}
+  const opts = options || {}
 
   // notice because option default will flip in next major
   if (opts.extended === undefined) {
     deprecate('undefined extended: provide extended option')
   }
 
-  var extended = opts.extended !== false
-  var inflate = opts.inflate !== false
-  var limit = typeof opts.limit !== 'number'
+  const extended = opts.extended !== false
+  const inflate = opts.inflate !== false
+  const limit = typeof opts.limit !== 'number'
     ? bytes.parse(opts.limit || '100kb')
     : opts.limit
-  var type = opts.type || 'application/x-www-form-urlencoded'
-  var verify = opts.verify || false
+  const type = opts.type || 'application/x-www-form-urlencoded'
+  const verify = opts.verify || false
 
   if (verify !== false && typeof verify !== 'function') {
     throw new TypeError('option verify must be function')
   }
 
   // create the appropriate query parser
-  var queryparse = extended
+  const queryparse = extended
     ? extendedparser(opts)
     : simpleparser(opts)
 
   // create the appropriate type checking function
-  var shouldParse = typeof type !== 'function'
+  const shouldParse = typeof type !== 'function'
     ? typeChecker(type)
     : type
 
@@ -93,7 +93,7 @@ export default  function urlencoded (options: any) {
     }
 
     // assert charset
-    var charset = getCharset(req) || 'utf-8'
+    const charset = getCharset(req) || 'utf-8'
     if (charset !== 'utf-8') {
       debug('invalid charset')
       next(createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
@@ -121,10 +121,10 @@ export default  function urlencoded (options: any) {
  */
 
 function extendedparser (options: any) {
-  var parameterLimit = options.parameterLimit !== undefined
+  let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
-  var parse = parser('qs')
+  const parse = parser('qs')
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
     throw new TypeError('option parameterLimit must be a positive number')
@@ -135,7 +135,7 @@ function extendedparser (options: any) {
   }
 
   return function queryparse (body: any) {
-    var paramCount = parameterCount(body, parameterLimit)
+    const paramCount = parameterCount(body, parameterLimit)
 
     if (paramCount === undefined) {
       debug('too many parameters')
@@ -144,7 +144,7 @@ function extendedparser (options: any) {
       })
     }
 
-    var arrayLimit = Math.max(100, paramCount)
+    const arrayLimit = Math.max(100, paramCount)
 
     debug('parse extended urlencoding')
     return parse(body, {
@@ -180,8 +180,8 @@ function getCharset (req: any) {
  */
 
 function parameterCount (body: any, limit: any) {
-  var count = 0
-  var index = 0
+  let count = 0
+  let index = 0
 
   while ((index = body.indexOf('&', index)) !== -1) {
     count++
@@ -204,7 +204,7 @@ function parameterCount (body: any, limit: any) {
  */
 
 function parser (name: string) {
-  var mod = parsers[name]
+  let mod = parsers[name]
 
   if (mod !== undefined) {
     return mod.parse
@@ -233,10 +233,10 @@ function parser (name: string) {
  */
 
 function simpleparser (options: any) {
-  var parameterLimit = options.parameterLimit !== undefined
+  let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
-  var parse = parser('querystring')
+  const parse = parser('querystring')
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
     throw new TypeError('option parameterLimit must be a positive number')
@@ -247,7 +247,7 @@ function simpleparser (options: any) {
   }
 
   return function queryparse (body: any) {
-    var paramCount = parameterCount(body, parameterLimit)
+    const paramCount = parameterCount(body, parameterLimit)
 
     if (paramCount === undefined) {
       debug('too many parameters')

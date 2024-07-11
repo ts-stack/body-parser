@@ -25,10 +25,10 @@ import typeis from 'type-is';
  *            %x0D )              ; Carriage return
  */
 
-var FIRST_CHAR_REGEXP = /^[\x20\x09\x0a\x0d]*([^\x20\x09\x0a\x0d])/ // eslint-disable-line no-control-regex
+const FIRST_CHAR_REGEXP = /^[\x20\x09\x0a\x0d]*([^\x20\x09\x0a\x0d])/ // eslint-disable-line no-control-regex
 
-var JSON_SYNTAX_CHAR = '#'
-var JSON_SYNTAX_REGEXP = /#+/g
+const JSON_SYNTAX_CHAR = '#'
+const JSON_SYNTAX_REGEXP = /#+/g
 
 /**
  * Create a middleware to parse JSON bodies.
@@ -39,23 +39,23 @@ var JSON_SYNTAX_REGEXP = /#+/g
  */
 
 export default function json (options: any) {
-  var opts = options || {}
+  const opts = options || {}
 
-  var limit = typeof opts.limit !== 'number'
+  const limit = typeof opts.limit !== 'number'
     ? bytes.parse(opts.limit || '100kb')
     : opts.limit
-  var inflate = opts.inflate !== false
-  var reviver = opts.reviver
-  var strict = opts.strict !== false
-  var type = opts.type || 'application/json'
-  var verify = opts.verify || false
+  const inflate = opts.inflate !== false
+  const reviver = opts.reviver
+  const strict = opts.strict !== false
+  const type = opts.type || 'application/json'
+  const verify = opts.verify || false
 
   if (verify !== false && typeof verify !== 'function') {
     throw new TypeError('option verify must be function')
   }
 
   // create the appropriate type checking function
-  var shouldParse = typeof type !== 'function'
+  const shouldParse = typeof type !== 'function'
     ? typeChecker(type)
     : type
 
@@ -67,7 +67,7 @@ export default function json (options: any) {
     }
 
     if (strict) {
-      var first = firstchar(body)
+      const first = firstchar(body)
 
       if (first !== '{' && first !== '[') {
         debug('strict violation')
@@ -112,7 +112,7 @@ export default function json (options: any) {
     }
 
     // assert charset per RFC 7159 sec 8.1
-    var charset = getCharset(req) || 'utf-8'
+    const charset = getCharset(req) || 'utf-8'
     if (charset.slice(0, 4) !== 'utf-') {
       debug('invalid charset')
       next(createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
@@ -142,13 +142,13 @@ export default function json (options: any) {
  */
 
 function createStrictSyntaxError (str: any, char: any) {
-  var index = str.indexOf(char)
-  var partial = ''
+  const index = str.indexOf(char)
+  let partial = ''
 
   if (index !== -1) {
     partial = str.substring(0, index) + JSON_SYNTAX_CHAR
 
-    for (var i = index + 1; i < str.length; i++) {
+    for (let i = index + 1; i < str.length; i++) {
       partial += JSON_SYNTAX_CHAR
     }
   }
@@ -174,7 +174,7 @@ function createStrictSyntaxError (str: any, char: any) {
  */
 
 function firstchar (str: any) {
-  var match = FIRST_CHAR_REGEXP.exec(str)
+  const match = FIRST_CHAR_REGEXP.exec(str)
 
   return match
     ? match[1]
@@ -205,10 +205,10 @@ function getCharset (req: any) {
  */
 
 function normalizeJsonSyntaxError (error: any, obj: any) {
-  var keys = Object.getOwnPropertyNames(error)
+  const keys = Object.getOwnPropertyNames(error)
 
-  for (var i = 0; i < keys.length; i++) {
-    var key = keys[i]
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
     if (key !== 'stack' && key !== 'message') {
       delete error[key]
     }

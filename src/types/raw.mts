@@ -19,21 +19,21 @@ import typeis from 'type-is';
  */
 
 export default function raw (options: any) {
-  var opts = options || {}
+  const opts = options || {}
 
-  var inflate = opts.inflate !== false
-  var limit = typeof opts.limit !== 'number'
+  const inflate = opts.inflate !== false
+  const limit = typeof opts.limit !== 'number'
     ? bytes.parse(opts.limit || '100kb')
     : opts.limit
-  var type = opts.type || 'application/octet-stream'
-  var verify = opts.verify || false
+  const type = opts.type || 'application/octet-stream'
+  const verify = opts.verify || false
 
   if (verify !== false && typeof verify !== 'function') {
     throw new TypeError('option verify must be function')
   }
 
   // create the appropriate type checking function
-  var shouldParse = typeof type !== 'function'
+  const shouldParse = typeof type !== 'function'
     ? typeChecker(type)
     : type
 

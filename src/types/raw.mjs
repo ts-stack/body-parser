@@ -10,16 +10,11 @@
  * Module dependencies.
  */
 
-var bytes = require('bytes')
-var debug = require('debug')('body-parser:raw')
-var read = require('../read')
-var typeis = require('type-is')
-
-/**
- * Module exports.
- */
-
-module.exports = raw
+import bytes from 'bytes';
+import debug from 'debug';
+debug('body-parser:raw');
+import read from '../read.mjs';
+import typeis from 'type-is';
 
 /**
  * Create a middleware to parse raw bodies.
@@ -29,7 +24,7 @@ module.exports = raw
  * @api public
  */
 
-function raw (options) {
+export default function raw (options) {
   var opts = options || {}
 
   var inflate = opts.inflate !== false

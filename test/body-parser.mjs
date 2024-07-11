@@ -1,9 +1,9 @@
 
-var http = require('http')
-var methods = require('methods')
-var request = require('supertest')
+import http from 'node:http';
+import methods from 'methods';
+import request from 'supertest';
 
-var bodyParser = require('..')
+import bodyParser from '../index.mjs';
 
 describe('bodyParser()', function () {
   before(function () {

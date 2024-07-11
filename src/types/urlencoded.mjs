@@ -12,19 +12,17 @@
  * @private
  */
 
-var bytes = require('bytes')
-var contentType = require('content-type')
-var createError = require('http-errors')
-var debug = require('debug')('body-parser:urlencoded')
-var deprecate = require('depd')('body-parser')
-var read = require('../read')
-var typeis = require('type-is')
-
-/**
- * Module exports.
- */
-
-module.exports = urlencoded
+import bytes from 'bytes';
+import contentType from 'content-type';
+import createError from 'http-errors';
+import debug from 'debug';
+debug('body-parser:urlencoded');
+import deprecate from 'depd';
+deprecate('body-parser');
+import read from '../read.mjs';
+import typeis from 'type-is';
+import qs from 'qs';
+import querystring from 'node:querystring';
 
 /**
  * Cache of parser modules.
@@ -40,7 +38,7 @@ var parsers = Object.create(null)
  * @public
  */
 
-function urlencoded (options) {
+export default  function urlencoded (options) {
   var opts = options || {}
 
   // notice because option default will flip in next major
@@ -222,10 +220,10 @@ function parser (name) {
   // this uses a switch for static require analysis
   switch (name) {
     case 'qs':
-      mod = require('qs')
+      mod = qs;
       break
     case 'querystring':
-      mod = require('querystring')
+      mod = querystring;
       break
   }
 

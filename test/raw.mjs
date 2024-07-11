@@ -1,11 +1,11 @@
 
-var assert = require('assert')
-var asyncHooks = tryRequire('async_hooks')
-var Buffer = require('safe-buffer').Buffer
-var http = require('http')
-var request = require('supertest')
+import assert from 'node:assert';
+import asyncHooks from 'node:async_hooks';
+import http from 'node:http';
+import { Buffer } from 'safe-buffer';
+import request from 'supertest';
 
-var bodyParser = require('..')
+import bodyParser from '../index.mjs';
 
 var describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function'
   ? describe
@@ -493,12 +493,4 @@ function createServer (opts) {
       res.end(JSON.stringify(req.body))
     })
   })
-}
-
-function tryRequire (name) {
-  try {
-    return require(name)
-  } catch (e) {
-    return {}
-  }
 }

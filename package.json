@@ -20,6 +20,7 @@
   },
   "devDependencies": {
     "@types/eslint": "^8.56.10",
+    "@types/methods": "^1.1.4",
     "@types/node": "^20.14.10",
     "@typescript-eslint/eslint-plugin": "^7.16.0",
     "@typescript-eslint/parser": "^7.16.0",
@@ -47,8 +48,7 @@
     "index.js"
   ],
   "engines": {
-    "node": ">= 0.8",
-    "npm": "1.2.8000 || >= 1.4.16"
+    "node": ">= 18"
   },
   "scripts": {
     "lint": "eslint .",

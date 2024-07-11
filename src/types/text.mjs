@@ -10,17 +10,12 @@
  * Module dependencies.
  */
 
-var bytes = require('bytes')
-var contentType = require('content-type')
-var debug = require('debug')('body-parser:text')
-var read = require('../read')
-var typeis = require('type-is')
-
-/**
- * Module exports.
- */
-
-module.exports = text
+import bytes from 'bytes';
+import contentType from 'content-type';
+import debug from 'debug';
+debug('body-parser:text');
+import read from '../read.mjs';
+import typeis from 'type-is';
 
 /**
  * Create a middleware to parse text bodies.
@@ -30,7 +25,7 @@ module.exports = text
  * @api public
  */
 
-function text (options) {
+export default function text (options) {
   var opts = options || {}
 
   var defaultCharset = opts.defaultCharset || 'utf-8'

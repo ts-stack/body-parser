@@ -11,19 +11,13 @@
  * @private
  */
 
-var createError = require('http-errors')
-var destroy = require('destroy')
-var getBody = require('raw-body')
-var iconv = require('iconv-lite')
-var onFinished = require('on-finished')
-var unpipe = require('unpipe')
-var zlib = require('zlib')
-
-/**
- * Module exports.
- */
-
-module.exports = read
+import createError from 'http-errors';
+import destroy from 'destroy';
+import getBody from 'raw-body';
+import iconv from 'iconv-lite';
+import onFinished from 'on-finished';
+import unpipe from 'unpipe';
+import zlib from 'zlib';
 
 /**
  * Read a request into a buffer and parse.
@@ -37,7 +31,7 @@ module.exports = read
  * @private
  */
 
-function read (req, res, next, parse, debug, options) {
+export default function read (req, res, next, parse, debug, options) {
   var length
   var opts = options
   var stream

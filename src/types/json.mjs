@@ -12,18 +12,13 @@
  * @private
  */
 
-var bytes = require('bytes')
-var contentType = require('content-type')
-var createError = require('http-errors')
-var debug = require('debug')('body-parser:json')
-var read = require('../read')
-var typeis = require('type-is')
-
-/**
- * Module exports.
- */
-
-module.exports = json
+import bytes from 'bytes';
+import contentType from 'content-type';
+import createError from 'http-errors';
+import debug from 'debug';
+debug('body-parser:json');
+import read from '../read.mjs';
+import typeis from 'type-is';
 
 /**
  * RegExp to match the first non-space in a string.
@@ -50,7 +45,7 @@ var JSON_SYNTAX_REGEXP = /#+/g
  * @public
  */
 
-function json (options) {
+export default function json (options) {
   var opts = options || {}
 
   var limit = typeof opts.limit !== 'number'

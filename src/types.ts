@@ -1,5 +1,8 @@
 import type { IncomingMessage, ServerResponse } from 'http';
 
+export type Req = IncomingMessage & { _body?: boolean, body?: any };
+export type NextFn = (err?: Error) => void;
+
 export interface BaseOptions {
   /**
    * When set to `true`, then deflated (compressed) bodies will be inflated;

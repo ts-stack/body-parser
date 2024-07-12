@@ -7,9 +7,10 @@
 import bytes from 'bytes';
 import debug from 'debug';
 import typeis from 'type-is';
+import { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import type { RawOptions } from '../types.js';
+import type { NextFn, RawOptions, Req } from '../types.js';
 
 debug('body-parser:raw');
 
@@ -41,7 +42,7 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return function rawParser(req: any, res: any, next: any) {
+  return function rawParser(req: Req, res: ServerResponse, next: NextFn) {
     if (req._body) {
       debug('body already parsed');
       next();
@@ -84,7 +85,7 @@ export function raw(options: RawOptions) {
  */
 
 function typeChecker(type: any) {
-  return function checkType(req: any) {
+  return function checkType(req: Req) {
     return Boolean(typeis(req, type));
   };
 }

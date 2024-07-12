@@ -9,9 +9,11 @@ import getBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'zlib';
+import type { ServerResponse } from 'http';
 
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
+import { NextFn, Req } from './types.js';
 
 /**
  * Read a request into a buffer and parse.
@@ -25,7 +27,7 @@ import unpipe from './unpipe.mjs';
  * @private
  */
 
-export default function read(req: any, res: any, next: any, parse: any, debug: any, options: any) {
+export default function read(req: Req, res: ServerResponse, next: NextFn, parse: any, debug: any, options: any) {
   let length;
   const opts = options;
   let stream: any;
@@ -136,7 +138,7 @@ export default function read(req: any, res: any, next: any, parse: any, debug: a
  * @api private
  */
 
-function contentstream(req: any, debug: any, inflate: any) {
+function contentstream(req: Req, debug: any, inflate: any) {
   const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
   const length = req.headers['content-length'];
   let stream: any;
@@ -183,7 +185,7 @@ function contentstream(req: any, debug: any, inflate: any) {
  * @api private
  */
 
-function dump(req: any, callback: any) {
+function dump(req: Req, callback: any) {
   if (onFinished.isFinished(req)) {
     callback(null);
   } else {

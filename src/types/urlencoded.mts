@@ -13,9 +13,10 @@ import deprecate from 'depd';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
+import { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import { UrlencodedOptions } from '../types.js';
+import { NextFn, Req, UrlencodedOptions } from '../types.js';
 
 debug('body-parser:urlencoded');
 deprecate('body-parser');
@@ -65,7 +66,7 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return function urlencodedParser(req: any, res: any, next: any) {
+  return function urlencodedParser(req: Req, res: ServerResponse, next: NextFn) {
     if (req._body) {
       debug('body already parsed');
       next();
@@ -158,7 +159,7 @@ function extendedparser(options: UrlencodedOptions) {
  * @api private
  */
 
-function getCharset(req: any) {
+function getCharset(req: Req) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
   } catch (e) {
@@ -259,7 +260,7 @@ function simpleparser(options: UrlencodedOptions) {
  */
 
 function typeChecker(type: any) {
-  return function checkType(req: any) {
+  return function checkType(req: Req) {
     return Boolean(typeis(req, type));
   };
 }

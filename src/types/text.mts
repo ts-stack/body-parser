@@ -8,9 +8,10 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import debug from 'debug';
 import typeis from 'type-is';
+import { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import { TextOptions } from '../types.js';
+import { NextFn, Req, TextOptions } from '../types.js';
 
 debug('body-parser:text');
 
@@ -43,7 +44,7 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return function textParser(req: any, res: any, next: any) {
+  return function textParser(req: Req, res: ServerResponse, next: NextFn) {
     if (req._body) {
       debug('body already parsed');
       next();
@@ -88,7 +89,7 @@ export function text(options: TextOptions) {
  * @api private
  */
 
-function getCharset(req: any) {
+function getCharset(req: Req) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
   } catch (e) {
@@ -104,7 +105,7 @@ function getCharset(req: any) {
  */
 
 function typeChecker(type: any) {
-  return function checkType(req: any) {
+  return function checkType(req: Req) {
     return Boolean(typeis(req, type));
   };
 }

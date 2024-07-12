@@ -13,7 +13,7 @@ import typeis from 'type-is';
 import type { IncomingMessage, ServerResponse } from 'http';
 
 import read from '../read.mjs';
-import type { JsonOptions } from '../types.js';
+import type { JsonOptions, NextFn, Req } from '../types.js';
 
 debug('body-parser:json');
 
@@ -53,12 +53,12 @@ export function json(options: JsonOptions) {
   const type = opts.type || 'application/json';
   const verify = opts.verify || false;
 
-  if (verify !== false && typeof verify !== 'function') {
+  if (verify !== false && typeof verify != 'function') {
     throw new TypeError('option verify must be function');
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
   function parse(body: string) {
     if (body.length === 0) {
@@ -87,7 +87,7 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return function jsonParser(req: any, res: any, next: any) {
+  return function jsonParser(req: Req, res: ServerResponse, next: NextFn) {
     if (req._body) {
       debug('body already parsed');
       next();
@@ -215,7 +215,7 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
  */
 
 function typeChecker(type: any) {
-  return function checkType(req: any) {
+  return function checkType(req: Req) {
     return Boolean(typeis(req, type));
   };
 }

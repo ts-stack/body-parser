@@ -13,7 +13,7 @@ import deprecate from 'depd';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
-import { ServerResponse } from 'node:http';
+import type { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
 import { NextFn, Req, UrlencodedOptions } from '../types.js';

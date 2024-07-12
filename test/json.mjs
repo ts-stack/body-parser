@@ -703,7 +703,7 @@ describe('json()', function () {
 });
 
 function createServer(opts) {
-  const _bodyParser = typeof opts !== 'function' ? json(opts) : opts;
+  const _bodyParser = typeof opts != 'function' ? json(opts) : opts;
 
   return http.createServer(function (req, res) {
     _bodyParser(req, res, function (err) {

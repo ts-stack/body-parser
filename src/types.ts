@@ -1,4 +1,4 @@
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 export type Req = IncomingMessage & { _body?: boolean, body?: any };
 export type NextFn = (err?: Error) => void;

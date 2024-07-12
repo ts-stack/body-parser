@@ -7,7 +7,7 @@
 import bytes from 'bytes';
 import debug from 'debug';
 import typeis from 'type-is';
-import { ServerResponse } from 'node:http';
+import type { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
 import type { NextFn, RawOptions, Req } from '../types.js';

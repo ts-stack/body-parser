@@ -9,7 +9,7 @@ import getBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'zlib';
-import type { ServerResponse } from 'http';
+import type { ServerResponse } from 'node:http';
 
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';

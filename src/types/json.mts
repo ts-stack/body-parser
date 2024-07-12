@@ -10,7 +10,7 @@ import contentType from 'content-type';
 import createError from 'http-errors';
 import debug from 'debug';
 import typeis from 'type-is';
-import type { IncomingMessage, ServerResponse } from 'http';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
 import type { JsonOptions, NextFn, Req } from '../types.js';

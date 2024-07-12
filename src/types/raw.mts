@@ -6,64 +6,58 @@
 
 import bytes from 'bytes';
 import debug from 'debug';
-debug('body-parser:raw');
-import read from '../read.mjs';
 import typeis from 'type-is';
+
+import read from '../read.mjs';
+import type { Options } from '../types.js';
+
+debug('body-parser:raw');
 
 /**
  * Create a middleware to parse raw bodies.
- *
- * @param {object} [options]
- * @return {function}
- * @api public
  */
+export default function raw(options: Options) {
+  const opts = options || {};
 
-export default function raw (options: any) {
-  const opts = options || {}
-
-  const inflate = opts.inflate !== false
-  const limit = typeof opts.limit !== 'number'
-    ? bytes.parse(opts.limit || '100kb')
-    : opts.limit
-  const type = opts.type || 'application/octet-stream'
-  const verify = opts.verify || false
+  const inflate = opts.inflate !== false;
+  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const type = opts.type || 'application/octet-stream';
+  const verify = opts.verify || false;
 
   if (verify !== false && typeof verify !== 'function') {
-    throw new TypeError('option verify must be function')
+    throw new TypeError('option verify must be function');
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function'
-    ? typeChecker(type)
-    : type
+  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
 
-  function parse (buf: any) {
-    return buf
+  function parse(buf: any) {
+    return buf;
   }
 
-  return function rawParser (req: any, res: any, next: any) {
+  return function rawParser(req: any, res: any, next: any) {
     if (req._body) {
-      debug('body already parsed')
-      next()
-      return
+      debug('body already parsed');
+      next();
+      return;
     }
 
-    req.body = req.body || {}
+    req.body = req.body || {};
 
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
-      debug('skip empty body')
-      next()
-      return
+      debug('skip empty body');
+      next();
+      return;
     }
 
-    debug(`content-type ${req.headers['content-type']}`)
+    debug(`content-type ${req.headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
-      debug('skip parsing')
-      next()
-      return
+      debug('skip parsing');
+      next();
+      return;
     }
 
     // read
@@ -71,9 +65,9 @@ export default function raw (options: any) {
       encoding: null,
       inflate: inflate,
       limit: limit,
-      verify: verify
-    })
-  }
+      verify: verify,
+    });
+  };
 }
 
 /**
@@ -83,8 +77,8 @@ export default function raw (options: any) {
  * @return {function}
  */
 
-function typeChecker (type: any) {
-  return function checkType (req: any) {
-    return Boolean(typeis(req, type))
-  }
+function typeChecker(type: any) {
+  return function checkType(req: any) {
+    return Boolean(typeis(req, type));
+  };
 }

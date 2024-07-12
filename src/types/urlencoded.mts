@@ -9,13 +9,16 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
 import debug from 'debug';
-debug('body-parser:urlencoded');
 import deprecate from 'depd';
-deprecate('body-parser');
-import read from '../read.mjs';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
+
+import read from '../read.mjs';
+import { OptionsUrlencoded } from '../types.js';
+
+debug('body-parser:urlencoded');
+deprecate('body-parser');
 
 /**
  * Cache of parser modules.
@@ -25,13 +28,8 @@ const parsers = Object.create(null)
 
 /**
  * Create a middleware to parse urlencoded bodies.
- *
- * @param {object} [options]
- * @return {function}
- * @public
  */
-
-export default  function urlencoded (options: any) {
+export default  function urlencoded (options: OptionsUrlencoded) {
   const opts = options || {}
 
   // notice because option default will flip in next major
@@ -116,11 +114,8 @@ export default  function urlencoded (options: any) {
 
 /**
  * Get the extended query parser.
- *
- * @param {object} options
  */
-
-function extendedparser (options: any) {
+function extendedparser (options: OptionsUrlencoded) {
   let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
@@ -228,11 +223,8 @@ function parser (name: string) {
 
 /**
  * Get the simple query parser.
- *
- * @param {object} options
  */
-
-function simpleparser (options: any) {
+function simpleparser (options: OptionsUrlencoded) {
   let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000

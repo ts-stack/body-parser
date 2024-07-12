@@ -9,9 +9,12 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
 import debug from 'debug';
-debug('body-parser:json');
-import read from '../read.mjs';
 import typeis from 'type-is';
+
+import read from '../read.mjs';
+import type { OptionsJson } from '../types.js';
+
+debug('body-parser:json');
 
 /**
  * RegExp to match the first non-space in a string.
@@ -32,13 +35,9 @@ const JSON_SYNTAX_REGEXP = /#+/g
 
 /**
  * Create a middleware to parse JSON bodies.
- *
- * @param {object} [options]
- * @return {function}
- * @public
  */
 
-export default function json (options: any) {
+export default function json (options: OptionsJson) {
   const opts = options || {}
 
   const limit = typeof opts.limit !== 'number'
@@ -198,12 +197,7 @@ function getCharset (req: any) {
 
 /**
  * Normalize a SyntaxError for JSON.parse.
- *
- * @param {SyntaxError} error
- * @param {object} obj
- * @return {SyntaxError}
  */
-
 function normalizeJsonSyntaxError (error: any, obj: any) {
   const keys = Object.getOwnPropertyNames(error)
 

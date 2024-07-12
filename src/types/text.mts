@@ -7,19 +7,18 @@
 import bytes from 'bytes';
 import contentType from 'content-type';
 import debug from 'debug';
-debug('body-parser:text');
-import read from '../read.mjs';
 import typeis from 'type-is';
+
+import read from '../read.mjs';
+import { OptionsText } from '../types.js';
+
+debug('body-parser:text');
 
 /**
  * Create a middleware to parse text bodies.
- *
- * @param {object} [options]
- * @return {function}
- * @api public
  */
 
-export default function text(options: any) {
+export default function text(options: OptionsText) {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';

@@ -16,7 +16,7 @@ debug('body-parser:raw');
 /**
  * Create a middleware to parse raw bodies.
  */
-export default function raw(options: Options) {
+export function raw(options: Options) {
   const opts = options || {};
 
   const inflate = opts.inflate !== false;

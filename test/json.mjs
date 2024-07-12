@@ -4,11 +4,11 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import bodyParser from '../dist/index.mjs';
+import { json } from '../dist/index.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
 
-describe('bodyParser.json()', function () {
+describe('json()', function () {
   it('should parse JSON', function (done) {
     request(createServer())
       .post('/')
@@ -50,7 +50,7 @@ describe('bodyParser.json()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const jsonParser = bodyParser.json();
+    const jsonParser = json();
     const server = createServer(function (req, res, next) {
       req.headers['content-length'] = '20'; // bad length
       jsonParser(req, res, next);
@@ -64,7 +64,7 @@ describe('bodyParser.json()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const jsonParser = bodyParser.json();
+    const jsonParser = json();
     const server = createServer(function (req, res, next) {
       req.on('end', function () {
         jsonParser(req, res, next);
@@ -80,7 +80,7 @@ describe('bodyParser.json()', function () {
   });
 
   it('should handle duplicated middleware', function (done) {
-    const jsonParser = bodyParser.json();
+    const jsonParser = json();
     const server = createServer(function (req, res, next) {
       jsonParser(req, res, function (err) {
         if (err) return next(err);
@@ -503,7 +503,7 @@ describe('bodyParser.json()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const jsonParser = bodyParser.json();
+      const jsonParser = json();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req, res, next) {
@@ -703,7 +703,7 @@ describe('bodyParser.json()', function () {
 });
 
 function createServer(opts) {
-  const _bodyParser = typeof opts !== 'function' ? bodyParser.json(opts) : opts;
+  const _bodyParser = typeof opts !== 'function' ? json(opts) : opts;
 
   return http.createServer(function (req, res) {
     _bodyParser(req, res, function (err) {

@@ -18,7 +18,7 @@ debug('body-parser:text');
  * Create a middleware to parse text bodies.
  */
 
-export default function text(options: OptionsText) {
+export function text(options: OptionsText) {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';

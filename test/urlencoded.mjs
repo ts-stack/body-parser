@@ -4,11 +4,11 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import bodyParser from '../dist/index.mjs';
+import { urlencoded } from '../dist/index.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
 
-describe('bodyParser.urlencoded()', function () {
+describe('urlencoded()', function () {
   before(function () {
     this.server = createServer();
   });
@@ -22,7 +22,7 @@ describe('bodyParser.urlencoded()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const urlencodedParser = bodyParser.urlencoded();
+    const urlencodedParser = urlencoded();
     const server = createServer(function (req, res, next) {
       req.headers['content-length'] = '20'; // bad length
       urlencodedParser(req, res, next);
@@ -54,7 +54,7 @@ describe('bodyParser.urlencoded()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const urlencodedParser = bodyParser.urlencoded();
+    const urlencodedParser = urlencoded();
     const server = createServer(function (req, res, next) {
       req.on('end', function () {
         urlencodedParser(req, res, next);
@@ -70,7 +70,7 @@ describe('bodyParser.urlencoded()', function () {
   });
 
   it('should handle duplicated middleware', function (done) {
-    const urlencodedParser = bodyParser.urlencoded();
+    const urlencodedParser = urlencoded();
     const server = createServer(function (req, res, next) {
       urlencodedParser(req, res, function (err) {
         if (err) return next(err);
@@ -621,7 +621,7 @@ describe('bodyParser.urlencoded()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const urlencodedParser = bodyParser.urlencoded();
+      const urlencodedParser = urlencoded();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req, res, next) {
@@ -802,7 +802,7 @@ function createManyParams(count) {
 }
 
 function createServer(opts) {
-  const _bodyParser = typeof opts !== 'function' ? bodyParser.urlencoded(opts) : opts;
+  const _bodyParser = typeof opts !== 'function' ? urlencoded(opts) : opts;
 
   return http.createServer(function (req, res) {
     _bodyParser(req, res, function (err) {

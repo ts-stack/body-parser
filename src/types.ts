@@ -1,31 +1,5 @@
 import * as http from 'http';
 
-type NextHandleFunction = () => any;
-
-export interface BodyParser {
-  /**
-   * Returns middleware that only parses json and only looks at requests
-   * where the Content-Type header matches the type option.
-   */
-  json(options?: OptionsJson): NextHandleFunction;
-  /**
-   * Returns middleware that parses all bodies as a Buffer and only looks at requests
-   * where the Content-Type header matches the type option.
-   */
-  raw(options?: Options): NextHandleFunction;
-
-  /**
-   * Returns middleware that parses all bodies as a string and only looks at requests
-   * where the Content-Type header matches the type option.
-   */
-  text(options?: OptionsText): NextHandleFunction;
-  /**
-   * Returns middleware that only parses urlencoded bodies and only looks at requests
-   * where the Content-Type header matches the type option
-   */
-  urlencoded(options?: OptionsUrlencoded): NextHandleFunction;
-}
-
 export interface Options {
   /** When set to true, then deflated (compressed) bodies will be inflated; when false, deflated bodies are rejected. Defaults to true. */
   inflate?: boolean | undefined;

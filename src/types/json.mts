@@ -37,7 +37,7 @@ const JSON_SYNTAX_REGEXP = /#+/g
  * Create a middleware to parse JSON bodies.
  */
 
-export default function json (options: OptionsJson) {
+export function json (options: OptionsJson) {
   const opts = options || {}
 
   const limit = typeof opts.limit !== 'number'

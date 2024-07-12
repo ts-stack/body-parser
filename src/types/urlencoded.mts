@@ -29,7 +29,7 @@ const parsers = Object.create(null)
 /**
  * Create a middleware to parse urlencoded bodies.
  */
-export default  function urlencoded (options: OptionsUrlencoded) {
+export function urlencoded (options: OptionsUrlencoded) {
   const opts = options || {}
 
   // notice because option default will flip in next major

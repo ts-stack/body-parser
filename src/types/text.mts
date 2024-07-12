@@ -15,9 +15,14 @@ import { TextOptions } from '../types.js';
 debug('body-parser:text');
 
 /**
- * Create a middleware to parse text bodies.
+ * Returns middleware that parses all bodies as a string and only looks at
+ * requests where the `Content-Type` header matches the `type` option. This
+ * parser supports automatic inflation of `gzip` and `deflate` encodings.
+ * 
+ * A new `body` string containing the parsed data is populated on the `request`
+ * object after the middleware (i.e. `req.body`). This will be a string of the
+ * body.
  */
-
 export function text(options: TextOptions) {
   const opts = options || {};
 

@@ -14,7 +14,13 @@ import type { RawOptions } from '../types.js';
 debug('body-parser:raw');
 
 /**
- * Create a middleware to parse raw bodies.
+ * Returns middleware that parses all bodies as a `Buffer` and only looks at
+ * requests where the `Content-Type` header matches the `type` option. This
+ * parser supports automatic inflation of `gzip` and `deflate` encodings.
+ *
+ * A new `body` object containing the parsed data is populated on the `request`
+ * object after the middleware (i.e. `req.body`). This will be a `Buffer` object
+ * of the body.
  */
 export function raw(options: RawOptions) {
   const opts = options || {};

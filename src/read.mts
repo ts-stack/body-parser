@@ -5,12 +5,13 @@
  */
 
 import createError from 'http-errors';
-import destroy from 'destroy';
 import getBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
-import unpipe from 'unpipe';
 import zlib from 'zlib';
+
+import destroy from './destroy.mjs';
+import unpipe from './unpipe.mjs';
 
 /**
  * Read a request into a buffer and parse.

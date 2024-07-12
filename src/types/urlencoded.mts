@@ -24,81 +24,75 @@ deprecate('body-parser');
  * Cache of parser modules.
  */
 
-const parsers = Object.create(null)
+const parsers = Object.create(null);
 
 /**
  * Create a middleware to parse urlencoded bodies.
  */
-export function urlencoded (options: UrlencodedOptions) {
-  const opts = options || {}
+export function urlencoded(options: UrlencodedOptions) {
+  const opts = options || {};
 
   // notice because option default will flip in next major
   if (opts.extended === undefined) {
-    deprecate('undefined extended: provide extended option')
+    deprecate('undefined extended: provide extended option');
   }
 
-  const extended = opts.extended !== false
-  const inflate = opts.inflate !== false
-  const limit = typeof opts.limit !== 'number'
-    ? bytes.parse(opts.limit || '100kb')
-    : opts.limit
-  const type = opts.type || 'application/x-www-form-urlencoded'
-  const verify = opts.verify || false
+  const extended = opts.extended !== false;
+  const inflate = opts.inflate !== false;
+  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const type = opts.type || 'application/x-www-form-urlencoded';
+  const verify = opts.verify || false;
 
   if (verify !== false && typeof verify !== 'function') {
-    throw new TypeError('option verify must be function')
+    throw new TypeError('option verify must be function');
   }
 
   // create the appropriate query parser
-  const queryparse = extended
-    ? extendedparser(opts)
-    : simpleparser(opts)
+  const queryparse = extended ? extendedparser(opts) : simpleparser(opts);
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function'
-    ? typeChecker(type)
-    : type
+  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
 
-  function parse (body: any) {
-    return body.length
-      ? queryparse(body)
-      : {}
+  function parse(body: any) {
+    return body.length ? queryparse(body) : {};
   }
 
-  return function urlencodedParser (req: any, res: any, next: any) {
+  return function urlencodedParser(req: any, res: any, next: any) {
     if (req._body) {
-      debug('body already parsed')
-      next()
-      return
+      debug('body already parsed');
+      next();
+      return;
     }
 
-    req.body = req.body || {}
+    req.body = req.body || {};
 
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
-      debug('skip empty body')
-      next()
-      return
+      debug('skip empty body');
+      next();
+      return;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
-      debug('skip parsing')
-      next()
-      return
+      debug('skip parsing');
+      next();
+      return;
     }
 
     // assert charset
-    const charset = getCharset(req) || 'utf-8'
+    const charset = getCharset(req) || 'utf-8';
     if (charset !== 'utf-8') {
-      debug('invalid charset')
-      next(createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
-        charset: charset,
-        type: 'charset.unsupported'
-      }))
-      return
+      debug('invalid charset');
+      next(
+        createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
+          charset: charset,
+          type: 'charset.unsupported',
+        }),
+      );
+      return;
     }
 
     // read
@@ -107,48 +101,46 @@ export function urlencoded (options: UrlencodedOptions) {
       encoding: charset,
       inflate: inflate,
       limit: limit,
-      verify: verify
-    })
-  }
+      verify: verify,
+    });
+  };
 }
 
 /**
  * Get the extended query parser.
  */
-function extendedparser (options: UrlencodedOptions) {
-  let parameterLimit = options.parameterLimit !== undefined
-    ? options.parameterLimit
-    : 1000
-  const parse = parser('qs')
+function extendedparser(options: UrlencodedOptions) {
+  let parameterLimit = options.parameterLimit !== undefined ? options.parameterLimit : 1000;
+  const parse = parser('qs');
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
-    throw new TypeError('option parameterLimit must be a positive number')
+    throw new TypeError('option parameterLimit must be a positive number');
   }
 
   if (isFinite(parameterLimit)) {
-    parameterLimit = parameterLimit | 0
+    parameterLimit = parameterLimit | 0;
   }
 
-  return function queryparse (body: any) {
-    const paramCount = parameterCount(body, parameterLimit)
+  return function queryparse(body: any) {
+    const paramCount = parameterCount(body, parameterLimit);
 
     if (paramCount === undefined) {
-      debug('too many parameters')
+      debug('too many parameters');
       throw createError(413, 'too many parameters', {
-        type: 'parameters.too.many'
-      })
+        type: 'parameters.too.many',
+      });
     }
 
-    const arrayLimit = Math.max(100, paramCount)
+    const arrayLimit = Math.max(100, paramCount);
 
-    debug('parse extended urlencoding')
+    debug('parse extended urlencoding');
     return parse(body, {
       allowPrototypes: true,
       arrayLimit: arrayLimit,
       depth: Infinity,
-      parameterLimit: parameterLimit
-    })
-  }
+      parameterLimit: parameterLimit,
+    });
+  };
 }
 
 /**
@@ -158,11 +150,11 @@ function extendedparser (options: UrlencodedOptions) {
  * @api private
  */
 
-function getCharset (req: any) {
+function getCharset(req: any) {
   try {
-    return (contentType.parse(req).parameters.charset || '').toLowerCase()
+    return (contentType.parse(req).parameters.charset || '').toLowerCase();
   } catch (e) {
-    return undefined
+    return undefined;
   }
 }
 
@@ -174,20 +166,20 @@ function getCharset (req: any) {
  * @api private
  */
 
-function parameterCount (body: any, limit: any) {
-  let count = 0
-  let index = 0
+function parameterCount(body: any, limit: any) {
+  let count = 0;
+  let index = 0;
 
   while ((index = body.indexOf('&', index)) !== -1) {
-    count++
-    index++
+    count++;
+    index++;
 
     if (count === limit) {
-      return undefined
+      return undefined;
     }
   }
 
-  return count
+  return count;
 }
 
 /**
@@ -198,59 +190,57 @@ function parameterCount (body: any, limit: any) {
  * @api private
  */
 
-function parser (name: string) {
-  let mod = parsers[name]
+function parser(name: string) {
+  let mod = parsers[name];
 
   if (mod !== undefined) {
-    return mod.parse
+    return mod.parse;
   }
 
   // this uses a switch for static require analysis
   switch (name) {
     case 'qs':
       mod = qs;
-      break
+      break;
     case 'querystring':
       mod = querystring;
-      break
+      break;
   }
 
   // store to prevent invoking require()
-  parsers[name] = mod
+  parsers[name] = mod;
 
-  return mod.parse
+  return mod.parse;
 }
 
 /**
  * Get the simple query parser.
  */
-function simpleparser (options: UrlencodedOptions) {
-  let parameterLimit = options.parameterLimit !== undefined
-    ? options.parameterLimit
-    : 1000
-  const parse = parser('querystring')
+function simpleparser(options: UrlencodedOptions) {
+  let parameterLimit = options.parameterLimit !== undefined ? options.parameterLimit : 1000;
+  const parse = parser('querystring');
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
-    throw new TypeError('option parameterLimit must be a positive number')
+    throw new TypeError('option parameterLimit must be a positive number');
   }
 
   if (isFinite(parameterLimit)) {
-    parameterLimit = parameterLimit | 0
+    parameterLimit = parameterLimit | 0;
   }
 
-  return function queryparse (body: any) {
-    const paramCount = parameterCount(body, parameterLimit)
+  return function queryparse(body: any) {
+    const paramCount = parameterCount(body, parameterLimit);
 
     if (paramCount === undefined) {
-      debug('too many parameters')
+      debug('too many parameters');
       throw createError(413, 'too many parameters', {
-        type: 'parameters.too.many'
-      })
+        type: 'parameters.too.many',
+      });
     }
 
-    debug('parse urlencoding')
-    return parse(body, undefined, undefined, { maxKeys: parameterLimit })
-  }
+    debug('parse urlencoding');
+    return parse(body, undefined, undefined, { maxKeys: parameterLimit });
+  };
 }
 
 /**
@@ -260,8 +250,8 @@ function simpleparser (options: UrlencodedOptions) {
  * @return {function}
  */
 
-function typeChecker (type: any) {
-  return function checkType (req: any) {
-    return Boolean(typeis(req, type))
-  }
+function typeChecker(type: any) {
+  return function checkType(req: any) {
+    return Boolean(typeis(req, type));
+  };
 }

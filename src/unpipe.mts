@@ -9,16 +9,16 @@
  * @private
  */
 
-function hasPipeDataListeners (stream: any) {
-  var listeners = stream.listeners('data')
+function hasPipeDataListeners(stream: any) {
+  var listeners = stream.listeners('data');
 
   for (var i = 0; i < listeners.length; i++) {
     if (listeners[i].name === 'ondata') {
-      return true
+      return true;
     }
   }
 
-  return false
+  return false;
 }
 
 /**
@@ -28,33 +28,33 @@ function hasPipeDataListeners (stream: any) {
  * @public
  */
 
-export default function unpipe (stream: any) {
+export default function unpipe(stream: any) {
   if (!stream) {
-    throw new TypeError('argument stream is required')
+    throw new TypeError('argument stream is required');
   }
 
   if (typeof stream.unpipe === 'function') {
     // new-style
-    stream.unpipe()
-    return
+    stream.unpipe();
+    return;
   }
 
   // Node.js 0.8 hack
   if (!hasPipeDataListeners(stream)) {
-    return
+    return;
   }
 
-  var listener
-  var listeners = stream.listeners('close')
+  var listener;
+  var listeners = stream.listeners('close');
 
   for (var i = 0; i < listeners.length; i++) {
-    listener = listeners[i]
+    listener = listeners[i];
 
     if (listener.name !== 'cleanup' && listener.name !== 'onclose') {
-      continue
+      continue;
     }
 
     // invoke the listener
-    listener.call(stream)
+    listener.call(stream);
   }
 }

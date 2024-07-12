@@ -4,17 +4,16 @@
  * MIT Licensed
  */
 
-'use strict'
-
-import json from './dist/types/json.mjs';
-import raw from './dist/types/raw.mjs';
-import text from './dist/types/text.mjs';
-import urlencoded from './dist/types/urlencoded.mjs';
+import { BodyParser } from './types.js';
+import json from './types/json.mjs';
+import raw from './types/raw.mjs';
+import text from './types/text.mjs';
+import urlencoded from './types/urlencoded.mjs';
 import deprecate from 'depd';
-export * from './dist/types/json.mjs';
-export * from './dist/types/raw.mjs';
-export * from './dist/types/text.mjs';
-export * from './dist/types/urlencoded.mjs';
+export * from './types/json.mjs';
+export * from './types/raw.mjs';
+export * from './types/text.mjs';
+export * from './types/urlencoded.mjs';
 
 deprecate('body-parser');
 
@@ -23,16 +22,10 @@ deprecate('body-parser');
 
 /**
  * Create a middleware to parse json and urlencoded bodies.
- *
- * @param {object} [options]
- * @return {function}
- * @deprecated
- * @public
  */
-
-export default function bodyParser (options) {
+export default function bodyParser (options: BodyParser) {
   // use default type for parsers
-  var opts = Object.create(options || null, {
+  const opts = Object.create(options || null, {
     type: {
       configurable: true,
       enumerable: true,
@@ -41,11 +34,11 @@ export default function bodyParser (options) {
     }
   })
 
-  var _urlencoded = urlencoded(opts)
-  var _json = json(opts)
+  const _urlencoded = urlencoded(opts)
+  const _json = json(opts)
 
-  return function bodyParser (req, res, next) {
-    _json(req, res, function (err) {
+  return function bodyParser (req: any, res: any, next: any) {
+    _json(req, res, function (err: any) {
       if (err) return next(err)
       _urlencoded(req, res, next)
     })

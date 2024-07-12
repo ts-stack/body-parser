@@ -5,7 +5,7 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import bodyParser from '../index.mjs';
+import bodyParser from '../dist/index.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function'
   ? describe

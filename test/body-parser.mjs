@@ -3,7 +3,7 @@ import http from 'node:http';
 import methods from 'methods';
 import request from 'supertest';
 
-import bodyParser from '../index.mjs';
+import bodyParser from '../dist/index.mjs';
 
 describe('bodyParser()', function () {
   before(function () {

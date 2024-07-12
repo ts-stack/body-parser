@@ -10,6 +10,7 @@ import contentType from 'content-type';
 import createError from 'http-errors';
 import debug from 'debug';
 import typeis from 'type-is';
+import type { IncomingMessage, ServerResponse } from 'http';
 
 import read from '../read.mjs';
 import type { JsonOptions } from '../types.js';
@@ -45,7 +46,7 @@ const JSON_SYNTAX_REGEXP = /#+/g;
 export function json(options: JsonOptions) {
   const opts = options || {};
 
-  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
   const inflate = opts.inflate !== false;
   const reviver = opts.reviver;
   const strict = opts.strict !== false;
@@ -59,7 +60,7 @@ export function json(options: JsonOptions) {
   // create the appropriate type checking function
   const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
 
-  function parse(body: any) {
+  function parse(body: string) {
     if (body.length === 0) {
       // special-case empty json body, as it's a common client-side mistake
       // TODO: maybe make this configurable or part of "strict" option
@@ -67,7 +68,7 @@ export function json(options: JsonOptions) {
     }
 
     if (strict) {
-      const first = firstchar(body);
+      const first = firstchar(body) as string;
 
       if (first !== '{' && first !== '[') {
         debug('strict violation');
@@ -127,23 +128,17 @@ export function json(options: JsonOptions) {
     // read
     read(req, res, next, parse, debug, {
       encoding: charset,
-      inflate: inflate,
-      limit: limit,
-      verify: verify,
+      inflate,
+      limit,
+      verify,
     });
   };
 }
 
 /**
  * Create strict violation syntax error matching native error.
- *
- * @param {string} str
- * @param {string} char
- * @return {Error}
- * @private
  */
-
-function createStrictSyntaxError(str: any, char: any) {
+function createStrictSyntaxError(str: string, char: string) {
   const index = str.indexOf(char);
   let partial = '';
 
@@ -170,13 +165,8 @@ function createStrictSyntaxError(str: any, char: any) {
 
 /**
  * Get the first non-whitespace character in a string.
- *
- * @param {string} str
- * @return {function}
- * @private
  */
-
-function firstchar(str: any) {
+function firstchar(str: string) {
   const match = FIRST_CHAR_REGEXP.exec(str);
 
   return match ? match[1] : undefined;
@@ -189,7 +179,7 @@ function firstchar(str: any) {
  * @api private
  */
 
-function getCharset(req: any) {
+function getCharset(req: IncomingMessage) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
   } catch (e) {

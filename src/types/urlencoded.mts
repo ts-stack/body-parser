@@ -15,7 +15,7 @@ import qs from 'qs';
 import querystring from 'node:querystring';
 
 import read from '../read.mjs';
-import { OptionsUrlencoded } from '../types.js';
+import { UrlencodedOptions } from '../types.js';
 
 debug('body-parser:urlencoded');
 deprecate('body-parser');
@@ -29,7 +29,7 @@ const parsers = Object.create(null)
 /**
  * Create a middleware to parse urlencoded bodies.
  */
-export function urlencoded (options: OptionsUrlencoded) {
+export function urlencoded (options: UrlencodedOptions) {
   const opts = options || {}
 
   // notice because option default will flip in next major
@@ -115,7 +115,7 @@ export function urlencoded (options: OptionsUrlencoded) {
 /**
  * Get the extended query parser.
  */
-function extendedparser (options: OptionsUrlencoded) {
+function extendedparser (options: UrlencodedOptions) {
   let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000
@@ -224,7 +224,7 @@ function parser (name: string) {
 /**
  * Get the simple query parser.
  */
-function simpleparser (options: OptionsUrlencoded) {
+function simpleparser (options: UrlencodedOptions) {
   let parameterLimit = options.parameterLimit !== undefined
     ? options.parameterLimit
     : 1000

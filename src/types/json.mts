@@ -12,7 +12,7 @@ import debug from 'debug';
 import typeis from 'type-is';
 
 import read from '../read.mjs';
-import type { OptionsJson } from '../types.js';
+import type { JsonOptions } from '../types.js';
 
 debug('body-parser:json');
 
@@ -37,7 +37,7 @@ const JSON_SYNTAX_REGEXP = /#+/g
  * Create a middleware to parse JSON bodies.
  */
 
-export function json (options: OptionsJson) {
+export function json (options: JsonOptions) {
   const opts = options || {}
 
   const limit = typeof opts.limit !== 'number'

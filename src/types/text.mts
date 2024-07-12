@@ -10,7 +10,7 @@ import debug from 'debug';
 import typeis from 'type-is';
 
 import read from '../read.mjs';
-import { OptionsText } from '../types.js';
+import { TextOptions } from '../types.js';
 
 debug('body-parser:text');
 
@@ -18,7 +18,7 @@ debug('body-parser:text');
  * Create a middleware to parse text bodies.
  */
 
-export function text(options: OptionsText) {
+export function text(options: TextOptions) {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';

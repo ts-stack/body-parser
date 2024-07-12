@@ -9,14 +9,14 @@ import debug from 'debug';
 import typeis from 'type-is';
 
 import read from '../read.mjs';
-import type { Options } from '../types.js';
+import type { RawOptions } from '../types.js';
 
 debug('body-parser:raw');
 
 /**
  * Create a middleware to parse raw bodies.
  */
-export function raw(options: Options) {
+export function raw(options: RawOptions) {
   const opts = options || {};
 
   const inflate = opts.inflate !== false;

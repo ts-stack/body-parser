@@ -73,7 +73,7 @@ export function text(options: TextOptions) {
     const charset = getCharset(req) || defaultCharset;
 
     // read
-    read(req, res, next, parse, debug, {
+    return read(req, res, next, parse, debug, {
       encoding: charset,
       inflate: inflate,
       limit: limit,

@@ -105,7 +105,7 @@ export function urlencoded(options: UrlencodedOptions) {
     }
 
     // read
-    read(req, res, next, parse, debug, {
+    return read(req, res, next, parse, debug, {
       debug,
       encoding: charset,
       inflate,

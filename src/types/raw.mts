@@ -68,7 +68,7 @@ export function raw(options: RawOptions) {
     }
 
     // read
-    read(req, res, next, parse, debug, {
+    return read(req, res, next, parse, debug, {
       encoding: null,
       inflate: inflate,
       limit: limit,

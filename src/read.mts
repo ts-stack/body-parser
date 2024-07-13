@@ -5,7 +5,7 @@
  */
 
 import createError from 'http-errors';
-import getBody from 'raw-body';
+import getRawBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'node:zlib';
@@ -21,7 +21,7 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 /**
  * Read a request into a buffer and parse.
  */
-export default function read(
+export default async function read(
   req: Req,
   res: ServerResponse,
   next: NextFn,
@@ -63,34 +63,37 @@ export default function read(
 
   // read body
   debug('read body');
-  getBody(stream, opts, function (error, body) {
-    if (error) {
-      let _error: any;
+  try {
+    const buff = await getRawBody(stream, opts);
+    req.body = cb(buff);
+    next();
+  } catch (error: any) {
+    let _error: any;
 
-      if (error.type === 'encoding.unsupported') {
-        // echo back charset
-        _error = createError(415, 'unsupported charset "' + encoding?.toUpperCase() + '"', {
-          charset: encoding?.toLowerCase(),
-          type: 'charset.unsupported',
-        });
-      } else {
-        // set status code on error
-        _error = createError(400, error);
-      }
-
-      // unpipe from stream and destroy
-      if (stream !== req) {
-        unpipe(req);
-        destroy(stream, true);
-      }
-
-      // read off entire request
-      dump(req, function onfinished() {
-        next(createError(400, _error));
+    if (error.type === 'encoding.unsupported') {
+      // echo back charset
+      _error = createError(415, 'unsupported charset "' + encoding?.toUpperCase() + '"', {
+        charset: encoding?.toLowerCase(),
+        type: 'charset.unsupported',
       });
-      return;
+    } else {
+      // set status code on error
+      _error = createError(400, error);
     }
 
+    // unpipe from stream and destroy
+    if (stream !== req) {
+      unpipe(req);
+      destroy(stream, true);
+    }
+
+    // read off entire request
+    dump(req, function onfinished() {
+      next(createError(400, _error));
+    });
+  }
+
+  function cb(body: Buffer) {
     // verify
     if (verify) {
       try {
@@ -112,7 +115,7 @@ export default function read(
     try {
       debug('parse body');
       strOrBuffer = typeof body != 'string' && encoding !== null ? iconv.decode(body, encoding) : body;
-      req.body = parse(strOrBuffer as any);
+      return parse(strOrBuffer as any);
     } catch (err: any) {
       next(
         createError(400, err, {
@@ -122,9 +125,7 @@ export default function read(
       );
       return;
     }
-
-    next();
-  });
+  }
 }
 
 /**

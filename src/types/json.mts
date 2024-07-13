@@ -126,7 +126,7 @@ export function json(options: JsonOptions) {
     }
 
     // read
-    read(req, res, next, parse, debug, {
+    return read(req, res, next, parse, debug, {
       encoding: charset,
       inflate,
       limit,

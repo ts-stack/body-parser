@@ -1,7 +1,18 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export type Req = IncomingMessage & { _body?: boolean, body?: any };
+export type Req = IncomingMessage & { _body?: boolean; body?: { [key: string]: any } };
 export type NextFn = (err?: Error) => void;
+export type Fn = (...args: any[]) => any;
+export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
+export type VerifyFn = (req: IncomingMessage, res: ServerResponse, buf: Buffer, encoding: string | null) => void;
+export interface ReadOptions {
+  encoding: string | null;
+  inflate?: boolean;
+  limit?: number | string;
+  verify?: VerifyFn | false;
+  debug?: Fn;
+  length?: string;
+}
 
 export interface BaseOptions {
   /**
@@ -20,7 +31,7 @@ export interface BaseOptions {
    * where `buf` is a `Buffer` of the raw request body and `encoding` is the
    * encoding of the request. The parsing can be aborted by throwing an error.
    */
-  verify?(req: IncomingMessage, res: ServerResponse, buf: Buffer, encoding: string): void;
+  verify?: VerifyFn;
 }
 
 export interface RawOptions extends BaseOptions {

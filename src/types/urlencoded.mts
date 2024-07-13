@@ -106,11 +106,11 @@ export function urlencoded(options: UrlencodedOptions) {
 
     // read
     read(req, res, next, parse, debug, {
-      debug: debug,
+      debug,
       encoding: charset,
-      inflate: inflate,
-      limit: limit,
-      verify: verify,
+      inflate,
+      limit,
+      verify,
     });
   };
 }

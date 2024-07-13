@@ -8,29 +8,29 @@ import createError from 'http-errors';
 import getBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
-import zlib from 'zlib';
+import zlib from 'node:zlib';
 import type { ServerResponse } from 'node:http';
 
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import { NextFn, Req } from './types.js';
+import { Fn, NextFn, ParseFn, ReadOptions, Req } from './types.js';
+
+type ReqWithLength = Req & { length?: string };
+export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 
 /**
  * Read a request into a buffer and parse.
- *
- * @param {object} req
- * @param {object} res
- * @param {function} next
- * @param {function} parse
- * @param {function} debug
- * @param {object} options
- * @private
  */
-
-export default function read(req: Req, res: ServerResponse, next: NextFn, parse: any, debug: any, options: any) {
-  let length;
-  const opts = options;
-  let stream: any;
+export default function read(
+  req: Req,
+  res: ServerResponse,
+  next: NextFn,
+  parse: ParseFn,
+  debug: Fn,
+  opts: ReadOptions,
+) {
+  let stream: ContentStream;
+  let length: string | undefined;
 
   // flag as parsed
   req._body = true;
@@ -40,10 +40,9 @@ export default function read(req: Req, res: ServerResponse, next: NextFn, parse:
   const verify = opts.verify;
 
   try {
-    // get the content stream
-    stream = contentstream(req, debug, opts.inflate);
-    length = stream.length;
-    stream.length = undefined;
+    stream = getContentStream(req, debug, opts.inflate);
+    length = (stream as ReqWithLength).length;
+    (stream as ReqWithLength).length = undefined;
   } catch (err: any) {
     return next(err);
   }
@@ -70,8 +69,8 @@ export default function read(req: Req, res: ServerResponse, next: NextFn, parse:
 
       if (error.type === 'encoding.unsupported') {
         // echo back charset
-        _error = createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
-          charset: encoding.toLowerCase(),
+        _error = createError(415, 'unsupported charset "' + encoding?.toUpperCase() + '"', {
+          charset: encoding?.toLowerCase(),
           type: 'charset.unsupported',
         });
       } else {
@@ -109,15 +108,15 @@ export default function read(req: Req, res: ServerResponse, next: NextFn, parse:
     }
 
     // parse
-    let str = body;
+    let strOrBuffer: string | Buffer = body;
     try {
       debug('parse body');
-      str = typeof body !== 'string' && encoding !== null ? iconv.decode(body, encoding) : body;
-      req.body = parse(str);
+      strOrBuffer = typeof body != 'string' && encoding !== null ? iconv.decode(body, encoding) : body;
+      req.body = parse(strOrBuffer as any);
     } catch (err: any) {
       next(
         createError(400, err, {
-          body: str,
+          body: strOrBuffer,
           type: err.type || 'entity.parse.failed',
         }),
       );
@@ -130,18 +129,11 @@ export default function read(req: Req, res: ServerResponse, next: NextFn, parse:
 
 /**
  * Get the content stream of the request.
- *
- * @param {object} req
- * @param {function} debug
- * @param {boolean} [inflate=true]
- * @return {object}
- * @api private
  */
-
-function contentstream(req: Req, debug: any, inflate: any) {
+function getContentStream(req: Req, debug: Fn, inflate?: boolean): ContentStream {
   const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
   const length = req.headers['content-length'];
-  let stream: any;
+  let stream: ContentStream;
 
   debug('content-encoding "%s"', encoding);
 
@@ -168,8 +160,8 @@ function contentstream(req: Req, debug: any, inflate: any) {
       stream.length = length;
       break;
     default:
-      throw createError(415, 'unsupported content encoding "' + encoding + '"', {
-        encoding: encoding,
+      throw createError(415, `unsupported content encoding "${encoding}"`, {
+        encoding,
         type: 'encoding.unsupported',
       });
   }
@@ -179,13 +171,8 @@ function contentstream(req: Req, debug: any, inflate: any) {
 
 /**
  * Dump the contents of a request.
- *
- * @param {object} req
- * @param {function} callback
- * @api private
  */
-
-function dump(req: Req, callback: any) {
+function dump(req: Req, callback: Fn) {
   if (onFinished.isFinished(req)) {
     callback(null);
   } else {

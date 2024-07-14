@@ -1,11 +1,11 @@
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import type { IncomingMessage } from 'node:http';
 
 export type Req = {
   headers: IncomingMessage['headers'];
   pipe: IncomingMessage['pipe'];
   resume: IncomingMessage['resume'];
 };
-export type Res = ServerResponse;
+export type Res = { runInAsyncScope?: Fn };
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
 export type VerifyFn = (req: Req, res: Res, buf: Buffer, encoding: string | null) => void;

@@ -23,9 +23,9 @@ describe('urlencoded()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req, res, next) {
+    const server = createServer(function (req, res) {
       req.headers['content-length'] = '20'; // bad length
-      urlencodedParser(req, res, next);
+      return urlencodedParser(req, res);
     });
 
     request(server)
@@ -55,11 +55,18 @@ describe('urlencoded()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req, res, next) {
-      req.on('end', function () {
-        urlencodedParser(req, res, next);
+    const server = createServer(function (req, res) {
+      return new Promise((resolve, reject) => {
+        req.on('end', async function () {
+          try {
+            const body = await urlencodedParser(req, res);
+            resolve(body);
+          } catch (error) {
+            reject(error);
+          }
+        });
+        req.resume();
       });
-      req.resume();
     });
 
     request(server)
@@ -71,11 +78,9 @@ describe('urlencoded()', function () {
 
   it('should handle duplicated middleware', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req, res, next) {
-      urlencodedParser(req, res, function (err) {
-        if (err) return next(err);
-        urlencodedParser(req, res, next);
-      });
+    const server = createServer(async function (req, res) {
+      await urlencodedParser(req, res);
+      return urlencodedParser(req, res);
     });
 
     request(server)
@@ -624,19 +629,15 @@ describe('urlencoded()', function () {
       const urlencodedParser = urlencoded();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res, next) {
+      this.server = createServer(function (req, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
-        asyncLocalStorage.run(store, function () {
-          urlencodedParser(req, res, function (err) {
-            const local = asyncLocalStorage.getStore();
-
-            if (local) {
-              res.setHeader('x-store-foo', String(local.foo));
-            }
-
-            next(err);
-          });
+        return asyncLocalStorage.run(store, async function () {
+          const local = asyncLocalStorage.getStore();
+          if (local) {
+            res.setHeader('x-store-foo', String(local.foo));
+          }
+          return urlencodedParser(req, res);
         });
       });
     });
@@ -804,16 +805,16 @@ function createManyParams(count) {
 function createServer(opts) {
   const _bodyParser = typeof opts !== 'function' ? urlencoded(opts) : opts;
 
-  return http.createServer(function (req, res) {
-    _bodyParser(req, res, function (err) {
-      if (err) {
-        res.statusCode = err.status || 500;
-        res.end('[' + err.type + '] ' + err.message);
-      } else {
-        res.statusCode = 200;
-        res.end(JSON.stringify(req.body));
-      }
-    });
+  return http.createServer(async function (req, res) {
+    try {
+      const body = await _bodyParser(req, res);
+      res.statusCode = 200;
+      res.end(JSON.stringify(body));
+    } catch (err) {
+      // console.log('-'.repeat(50), 'catch error:', 'status', err.status, err);
+      res.statusCode = err.status || 500;
+      res.end('[' + err.type + '] ' + err.message);
+    }
   });
 }
 

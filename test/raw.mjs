@@ -25,7 +25,7 @@ describe('raw()', function () {
     const rawParser = raw();
     const server = createServer(function (req, res, next) {
       req.headers['content-length'] = '20'; // bad length
-      rawParser(req, res, next);
+      return rawParser(req, res, next);
     });
 
     request(server)
@@ -55,10 +55,17 @@ describe('raw()', function () {
   it('should 500 if stream not readable', function (done) {
     const rawParser = raw();
     const server = createServer(function (req, res, next) {
-      req.on('end', function () {
-        rawParser(req, res, next);
+      return new Promise((resolve, reject) => {
+        req.on('end', async function () {
+          try {
+            const body = await rawParser(req, res, next);
+            resolve(body);
+          } catch (error) {
+            reject(error);
+          }
+        });
+        req.resume();
       });
-      req.resume();
     });
 
     request(server)
@@ -70,11 +77,9 @@ describe('raw()', function () {
 
   it('should handle duplicated middleware', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, res, next) {
-      rawParser(req, res, function (err) {
-        if (err) return next(err);
-        rawParser(req, res, next);
-      });
+    const server = createServer(async function (req, res) {
+      await rawParser(req, res);
+      return rawParser(req, res);
     });
 
     request(server)
@@ -331,16 +336,12 @@ describe('raw()', function () {
       this.server = createServer(function (req, res, next) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
-        asyncLocalStorage.run(store, function () {
-          rawParser(req, res, function (err) {
-            const local = asyncLocalStorage.getStore();
-
-            if (local) {
-              res.setHeader('x-store-foo', String(local.foo));
-            }
-
-            next(err);
-          });
+        return asyncLocalStorage.run(store, async function () {
+          const local = asyncLocalStorage.getStore();
+          if (local) {
+            res.setHeader('x-store-foo', String(local.foo));
+          }
+          return rawParser(req, res);
         });
       });
     });
@@ -467,22 +468,21 @@ describe('raw()', function () {
 });
 
 function createServer(opts) {
-  const _bodyParser = typeof opts !== 'function' ? raw(opts) : opts;
+  const _bodyParser = typeof opts != 'function' ? raw(opts) : opts;
 
-  return http.createServer(function (req, res) {
-    _bodyParser(req, res, function (err) {
-      if (err) {
-        res.statusCode = err.status || 500;
-        res.end('[' + err.type + '] ' + err.message);
+  return http.createServer(async function (req, res) {
+    try {
+      const body = await _bodyParser(req, res);
+      if (Buffer.isBuffer(body)) {
+        res.end('buf:' + body.toString('hex'));
         return;
       }
 
-      if (Buffer.isBuffer(req.body)) {
-        res.end('buf:' + req.body.toString('hex'));
-        return;
-      }
-
-      res.end(JSON.stringify(req.body));
-    });
+      res.end(JSON.stringify(body));
+    } catch (err) {
+      res.statusCode = err.status || 500;
+      res.end('[' + err.type + '] ' + err.message);
+      return;
+    }
   });
 }

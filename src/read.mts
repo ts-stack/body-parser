@@ -5,15 +5,15 @@
  */
 
 import createError from 'http-errors';
-import getRawBody from 'raw-body';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'node:zlib';
 import type { ServerResponse } from 'node:http';
 
+import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import { Fn, NextFn, ParseFn, ReadOptions, Req } from './types.js';
+import type { Fn, ParseFn, ReadOptions, Req } from './types.js';
 
 type ReqWithLength = Req & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
@@ -24,11 +24,10 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 export default async function read(
   req: Req,
   res: ServerResponse,
-  next: NextFn,
   parse: ParseFn,
   debug: Fn,
   opts: ReadOptions,
-) {
+): Promise<object | undefined> {
   let stream: ContentStream;
   let length: string | undefined;
 
@@ -39,13 +38,9 @@ export default async function read(
   const encoding = opts.encoding !== null ? opts.encoding : null;
   const verify = opts.verify;
 
-  try {
-    stream = getContentStream(req, debug, opts.inflate);
-    length = (stream as ReqWithLength).length;
-    (stream as ReqWithLength).length = undefined;
-  } catch (err: any) {
-    return next(err);
-  }
+  stream = getContentStream(req, debug, opts.inflate);
+  length = (stream as ReqWithLength).length;
+  (stream as ReqWithLength).length = undefined;
 
   // set raw-body options
   opts.length = length;
@@ -53,43 +48,43 @@ export default async function read(
 
   // assert charset is supported
   if (opts.encoding === null && encoding !== null && !iconv.encodingExists(encoding)) {
-    return next(
-      createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
-        charset: encoding.toLowerCase(),
-        type: 'charset.unsupported',
-      }),
-    );
+    throw createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
+      charset: encoding.toLowerCase(),
+      type: 'charset.unsupported',
+    });
   }
 
   // read body
   debug('read body');
   try {
     const buff = await getRawBody(stream, opts);
-    req.body = cb(buff);
-    next();
+    return cb(buff);
   } catch (error: any) {
-    let _error: any;
+    return new Promise((resolve, reject) => {
+      let _error: any;
 
-    if (error.type === 'encoding.unsupported') {
-      // echo back charset
-      _error = createError(415, 'unsupported charset "' + encoding?.toUpperCase() + '"', {
-        charset: encoding?.toLowerCase(),
-        type: 'charset.unsupported',
+      if (error.type === 'encoding.unsupported') {
+        // echo back charset
+        _error = createError(415, 'unsupported charset "' + encoding?.toUpperCase() + '"', {
+          charset: encoding?.toLowerCase(),
+          type: 'charset.unsupported',
+        });
+      } else {
+        // set status code on error
+        _error = createError(400, error);
+      }
+
+      // unpipe from stream and destroy
+      if (stream !== req) {
+        unpipe(req);
+        destroy(stream, true);
+      }
+
+      // read off entire request
+      dump(req, function onfinished() {
+        const err = createError(400, _error);
+        reject(err);
       });
-    } else {
-      // set status code on error
-      _error = createError(400, error);
-    }
-
-    // unpipe from stream and destroy
-    if (stream !== req) {
-      unpipe(req);
-      destroy(stream, true);
-    }
-
-    // read off entire request
-    dump(req, function onfinished() {
-      next(createError(400, _error));
     });
   }
 
@@ -100,13 +95,10 @@ export default async function read(
         debug('verify body');
         verify(req, res, body, encoding);
       } catch (err: any) {
-        next(
-          createError(403, err, {
-            body: body,
-            type: err.type || 'entity.verify.failed',
-          }),
-        );
-        return;
+        throw createError(403, err, {
+          body: body,
+          type: err.type || 'entity.verify.failed',
+        });
       }
     }
 
@@ -117,13 +109,10 @@ export default async function read(
       strOrBuffer = typeof body != 'string' && encoding !== null ? iconv.decode(body, encoding) : body;
       return parse(strOrBuffer as any);
     } catch (err: any) {
-      next(
-        createError(400, err, {
-          body: strOrBuffer,
-          type: err.type || 'entity.parse.failed',
-        }),
-      );
-      return;
+      throw createError(400, err, {
+        body: strOrBuffer,
+        type: err.type || 'entity.parse.failed',
+      });
     }
   }
 }

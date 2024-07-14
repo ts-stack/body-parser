@@ -1,5 +1,6 @@
 {
   "name": "@ts-stack/body-parser",
+  "type": "module",
   "description": "Node.js body parsing middleware",
   "version": "1.0.0-beta.0",
   "license": "MIT",
@@ -13,7 +14,6 @@
     "iconv-lite": "0.6.3",
     "on-finished": "2.4.1",
     "qs": "6.12.3",
-    "raw-body": "2.5.2",
     "type-is": "~1.6.18"
   },
   "devDependencies": {
@@ -56,12 +56,12 @@
     "index.js"
   ],
   "engines": {
-    "node": ">= 18"
+    "node": ">= 20.6.0"
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "lint": "eslint .",
-    "test": "npm run build && mocha --require test/support/env --reporter spec --check-leaks --bail test/",
+    "test": "npm run build && node --enable-source-maps --env-file=test/support/.env node_modules/mocha/bin/mocha.js --reporter spec --check-leaks --bail test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test"
   }

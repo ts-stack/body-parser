@@ -8,7 +8,7 @@
 import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
-import debug from 'debug';
+import debugInit from 'debug';
 import deprecate from 'depd';
 import typeis from 'type-is';
 import qs from 'qs';
@@ -18,7 +18,7 @@ import type { ServerResponse } from 'node:http';
 import read from '../read.mjs';
 import { NextFn, Req, UrlencodedOptions } from '../types.js';
 
-debug('body-parser:urlencoded');
+const debug = debugInit('body-parser:urlencoded');
 deprecate('body-parser');
 
 /**
@@ -32,7 +32,7 @@ const parsers = Object.create(null);
  * requests where the `Content-Type` header matches the `type` option. This
  * parser accepts only UTF-8 encoding of the body and supports automatic
  * inflation of `gzip` and `deflate` encodings.
- * 
+ *
  * A new `body` object containing the parsed data is populated on the `request`
  * object after the middleware (i.e. `req.body`). This object will contain
  * key-value pairs, where the value can be a string or array (when `extended` is
@@ -66,11 +66,10 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return function urlencodedParser(req: Req, res: ServerResponse, next: NextFn) {
+  return async function urlencodedParser(req: Req, res: ServerResponse) {
     if (req._body) {
       debug('body already parsed');
-      next();
-      return;
+      return req.body;
     }
 
     req.body = req.body || {};
@@ -78,8 +77,7 @@ export function urlencoded(options: UrlencodedOptions) {
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
       debug('skip empty body');
-      next();
-      return;
+      return req.body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -87,31 +85,28 @@ export function urlencoded(options: UrlencodedOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      next();
-      return;
+      return req.body;
     }
 
     // assert charset
     const charset = getCharset(req) || 'utf-8';
     if (charset !== 'utf-8') {
       debug('invalid charset');
-      next(
-        createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
-          charset: charset,
-          type: 'charset.unsupported',
-        }),
-      );
-      return;
+      throw createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
+        charset: charset,
+        type: 'charset.unsupported',
+      });
     }
 
     // read
-    return read(req, res, next, parse, debug, {
+    req.body = await read(req, res, parse, debug, {
       debug,
       encoding: charset,
       inflate,
       limit,
       verify,
     });
+    return req.body;
   };
 }
 

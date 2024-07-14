@@ -53,7 +53,7 @@ describe('json()', function () {
     const jsonParser = json();
     const server = createServer(function (req, res, next) {
       req.headers['content-length'] = '20'; // bad length
-      jsonParser(req, res, next);
+      return jsonParser(req, res, next);
     });
 
     request(server)
@@ -65,11 +65,18 @@ describe('json()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req, res, next) {
-      req.on('end', function () {
-        jsonParser(req, res, next);
+    const server = createServer(function (req, res) {
+      return new Promise((resolve, reject) => {
+        req.on('end', async function () {
+          try {
+            const body = await jsonParser(req, res);
+            resolve(body);
+          } catch (error) {
+            reject(error);
+          }
+        });
+        req.resume();
       });
-      req.resume();
     });
 
     request(server)
@@ -81,11 +88,9 @@ describe('json()', function () {
 
   it('should handle duplicated middleware', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req, res, next) {
-      jsonParser(req, res, function (err) {
-        if (err) return next(err);
-        jsonParser(req, res, next);
-      });
+    const server = createServer(async function (req, res) {
+      await jsonParser(req, res);
+      return jsonParser(req, res);
     });
 
     request(server)
@@ -506,19 +511,15 @@ describe('json()', function () {
       const jsonParser = json();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res, next) {
+      this.server = createServer(function (req, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
-        asyncLocalStorage.run(store, function () {
-          jsonParser(req, res, function (err) {
-            const local = asyncLocalStorage.getStore();
-
-            if (local) {
-              res.setHeader('x-store-foo', String(local.foo));
-            }
-
-            next(err);
-          });
+        return asyncLocalStorage.run(store, async function () {
+          const local = asyncLocalStorage.getStore();
+          if (local) {
+            res.setHeader('x-store-foo', String(local.foo));
+          }
+          return jsonParser(req, res);
         });
       });
     });
@@ -702,21 +703,22 @@ describe('json()', function () {
   });
 });
 
-function createServer(opts) {
-  const _bodyParser = typeof opts != 'function' ? json(opts) : opts;
+function createServer(optsOrCallback) {
+  const _bodyParser = typeof optsOrCallback != 'function' ? json(optsOrCallback) : optsOrCallback;
 
-  return http.createServer(function (req, res) {
-    _bodyParser(req, res, function (err) {
-      if (err) {
-        res.statusCode = err.status || 500;
-        res.end(
-          req.headers['x-error-property'] ? err[req.headers['x-error-property']] : '[' + err.type + '] ' + err.message,
-        );
-      } else {
-        res.statusCode = 200;
-        res.end(JSON.stringify(req.body));
-      }
-    });
+  return http.createServer(async function (req, res) {
+    try {
+      const body = await _bodyParser(req, res);
+      // console.log('-'.repeat(50), 'success response');
+      res.statusCode = 200;
+      res.end(JSON.stringify(body));
+    } catch (err) {
+      // console.log('-'.repeat(50), 'catch error:', 'status', err.status, err);
+      res.statusCode = err.status || 500;
+      res.end(
+        req.headers['x-error-property'] ? err[req.headers['x-error-property']] : '[' + err.type + '] ' + err.message,
+      );
+    }
   });
 }
 

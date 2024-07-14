@@ -6,14 +6,14 @@
 
 import bytes from 'bytes';
 import contentType from 'content-type';
-import debug from 'debug';
+import debugInit from 'debug';
 import typeis from 'type-is';
 import type { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import { NextFn, Req, TextOptions } from '../types.js';
+import { Req, TextOptions } from '../types.js';
 
-debug('body-parser:text');
+const debug = debugInit('body-parser:text');
 
 /**
  * Returns middleware that parses all bodies as a string and only looks at
@@ -44,11 +44,10 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return function textParser(req: Req, res: ServerResponse, next: NextFn) {
+  return async function textParser(req: Req, res: ServerResponse) {
     if (req._body) {
       debug('body already parsed');
-      next();
-      return;
+      return req.body;
     }
 
     req.body = req.body || {};
@@ -56,8 +55,7 @@ export function text(options: TextOptions) {
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
       debug('skip empty body');
-      next();
-      return;
+      return req.body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -65,20 +63,20 @@ export function text(options: TextOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      next();
-      return;
+      return req.body;
     }
 
     // get charset
     const charset = getCharset(req) || defaultCharset;
 
     // read
-    return read(req, res, next, parse, debug, {
+    req.body = await read(req, res, parse, debug, {
       encoding: charset,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
+    return req.body;
   };
 }
 

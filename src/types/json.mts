@@ -8,14 +8,14 @@
 import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
-import debug from 'debug';
+import debugInit from 'debug';
 import typeis from 'type-is';
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import type { JsonOptions, NextFn, Req } from '../types.js';
+import type { JsonOptions, Req } from '../types.js';
 
-debug('body-parser:json');
+const debug = debugInit('body-parser:json');
 
 /**
  * RegExp to match the first non-space in a string.
@@ -87,11 +87,10 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return function jsonParser(req: Req, res: ServerResponse, next: NextFn) {
+  return async function jsonParser(req: Req, res: ServerResponse) {
     if (req._body) {
       debug('body already parsed');
-      next();
-      return;
+      return req.body;
     }
 
     req.body = req.body || {};
@@ -99,8 +98,7 @@ export function json(options: JsonOptions) {
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
       debug('skip empty body');
-      next();
-      return;
+      return req.body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -108,30 +106,27 @@ export function json(options: JsonOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      next();
-      return;
+      return req.body;
     }
 
     // assert charset per RFC 7159 sec 8.1
     const charset = getCharset(req) || 'utf-8';
     if (charset.slice(0, 4) !== 'utf-') {
       debug('invalid charset');
-      next(
-        createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
-          charset: charset,
-          type: 'charset.unsupported',
-        }),
-      );
-      return;
+      throw createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
+        charset: charset,
+        type: 'charset.unsupported',
+      });
     }
 
     // read
-    return read(req, res, next, parse, debug, {
+    req.body = await read(req, res, parse, debug, {
       encoding: charset,
       inflate,
       limit,
       verify,
     });
+    return req.body;
   };
 }
 

@@ -5,14 +5,14 @@
  */
 
 import bytes from 'bytes';
-import debug from 'debug';
+import debugInit from 'debug';
 import typeis from 'type-is';
 import type { ServerResponse } from 'node:http';
 
 import read from '../read.mjs';
-import type { NextFn, RawOptions, Req } from '../types.js';
+import type { RawOptions, Req } from '../types.js';
 
-debug('body-parser:raw');
+const debug = debugInit('body-parser:raw');
 
 /**
  * Returns middleware that parses all bodies as a `Buffer` and only looks at
@@ -42,11 +42,10 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return function rawParser(req: Req, res: ServerResponse, next: NextFn) {
+  return async function rawParser(req: Req, res: ServerResponse) {
     if (req._body) {
       debug('body already parsed');
-      next();
-      return;
+      return req.body;
     }
 
     req.body = req.body || {};
@@ -54,8 +53,7 @@ export function raw(options: RawOptions) {
     // skip requests without bodies
     if (!typeis.hasBody(req)) {
       debug('skip empty body');
-      next();
-      return;
+      return req.body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -63,17 +61,17 @@ export function raw(options: RawOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      next();
-      return;
+      return req.body;
     }
 
     // read
-    return read(req, res, next, parse, debug, {
+    req.body = await read(req, res, parse, debug, {
       encoding: null,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
+    return req.body;
   };
 }
 

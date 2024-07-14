@@ -75,20 +75,6 @@ describe('text()', function () {
       .expect(500, '[stream.not.readable] stream is not readable', done);
   });
 
-  it('should handle duplicated middleware', function (done) {
-    const textParser = text();
-    const server = createServer(async function (req, res) {
-      await textParser(req, res);
-      return textParser(req, res);
-    });
-
-    request(server)
-      .post('/')
-      .set('Content-Type', 'text/plain')
-      .send('user is tobi')
-      .expect(200, '"user is tobi"', done);
-  });
-
   describe('with defaultCharset option', function () {
     it('should change default charset', function (done) {
       const server = createServer({ defaultCharset: 'koi8-r' });

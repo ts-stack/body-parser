@@ -7,10 +7,10 @@
 import bytes from 'bytes';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import type { ServerResponse } from 'node:http';
+import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { RawOptions, Req } from '../types.js';
+import type { RawOptions, Req, Res } from '../types.js';
 
 const debug = debugInit('body-parser:raw');
 
@@ -42,18 +42,13 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return async function rawParser(req: Req, res: ServerResponse) {
-    if (req._body) {
-      debug('body already parsed');
-      return req.body;
-    }
-
-    req.body = req.body || {};
+  return async function rawParser(req: Req, res: Res) {
+    const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req)) {
+    if (!typeis.hasBody(req as IncomingMessage)) {
       debug('skip empty body');
-      return req.body;
+      return body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -61,17 +56,16 @@ export function raw(options: RawOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      return req.body;
+      return body;
     }
 
     // read
-    req.body = await read(req, res, parse, debug, {
+    return read(req, res, parse, debug, {
       encoding: null,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
-    return req.body;
   };
 }
 
@@ -84,6 +78,6 @@ export function raw(options: RawOptions) {
 
 function typeChecker(type: any) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req, type));
+    return Boolean(typeis(req as IncomingMessage, type));
   };
 }

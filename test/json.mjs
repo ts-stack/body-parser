@@ -51,9 +51,9 @@ describe('json()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req, res, next) {
+    const server = createServer(function (req, res) {
       req.headers['content-length'] = '20'; // bad length
-      return jsonParser(req, res, next);
+      return jsonParser(req, res);
     });
 
     request(server)
@@ -84,20 +84,6 @@ describe('json()', function () {
       .set('Content-Type', 'application/json')
       .send('{"user":"tobi"}')
       .expect(500, '[stream.not.readable] stream is not readable', done);
-  });
-
-  it('should handle duplicated middleware', function (done) {
-    const jsonParser = json();
-    const server = createServer(async function (req, res) {
-      await jsonParser(req, res);
-      return jsonParser(req, res);
-    });
-
-    request(server)
-      .post('/')
-      .set('Content-Type', 'application/json')
-      .send('{"user":"tobi"}')
-      .expect(200, '{"user":"tobi"}', done);
   });
 
   describe('when JSON is invalid', function () {

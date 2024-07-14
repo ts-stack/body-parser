@@ -8,10 +8,10 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import type { ServerResponse } from 'node:http';
+import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { Req, TextOptions } from '../types.js';
+import { Req, Res, TextOptions } from '../types.js';
 
 const debug = debugInit('body-parser:text');
 
@@ -44,18 +44,13 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return async function textParser(req: Req, res: ServerResponse) {
-    if (req._body) {
-      debug('body already parsed');
-      return req.body;
-    }
-
-    req.body = req.body || {};
+  return async function textParser(req: Req, res: Res) {
+    const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req)) {
+    if (!typeis.hasBody(req as IncomingMessage)) {
       debug('skip empty body');
-      return req.body;
+      return body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -63,20 +58,19 @@ export function text(options: TextOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      return req.body;
+      return body;
     }
 
     // get charset
     const charset = getCharset(req) || defaultCharset;
 
     // read
-    req.body = await read(req, res, parse, debug, {
+    return read(req, res, parse, debug, {
       encoding: charset,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
-    return req.body;
   };
 }
 
@@ -104,6 +98,6 @@ function getCharset(req: Req) {
 
 function typeChecker(type: any) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req, type));
+    return Boolean(typeis(req as IncomingMessage, type));
   };
 }

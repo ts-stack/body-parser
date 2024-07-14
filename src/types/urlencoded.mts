@@ -13,10 +13,10 @@ import deprecate from 'depd';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
-import type { ServerResponse } from 'node:http';
+import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { NextFn, Req, UrlencodedOptions } from '../types.js';
+import { Req, Res, UrlencodedOptions } from '../types.js';
 
 const debug = debugInit('body-parser:urlencoded');
 deprecate('body-parser');
@@ -66,18 +66,13 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return async function urlencodedParser(req: Req, res: ServerResponse) {
-    if (req._body) {
-      debug('body already parsed');
-      return req.body;
-    }
-
-    req.body = req.body || {};
+  return async function urlencodedParser(req: Req, res: Res) {
+    const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req)) {
+    if (!typeis.hasBody(req as IncomingMessage)) {
       debug('skip empty body');
-      return req.body;
+      return body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -85,7 +80,7 @@ export function urlencoded(options: UrlencodedOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      return req.body;
+      return body;
     }
 
     // assert charset
@@ -99,14 +94,13 @@ export function urlencoded(options: UrlencodedOptions) {
     }
 
     // read
-    req.body = await read(req, res, parse, debug, {
+    return read(req, res, parse, debug, {
       debug,
       encoding: charset,
       inflate,
       limit,
       verify,
     });
-    return req.body;
   };
 }
 
@@ -256,6 +250,6 @@ function simpleparser(options: UrlencodedOptions) {
 
 function typeChecker(type: any) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req, type));
+    return Boolean(typeis(req as IncomingMessage, type));
   };
 }

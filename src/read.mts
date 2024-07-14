@@ -8,12 +8,12 @@ import createError from 'http-errors';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'node:zlib';
-import type { ServerResponse } from 'node:http';
+import { IncomingMessage } from 'node:http';
 
 import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import type { Fn, ParseFn, ReadOptions, Req } from './types.js';
+import type { Fn, ParseFn, ReadOptions, Req, Res } from './types.js';
 
 type ReqWithLength = Req & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
@@ -23,16 +23,13 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
  */
 export default async function read(
   req: Req,
-  res: ServerResponse,
+  res: Res,
   parse: ParseFn,
   debug: Fn,
   opts: ReadOptions,
 ): Promise<object | undefined> {
   let stream: ContentStream;
   let length: string | undefined;
-
-  // flag as parsed
-  req._body = true;
 
   // read options
   const encoding = opts.encoding !== null ? opts.encoding : null;
@@ -57,7 +54,7 @@ export default async function read(
   // read body
   debug('read body');
   try {
-    const buff = await getRawBody(stream, opts);
+    const buff = await getRawBody(stream as any, opts);
     return cb(buff);
   } catch (error: any) {
     return new Promise((resolve, reject) => {
@@ -163,7 +160,7 @@ function getContentStream(req: Req, debug: Fn, inflate?: boolean): ContentStream
  * Dump the contents of a request.
  */
 function dump(req: Req, callback: Fn) {
-  if (onFinished.isFinished(req)) {
+  if (onFinished.isFinished(req as IncomingMessage)) {
     callback(null);
   } else {
     onFinished(req, callback);

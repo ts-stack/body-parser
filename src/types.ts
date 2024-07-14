@@ -1,10 +1,14 @@
 import type { IncomingMessage, ServerResponse } from 'node:http';
 
-export type Req = IncomingMessage & { _body?: boolean; body?: { [key: string]: any } };
-export type NextFn = (err?: Error) => void;
+export type Req = {
+  headers: IncomingMessage['headers'];
+  pipe: IncomingMessage['pipe'];
+  resume: IncomingMessage['resume'];
+};
+export type Res = ServerResponse;
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
-export type VerifyFn = (req: IncomingMessage, res: ServerResponse, buf: Buffer, encoding: string | null) => void;
+export type VerifyFn = (req: Req, res: Res, buf: Buffer, encoding: string | null) => void;
 export interface ReadOptions {
   encoding: string | null;
   inflate?: boolean;
@@ -46,7 +50,7 @@ export interface RawOptions extends BaseOptions {
    * and the request is parsed if it returns a truthy value. Defaults to
    * `application/octet-stream`.
    */
-  type?: string | string[] | ((req: IncomingMessage) => any);
+  type?: string | string[] | ((req: Req) => any);
 }
 
 export interface JsonOptions extends BaseOptions {
@@ -72,7 +76,7 @@ export interface JsonOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a truthy
    * value. Defaults to `application/json`.
    */
-  type?: string | string[] | ((req: IncomingMessage) => any);
+  type?: string | string[] | ((req: Req) => any);
 }
 
 export interface TextOptions extends BaseOptions {
@@ -91,7 +95,7 @@ export interface TextOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a
    * truthy value. Defaults to `text/plain`.
    */
-  type?: string | string[] | ((req: IncomingMessage) => any);
+  type?: string | string[] | ((req: Req) => any);
 }
 
 export interface UrlencodedOptions extends BaseOptions {
@@ -125,5 +129,5 @@ export interface UrlencodedOptions extends BaseOptions {
    * `fn(req)` and the request is parsed if it returns a truthy value. Defaults
    * to `application/x-www-form-urlencoded`.
    */
-  type?: string | string[] | ((req: IncomingMessage) => any);
+  type?: string | string[] | ((req: Req) => any);
 }

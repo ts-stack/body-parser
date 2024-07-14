@@ -10,10 +10,10 @@ import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import type { IncomingMessage, ServerResponse } from 'node:http';
+import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { JsonOptions, Req } from '../types.js';
+import type { JsonOptions, Req, Res } from '../types.js';
 
 const debug = debugInit('body-parser:json');
 
@@ -87,18 +87,13 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return async function jsonParser(req: Req, res: ServerResponse) {
-    if (req._body) {
-      debug('body already parsed');
-      return req.body;
-    }
-
-    req.body = req.body || {};
+  return async function jsonParser(req: Req, res: Res) {
+    const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req)) {
+    if (!typeis.hasBody(req as IncomingMessage)) {
       debug('skip empty body');
-      return req.body;
+      return body;
     }
 
     debug(`content-type ${req.headers['content-type']}`);
@@ -106,7 +101,7 @@ export function json(options: JsonOptions) {
     // determine if request should be parsed
     if (!shouldParse(req)) {
       debug('skip parsing');
-      return req.body;
+      return body;
     }
 
     // assert charset per RFC 7159 sec 8.1
@@ -120,13 +115,12 @@ export function json(options: JsonOptions) {
     }
 
     // read
-    req.body = await read(req, res, parse, debug, {
+    return read(req, res, parse, debug, {
       encoding: charset,
       inflate,
       limit,
       verify,
     });
-    return req.body;
   };
 }
 
@@ -174,7 +168,7 @@ function firstchar(str: string) {
  * @api private
  */
 
-function getCharset(req: IncomingMessage) {
+function getCharset(req: Req) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
   } catch (e) {
@@ -211,6 +205,6 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
 
 function typeChecker(type: any) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req, type));
+    return Boolean(typeis(req as IncomingMessage, type));
   };
 }

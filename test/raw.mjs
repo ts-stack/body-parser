@@ -23,9 +23,9 @@ describe('raw()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, res, next) {
+    const server = createServer(function (req, res) {
       req.headers['content-length'] = '20'; // bad length
-      return rawParser(req, res, next);
+      return rawParser(req, res);
     });
 
     request(server)
@@ -54,11 +54,11 @@ describe('raw()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, res, next) {
+    const server = createServer(function (req, res) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await rawParser(req, res, next);
+            const body = await rawParser(req, res);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -73,20 +73,6 @@ describe('raw()', function () {
       .set('Content-Type', 'application/octet-stream')
       .send('the user is tobi')
       .expect(500, '[stream.not.readable] stream is not readable', done);
-  });
-
-  it('should handle duplicated middleware', function (done) {
-    const rawParser = raw();
-    const server = createServer(async function (req, res) {
-      await rawParser(req, res);
-      return rawParser(req, res);
-    });
-
-    request(server)
-      .post('/')
-      .set('Content-Type', 'application/octet-stream')
-      .send('the user is tobi')
-      .expect(200, 'buf:746865207573657220697320746f6269', done);
   });
 
   describe('with limit option', function () {
@@ -333,7 +319,7 @@ describe('raw()', function () {
       const rawParser = raw();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res, next) {
+      this.server = createServer(function (req, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {

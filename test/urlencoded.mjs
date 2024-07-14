@@ -76,20 +76,6 @@ describe('urlencoded()', function () {
       .expect(500, '[stream.not.readable] stream is not readable', done);
   });
 
-  it('should handle duplicated middleware', function (done) {
-    const urlencodedParser = urlencoded();
-    const server = createServer(async function (req, res) {
-      await urlencodedParser(req, res);
-      return urlencodedParser(req, res);
-    });
-
-    request(server)
-      .post('/')
-      .set('Content-Type', 'application/x-www-form-urlencoded')
-      .send('user=tobi')
-      .expect(200, '{"user":"tobi"}', done);
-  });
-
   it('should parse extended syntax', function (done) {
     request(this.server)
       .post('/')

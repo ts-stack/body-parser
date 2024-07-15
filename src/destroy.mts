@@ -5,8 +5,6 @@
  * MIT Licensed
  */
 
-'use strict';
-
 /**
  * Module dependencies.
  * @private
@@ -19,13 +17,8 @@ import Zlib from 'node:zlib';
 
 /**
  * Destroy the given stream, and optionally suppress any future `error` events.
- *
- * @param {object} stream
- * @param {boolean} suppress
- * @public
  */
-
-export default function destroy(stream: any, suppress: any) {
+export default function destroy(stream: any, suppress: boolean) {
   if (isFsReadStream(stream)) {
     destroyReadStream(stream);
   } else if (isZlibStream(stream)) {
@@ -42,11 +35,7 @@ export default function destroy(stream: any, suppress: any) {
 
 /**
  * Destroy a ReadStream.
- *
- * @param {object} stream
- * @private
  */
-
 function destroyReadStream(stream: any) {
   stream.destroy();
 
@@ -61,11 +50,7 @@ function destroyReadStream(stream: any) {
  *
  * Zlib streams below Node.js 4.5.5 have a buggy implementation
  * of .close() when zlib encountered an error.
- *
- * @param {object} stream
- * @private
  */
-
 function closeZlibStream(stream: any) {
   if (stream._hadError === true) {
     var prop = stream._binding === null ? '_binding' : '_handle';
@@ -91,11 +76,7 @@ function closeZlibStream(stream: any) {
  *
  * In Node.js 6+8, it's important that destroy is called before close as the
  * stream would otherwise emit the error 'zlib binding closed'.
- *
- * @param {object} stream
- * @private
  */
-
 function destroyZlibStream(stream: any) {
   if (typeof stream.destroy == 'function') {
     // node.js core bug work-around
@@ -129,9 +110,7 @@ function destroyZlibStream(stream: any) {
 
 /**
  * Determine if val is EventEmitter.
- * @private
  */
-
 function isEventEmitter(val: any) {
   return val instanceof EventEmitter;
 }
@@ -147,9 +126,7 @@ function isFsReadStream(stream: any) {
 
 /**
  * Determine if stream is Zlib stream.
- * @private
  */
-
 function isZlibStream(stream: any) {
   return (
     stream instanceof (Zlib as any).Gzip ||
@@ -164,16 +141,12 @@ function isZlibStream(stream: any) {
 
 /**
  * No-op function.
- * @private
  */
-
 function noop() {}
 
 /**
  * On drain handler to clear binding.
- * @private
  */
-
 // istanbul ignore next: node.js 0.8
 function onDrainClearBinding(this: any) {
   this._binding.clear();
@@ -181,9 +154,7 @@ function onDrainClearBinding(this: any) {
 
 /**
  * On open handler to close stream.
- * @private
  */
-
 function onOpenClose(this: any) {
   if (typeof this.fd == 'number') {
     // actually close down the fd

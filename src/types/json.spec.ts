@@ -5,7 +5,7 @@ import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
 import { json } from './json.mjs';
-import { JsonOptions } from '../types.mjs';
+import type { JsonOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
 

@@ -5,7 +5,7 @@ import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
 import { urlencoded } from './urlencoded.mjs';
-import { UrlencodedOptions } from '../types.mjs';
+import type { UrlencodedOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 

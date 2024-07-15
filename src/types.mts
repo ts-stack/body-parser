@@ -1,10 +1,6 @@
-import type { IncomingMessage } from 'node:http';
+import { Readable } from 'node:stream';
 
-export type Req = {
-  headers: IncomingMessage['headers'];
-  pipe: IncomingMessage['pipe'];
-  resume: IncomingMessage['resume'];
-};
+export type Req = Readable;
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
 export type VerifyFn = (req: Req, buf: Buffer, encoding: string | null) => void;

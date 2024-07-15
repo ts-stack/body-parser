@@ -23,9 +23,9 @@ describe('urlencoded()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req) {
-      req.headers['content-length'] = '20'; // bad length
-      return urlencodedParser(req);
+    const server = createServer(function (req, headers) {
+      headers['content-length'] = '20'; // bad length
+      return urlencodedParser(req, headers);
     });
 
     request(server)
@@ -55,11 +55,11 @@ describe('urlencoded()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req) {
+    const server = createServer(function (req, headers) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await urlencodedParser(req);
+            const body = await urlencodedParser(req, headers);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -615,7 +615,7 @@ describe('urlencoded()', function () {
       const urlencodedParser = urlencoded();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res) {
+      this.server = createServer(function (req, headers, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {
@@ -623,7 +623,7 @@ describe('urlencoded()', function () {
           if (local) {
             res.setHeader('x-store-foo', String(local.foo));
           }
-          return urlencodedParser(req, res);
+          return urlencodedParser(req, headers);
         });
       });
     });
@@ -793,7 +793,7 @@ function createServer(opts) {
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, res);
+      const body = await _bodyParser(req, req.headers, res);
       res.statusCode = 200;
       res.end(JSON.stringify(body));
     } catch (err) {

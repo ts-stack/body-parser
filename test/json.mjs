@@ -51,9 +51,9 @@ describe('json()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req) {
-      req.headers['content-length'] = '20'; // bad length
-      return jsonParser(req);
+    const server = createServer(function (req, headers) {
+      headers['content-length'] = '20'; // bad length
+      return jsonParser(req, headers);
     });
 
     request(server)
@@ -65,11 +65,11 @@ describe('json()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req) {
+    const server = createServer(function (req, headers) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await jsonParser(req);
+            const body = await jsonParser(req, headers);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -497,7 +497,7 @@ describe('json()', function () {
       const jsonParser = json();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res) {
+      this.server = createServer(function (req, headers, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {
@@ -505,7 +505,7 @@ describe('json()', function () {
           if (local) {
             res.setHeader('x-store-foo', String(local.foo));
           }
-          return jsonParser(req, res);
+          return jsonParser(req, headers);
         });
       });
     });
@@ -694,13 +694,14 @@ function createServer(optsOrCallback) {
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, res);
+      const body = await _bodyParser(req, req.headers, res);
       // console.log('-'.repeat(50), 'success response');
       res.statusCode = 200;
       res.end(JSON.stringify(body));
     } catch (err) {
-      // console.log('-'.repeat(50), 'catch error:', 'status', err.status, err);
       res.statusCode = err.status || 500;
+      // if (res.statusCode === 500)
+      // console.log('-'.repeat(50), 'catch error:', 'status', err.status, err);
       res.end(
         req.headers['x-error-property'] ? err[req.headers['x-error-property']] : '[' + err.type + '] ' + err.message,
       );

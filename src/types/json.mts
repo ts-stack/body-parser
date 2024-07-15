@@ -10,7 +10,7 @@ import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
 import type { JsonOptions, Req } from '../types.mjs';
@@ -87,7 +87,7 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return async function jsonParser(req: Req) {
+  return async function jsonParser(req: Req, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -96,7 +96,7 @@ export function json(options: JsonOptions) {
       return body;
     }
 
-    debug(`content-type ${req.headers['content-type']}`);
+    debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -115,7 +115,7 @@ export function json(options: JsonOptions) {
     }
 
     // read
-    return read(req, parse, debug, {
+    return read(req, headers, parse, debug, {
       encoding: charset,
       inflate,
       limit,
@@ -166,7 +166,7 @@ function firstchar(str: string) {
  */
 function getCharset(req: Req) {
   try {
-    return (contentType.parse(req).parameters.charset || '').toLowerCase();
+    return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
   } catch (e) {
     return undefined;
   }

@@ -12,7 +12,7 @@ import debugInit from 'debug';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
 import { Req, UrlencodedOptions } from '../types.mjs';
@@ -53,7 +53,7 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return async function urlencodedParser(req: Req) {
+  return async function urlencodedParser(req: Req, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -62,7 +62,7 @@ export function urlencoded(options: UrlencodedOptions) {
       return body;
     }
 
-    debug(`content-type ${req.headers['content-type']}`);
+    debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -73,7 +73,7 @@ export function urlencoded(options: UrlencodedOptions) {
     // assert charset
     let charset = 'utf-8';
     try {
-      charset = (contentType.parse(req).parameters.charset || '').toLowerCase() || 'utf-8';
+      charset = (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase() || 'utf-8';
     } catch (e) {}
 
     if (charset !== 'utf-8') {
@@ -85,7 +85,7 @@ export function urlencoded(options: UrlencodedOptions) {
     }
 
     // read
-    return read(req, parse, debug, {
+    return read(req, headers, parse, debug, {
       debug,
       encoding: charset,
       inflate,

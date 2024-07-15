@@ -7,7 +7,7 @@
 import bytes from 'bytes';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
 import type { RawOptions, Req } from '../types.mjs';
@@ -42,7 +42,7 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return async function rawParser(req: Req) {
+  return async function rawParser(req: Req, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -51,7 +51,7 @@ export function raw(options: RawOptions) {
       return body;
     }
 
-    debug(`content-type ${req.headers['content-type']}`);
+    debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -60,7 +60,7 @@ export function raw(options: RawOptions) {
     }
 
     // read
-    return read(req, parse, debug, {
+    return read(req, headers, parse, debug, {
       encoding: null,
       inflate: inflate,
       limit: limit,

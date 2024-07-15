@@ -23,9 +23,9 @@ describe('raw()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req) {
-      req.headers['content-length'] = '20'; // bad length
-      return rawParser(req);
+    const server = createServer(function (req, headers) {
+      headers['content-length'] = '20'; // bad length
+      return rawParser(req, headers);
     });
 
     request(server)
@@ -54,11 +54,11 @@ describe('raw()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req) {
+    const server = createServer(function (req, headers) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await rawParser(req);
+            const body = await rawParser(req, headers);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -319,7 +319,7 @@ describe('raw()', function () {
       const rawParser = raw();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, res) {
+      this.server = createServer(function (req, headers, res) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {
@@ -327,7 +327,7 @@ describe('raw()', function () {
           if (local) {
             res.setHeader('x-store-foo', String(local.foo));
           }
-          return rawParser(req, res);
+          return rawParser(req, headers);
         });
       });
     });
@@ -458,7 +458,7 @@ function createServer(opts) {
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, res);
+      const body = await _bodyParser(req, req.headers, res);
       if (Buffer.isBuffer(body)) {
         res.end('buf:' + body.toString('hex'));
         return;

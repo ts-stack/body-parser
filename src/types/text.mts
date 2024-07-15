@@ -8,7 +8,7 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
 import { Req, TextOptions } from '../types.mjs';
@@ -19,7 +19,7 @@ const debug = debugInit('body-parser:text');
  * Returns middleware that parses all bodies as a string and only looks at
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
- * 
+ *
  * A new `body` string containing the parsed data is populated on the `request`
  * object after the middleware (i.e. `req.body`). This will be a string of the
  * body.
@@ -44,7 +44,7 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return async function textParser(req: Req) {
+  return async function textParser(req: Req, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -53,7 +53,7 @@ export function text(options: TextOptions) {
       return body;
     }
 
-    debug(`content-type ${req.headers['content-type']}`);
+    debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
     if (!shouldParse(req)) {
@@ -65,7 +65,7 @@ export function text(options: TextOptions) {
     const charset = getCharset(req) || defaultCharset;
 
     // read
-    return read(req, parse, debug, {
+    return read(req, headers, parse, debug, {
       encoding: charset,
       inflate: inflate,
       limit: limit,
@@ -79,7 +79,7 @@ export function text(options: TextOptions) {
  */
 function getCharset(req: Req) {
   try {
-    return (contentType.parse(req).parameters.charset || '').toLowerCase();
+    return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
   } catch (e) {
     return undefined;
   }

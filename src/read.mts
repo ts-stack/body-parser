@@ -8,12 +8,13 @@ import createError from 'http-errors';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'node:zlib';
-import { IncomingMessage } from 'node:http';
+import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 
 import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
 import type { Fn, ParseFn, ReadOptions, Req } from './types.mjs';
+import { Writable } from 'node:stream';
 
 type ReqWithLength = Req & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
@@ -23,6 +24,7 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
  */
 export default async function read(
   req: Req,
+  headers: IncomingHttpHeaders,
   parse: ParseFn,
   debug: Fn,
   opts: ReadOptions,
@@ -34,7 +36,7 @@ export default async function read(
   const encoding = opts.encoding !== null ? opts.encoding : null;
   const verify = opts.verify;
 
-  stream = getContentStream(req, debug, opts.inflate);
+  stream = getContentStream(req, headers, debug, opts.inflate);
   length = (stream as ReqWithLength).length;
   (stream as ReqWithLength).length = undefined;
 
@@ -116,9 +118,9 @@ export default async function read(
 /**
  * Get the content stream of the request.
  */
-function getContentStream(req: Req, debug: Fn, inflate?: boolean): ContentStream {
-  const encoding = (req.headers['content-encoding'] || 'identity').toLowerCase();
-  const length = req.headers['content-length'];
+function getContentStream(req: Req, headers: IncomingHttpHeaders, debug: Fn, inflate?: boolean): ContentStream {
+  const encoding = (headers['content-encoding'] || 'identity').toLowerCase();
+  const length = headers['content-length'];
   let stream: ContentStream;
 
   debug('content-encoding "%s"', encoding);
@@ -134,12 +136,12 @@ function getContentStream(req: Req, debug: Fn, inflate?: boolean): ContentStream
     case 'deflate':
       stream = zlib.createInflate();
       debug('inflate body');
-      req.pipe(stream);
+      req.pipe(stream as Writable);
       break;
     case 'gzip':
       stream = zlib.createGunzip();
       debug('gunzip body');
-      req.pipe(stream);
+      req.pipe(stream as Writable);
       break;
     case 'identity':
       stream = req;

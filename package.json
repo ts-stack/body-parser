@@ -2,7 +2,7 @@
   "name": "@ts-stack/body-parser",
   "type": "module",
   "description": "Node.js body parsing middleware",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-alpha.0",
   "license": "MIT",
   "repository": "ts-stack/body-parser",
   "dependencies": {

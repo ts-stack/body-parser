@@ -58,9 +58,10 @@
   },
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
+    "build-test": "tsc -b tsconfig.unit.json",
     "lint": "eslint .",
-    "test": "npm run build && node --enable-source-maps --env-file=test/.env node_modules/mocha/bin/mocha.js --reporter spec --check-leaks --bail test/",
-    "test-ci": "nyc --reporter=lcov --reporter=text npm test",
-    "test-cov": "nyc --reporter=html --reporter=text npm test"
+    "test": "npm run build-test && node --enable-source-maps --env-file=.env node_modules/mocha/bin/mocha.js --reporter spec --check-leaks --bail dist/**/*.spec.js",
+    "test-ci": "nyc --reporter=lcov --reporter=text npm src",
+    "test-cov": "nyc --reporter=html --reporter=text npm src"
   }
 }

@@ -4,7 +4,8 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { raw } from '../dist/index.mjs';
+import { raw } from './raw.mjs';
+import { RawOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
 
@@ -23,7 +24,7 @@ describe('raw()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, headers) {
+    const server = createServer(function (req: any, headers: any) {
       headers['content-length'] = '20'; // bad length
       return rawParser(req, headers);
     });
@@ -54,7 +55,7 @@ describe('raw()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, headers) {
+    const server = createServer(function (req: any, headers: any) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
@@ -77,7 +78,7 @@ describe('raw()', function () {
 
   describe('with limit option', function () {
     it('should 413 when over limit with Content-Length', function (done) {
-      const buf = Buffer.alloc(1028, '.');
+      const buf: any = Buffer.alloc(1028, '.');
       const server = createServer({ limit: '1kb' });
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
@@ -87,7 +88,7 @@ describe('raw()', function () {
     });
 
     it('should 413 when over limit with chunked encoding', function (done) {
-      const buf = Buffer.alloc(1028, '.');
+      const buf: any = Buffer.alloc(1028, '.');
       const server = createServer({ limit: '1kb' });
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
@@ -101,12 +102,12 @@ describe('raw()', function () {
       const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000ad3d31b05a360148c64000087e5a14704040000', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000ad3d31b05a360148c64000087e5a14704040000', 'hex') as any);
       test.expect(413, done);
     });
 
     it('should accept number of bytes', function (done) {
-      const buf = Buffer.alloc(1028, '.');
+      const buf: any = Buffer.alloc(1028, '.');
       const server = createServer({ limit: 1024 });
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
@@ -115,7 +116,7 @@ describe('raw()', function () {
     });
 
     it('should not change when options altered', function (done) {
-      const buf = Buffer.alloc(1028, '.');
+      const buf: any = Buffer.alloc(1028, '.');
       const options = { limit: '1kb' };
       const server = createServer(options);
 
@@ -128,7 +129,7 @@ describe('raw()', function () {
     });
 
     it('should not hang response', function (done) {
-      const buf = Buffer.alloc(10240, '.');
+      const buf: any = Buffer.alloc(10240, '.');
       const server = createServer({ limit: '8kb' });
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
@@ -143,7 +144,7 @@ describe('raw()', function () {
       const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000ad3d31b05a360148c64000087e5a147040400', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000ad3d31b05a360148c64000087e5a147040400', 'hex') as any);
       test.expect(413, done);
     });
   });
@@ -158,7 +159,7 @@ describe('raw()', function () {
         const test = request(this.server).post('/');
         test.set('Content-Encoding', 'gzip');
         test.set('Content-Type', 'application/octet-stream');
-        test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex'));
+        test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex') as any);
         test.expect(415, '[encoding.unsupported] content encoding unsupported', done);
       });
     });
@@ -172,7 +173,7 @@ describe('raw()', function () {
         const test = request(this.server).post('/');
         test.set('Content-Encoding', 'gzip');
         test.set('Content-Type', 'application/octet-stream');
-        test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex'));
+        test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex') as any);
         test.expect(200, 'buf:6e616d653de8aeba', done);
       });
     });
@@ -187,14 +188,14 @@ describe('raw()', function () {
       it('should parse for custom type', function (done) {
         const test = request(this.server).post('/');
         test.set('Content-Type', 'application/vnd+octets');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, 'buf:000102', done);
       });
 
       it('should ignore standard type', function (done) {
         const test = request(this.server).post('/');
         test.set('Content-Type', 'application/octet-stream');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, '{}', done);
       });
     });
@@ -209,21 +210,21 @@ describe('raw()', function () {
       it('should parse "application/octet-stream"', function (done) {
         const test = request(this.server).post('/');
         test.set('Content-Type', 'application/octet-stream');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, 'buf:000102', done);
       });
 
       it('should parse "application/vnd+octets"', function (done) {
         const test = request(this.server).post('/');
         test.set('Content-Type', 'application/vnd+octets');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, 'buf:000102', done);
       });
 
       it('should ignore "application/x-foo"', function (done) {
         const test = request(this.server).post('/');
         test.set('Content-Type', 'application/x-foo');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, '{}', done);
       });
     });
@@ -232,32 +233,32 @@ describe('raw()', function () {
       it('should parse when truthy value returned', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req) {
+        function accept(req: any) {
           return req.headers['content-type'] === 'application/vnd.octet';
         }
 
         const test = request(server).post('/');
         test.set('Content-Type', 'application/vnd.octet');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, 'buf:000102', done);
       });
 
       it('should work without content-type', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req) {
+        function accept(req: any) {
           return true;
         }
 
         const test = request(server).post('/');
-        test.write(Buffer.from('000102', 'hex'));
+        test.write(Buffer.from('000102', 'hex') as any);
         test.expect(200, 'buf:000102', done);
       });
 
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req) {
+        function accept(req: any) {
           throw new Error('oops!');
         }
 
@@ -268,7 +269,7 @@ describe('raw()', function () {
 
   describe('with verify option', function () {
     it('should assert value is function', function () {
-      assert.throws(createServer.bind(null, { verify: 'lol' }), /TypeError: option verify must be function/);
+      assert.throws(createServer.bind(null, { verify: 'lol' } as any), /TypeError: option verify must be function/);
     });
 
     it('should error from verify', function (done) {
@@ -280,7 +281,7 @@ describe('raw()', function () {
 
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('000102', 'hex'));
+      test.write(Buffer.from('000102', 'hex') as any);
       test.expect(403, '[entity.verify.failed] no leading null', done);
     });
 
@@ -288,7 +289,7 @@ describe('raw()', function () {
       const server = createServer({
         verify: function (req, buf) {
           if (buf[0] !== 0x00) return;
-          const err = new Error('no leading null');
+          const err: any = new Error('no leading null');
           err.status = 400;
           throw err;
         },
@@ -296,7 +297,7 @@ describe('raw()', function () {
 
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('000102', 'hex'));
+      test.write(Buffer.from('000102', 'hex') as any);
       test.expect(400, '[entity.verify.failed] no leading null', done);
     });
 
@@ -309,7 +310,7 @@ describe('raw()', function () {
 
       const test = request(server).post('/');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('0102', 'hex'));
+      test.write(Buffer.from('0102', 'hex') as any);
       test.expect(200, 'buf:0102', done);
     });
   });
@@ -319,11 +320,11 @@ describe('raw()', function () {
       const rawParser = raw();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req, headers, res) {
+      this.server = createServer(function (req: any, headers: any, res: any) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {
-          const local = asyncLocalStorage.getStore();
+          const local: any = asyncLocalStorage.getStore();
           if (local) {
             res.setHeader('x-store-foo', String(local.foo));
           }
@@ -358,7 +359,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex') as any);
       test.expect(200);
       test.expect('x-store-foo', 'bar');
       test.expect('buf:6e616d653de8aeba');
@@ -369,7 +370,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad6080000', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad6080000', 'hex') as any);
       test.expect(400);
       test.expect('x-store-foo', 'bar');
       test.end(done);
@@ -394,7 +395,7 @@ describe('raw()', function () {
     it('should ignore charset', function (done) {
       const test = request(this.server).post('/');
       test.set('Content-Type', 'application/octet-stream; charset=utf-8');
-      test.write(Buffer.from('6e616d6520697320e8aeba', 'hex'));
+      test.write(Buffer.from('6e616d6520697320e8aeba', 'hex') as any);
       test.expect(200, 'buf:6e616d6520697320e8aeba', done);
     });
   });
@@ -407,7 +408,7 @@ describe('raw()', function () {
     it('should parse without encoding', function (done) {
       const test = request(this.server).post('/');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('6e616d653de8aeba', 'hex'));
+      test.write(Buffer.from('6e616d653de8aeba', 'hex') as any);
       test.expect(200, 'buf:6e616d653de8aeba', done);
     });
 
@@ -415,7 +416,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'identity');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('6e616d653de8aeba', 'hex'));
+      test.write(Buffer.from('6e616d653de8aeba', 'hex') as any);
       test.expect(200, 'buf:6e616d653de8aeba', done);
     });
 
@@ -423,7 +424,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex') as any);
       test.expect(200, 'buf:6e616d653de8aeba', done);
     });
 
@@ -431,7 +432,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'deflate');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('789ccb4bcc4db57db16e17001068042f', 'hex'));
+      test.write(Buffer.from('789ccb4bcc4db57db16e17001068042f', 'hex') as any);
       test.expect(200, 'buf:6e616d653de8aeba', done);
     });
 
@@ -439,7 +440,7 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'GZIP');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex'));
+      test.write(Buffer.from('1f8b080000000000000bcb4bcc4db57db16e170099a4bad608000000', 'hex') as any);
       test.expect(200, 'buf:6e616d653de8aeba', done);
     });
 
@@ -447,14 +448,14 @@ describe('raw()', function () {
       const test = request(this.server).post('/');
       test.set('Content-Encoding', 'nulls');
       test.set('Content-Type', 'application/octet-stream');
-      test.write(Buffer.from('000000000000', 'hex'));
+      test.write(Buffer.from('000000000000', 'hex') as any);
       test.expect(415, '[encoding.unsupported] unsupported content encoding "nulls"', done);
     });
   });
 });
 
-function createServer(opts) {
-  const _bodyParser = typeof opts != 'function' ? raw(opts) : opts;
+function createServer(opts?: RawOptions | Function) {
+  const _bodyParser: any = typeof opts != 'function' ? raw(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {
@@ -465,7 +466,7 @@ function createServer(opts) {
       }
 
       res.end(JSON.stringify(body));
-    } catch (err) {
+    } catch (err: any) {
       res.statusCode = err.status || 500;
       res.end('[' + err.type + '] ' + err.message);
       return;

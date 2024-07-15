@@ -9,7 +9,6 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
-import deprecate from 'depd';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
@@ -19,7 +18,6 @@ import read from '../read.mjs';
 import { Req, Res, UrlencodedOptions } from '../types.js';
 
 const debug = debugInit('body-parser:urlencoded');
-deprecate('body-parser');
 
 /**
  * Returns middleware that only parses `urlencoded` bodies and only looks at

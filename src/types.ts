@@ -1,11 +1,12 @@
 import type { IncomingMessage } from 'node:http';
+import type { AsyncResource } from 'node:async_hooks';
 
 export type Req = {
   headers: IncomingMessage['headers'];
   pipe: IncomingMessage['pipe'];
   resume: IncomingMessage['resume'];
 };
-export type Res = { runInAsyncScope?: Fn };
+export type Res = { runInAsyncScope?: AsyncResource['runInAsyncScope'] };
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
 export type VerifyFn = (req: Req, res: Res, buf: Buffer, encoding: string | null) => void;

@@ -12,7 +12,7 @@ import createError from 'http-errors';
 import iconv from 'iconv-lite';
 
 import unpipe from './unpipe.mjs';
-import { Fn } from './types.js';
+import { Fn } from './types.mjs';
 import { RawBodyEncoding, RawBodyError, RawBodyOptions } from './raw-body-types.js';
 
 const ICONV_ENCODING_MESSAGE_REGEXP = /^Encoding not recognized: /;

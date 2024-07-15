@@ -13,7 +13,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { JsonOptions, Req, Res } from '../types.js';
+import type { JsonOptions, Req, Res } from '../types.mjs';
 
 const debug = debugInit('body-parser:json');
 

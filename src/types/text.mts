@@ -11,7 +11,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { Req, Res, TextOptions } from '../types.js';
+import { Req, Res, TextOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:text');
 

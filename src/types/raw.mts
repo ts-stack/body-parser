@@ -10,7 +10,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { RawOptions, Req, Res } from '../types.js';
+import type { RawOptions, Req, Res } from '../types.mjs';
 
 const debug = debugInit('body-parser:raw');
 

@@ -13,7 +13,7 @@ import { IncomingMessage } from 'node:http';
 import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import type { Fn, ParseFn, ReadOptions, Req, Res } from './types.js';
+import type { Fn, ParseFn, ReadOptions, Req, Res } from './types.mjs';
 
 type ReqWithLength = Req & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;

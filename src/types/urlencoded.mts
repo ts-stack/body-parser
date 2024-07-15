@@ -15,7 +15,7 @@ import querystring from 'node:querystring';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { Req, Res, UrlencodedOptions } from '../types.js';
+import { Req, Res, UrlencodedOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:urlencoded');
 

@@ -44,7 +44,7 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  * A new `body` object containing the parsed data is populated on the `request`
  * object after the middleware (i.e. `req.body`).
  */
-export function json(options: JsonOptions) {
+export function json(options?: JsonOptions) {
   const opts = options || {};
 
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;

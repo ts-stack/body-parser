@@ -1,15 +1,13 @@
 import type { IncomingMessage } from 'node:http';
-import type { AsyncResource } from 'node:async_hooks';
 
 export type Req = {
   headers: IncomingMessage['headers'];
   pipe: IncomingMessage['pipe'];
   resume: IncomingMessage['resume'];
 };
-export type Res = { runInAsyncScope?: AsyncResource['runInAsyncScope'] };
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
-export type VerifyFn = (req: Req, res: Res, buf: Buffer, encoding: string | null) => void;
+export type VerifyFn = (req: Req, buf: Buffer, encoding: string | null) => void;
 export interface ReadOptions {
   encoding: string | null;
   inflate?: boolean;
@@ -32,7 +30,7 @@ export interface BaseOptions {
    */
   limit?: number | string;
   /**
-   * The `verify` option, if supplied, is called as `verify(req, res, buf, encoding)`,
+   * The `verify` option, if supplied, is called as `verify(req, buf, encoding)`,
    * where `buf` is a `Buffer` of the raw request body and `encoding` is the
    * encoding of the request. The parsing can be aborted by throwing an error.
    */

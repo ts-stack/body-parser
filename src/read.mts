@@ -13,7 +13,7 @@ import { IncomingMessage } from 'node:http';
 import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import type { Fn, ParseFn, ReadOptions, Req, Res } from './types.mjs';
+import type { Fn, ParseFn, ReadOptions, Req } from './types.mjs';
 
 type ReqWithLength = Req & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
@@ -23,7 +23,6 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
  */
 export default async function read(
   req: Req,
-  res: Res,
   parse: ParseFn,
   debug: Fn,
   opts: ReadOptions,
@@ -90,7 +89,7 @@ export default async function read(
     if (verify) {
       try {
         debug('verify body');
-        verify(req, res, body, encoding);
+        verify(req, body, encoding);
       } catch (err: any) {
         throw createError(403, err, {
           body: body,

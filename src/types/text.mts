@@ -11,7 +11,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { Req, Res, TextOptions } from '../types.mjs';
+import { Req, TextOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:text');
 
@@ -44,7 +44,7 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return async function textParser(req: Req, res: Res) {
+  return async function textParser(req: Req) {
     const body = {};
 
     // skip requests without bodies
@@ -65,7 +65,7 @@ export function text(options: TextOptions) {
     const charset = getCharset(req) || defaultCharset;
 
     // read
-    return read(req, res, parse, debug, {
+    return read(req, parse, debug, {
       encoding: charset,
       inflate: inflate,
       limit: limit,

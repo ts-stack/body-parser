@@ -13,7 +13,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { JsonOptions, Req, Res } from '../types.mjs';
+import type { JsonOptions, Req } from '../types.mjs';
 
 const debug = debugInit('body-parser:json');
 
@@ -87,7 +87,7 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return async function jsonParser(req: Req, res: Res) {
+  return async function jsonParser(req: Req) {
     const body = {};
 
     // skip requests without bodies
@@ -115,7 +115,7 @@ export function json(options: JsonOptions) {
     }
 
     // read
-    return read(req, res, parse, debug, {
+    return read(req, parse, debug, {
       encoding: charset,
       inflate,
       limit,

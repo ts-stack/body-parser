@@ -10,7 +10,7 @@ import typeis from 'type-is';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import type { RawOptions, Req, Res } from '../types.mjs';
+import type { RawOptions, Req } from '../types.mjs';
 
 const debug = debugInit('body-parser:raw');
 
@@ -42,7 +42,7 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return async function rawParser(req: Req, res: Res) {
+  return async function rawParser(req: Req) {
     const body = {};
 
     // skip requests without bodies
@@ -60,7 +60,7 @@ export function raw(options: RawOptions) {
     }
 
     // read
-    return read(req, res, parse, debug, {
+    return read(req, parse, debug, {
       encoding: null,
       inflate: inflate,
       limit: limit,

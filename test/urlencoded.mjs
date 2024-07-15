@@ -23,9 +23,9 @@ describe('urlencoded()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       req.headers['content-length'] = '20'; // bad length
-      return urlencodedParser(req, res);
+      return urlencodedParser(req);
     });
 
     request(server)
@@ -55,11 +55,11 @@ describe('urlencoded()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const urlencodedParser = urlencoded();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await urlencodedParser(req, res);
+            const body = await urlencodedParser(req);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -536,7 +536,7 @@ describe('urlencoded()', function () {
 
     it('should error from verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x20) throw new Error('no leading space');
         },
       });
@@ -550,7 +550,7 @@ describe('urlencoded()', function () {
 
     it('should allow custom codes', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x20) return;
           const err = new Error('no leading space');
           err.status = 400;
@@ -567,7 +567,7 @@ describe('urlencoded()', function () {
 
     it('should allow custom type', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x20) return;
           const err = new Error('no leading space');
           err.type = 'foo.bar';
@@ -584,7 +584,7 @@ describe('urlencoded()', function () {
 
     it('should allow pass-through', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x5b) throw new Error('no arrays');
         },
       });
@@ -598,7 +598,7 @@ describe('urlencoded()', function () {
 
     it('should 415 on unknown charset prior to verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           throw new Error('unexpected verify call');
         },
       });

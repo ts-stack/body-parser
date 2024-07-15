@@ -51,9 +51,9 @@ describe('json()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       req.headers['content-length'] = '20'; // bad length
-      return jsonParser(req, res);
+      return jsonParser(req);
     });
 
     request(server)
@@ -65,11 +65,11 @@ describe('json()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const jsonParser = json();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await jsonParser(req, res);
+            const body = await jsonParser(req);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -390,7 +390,7 @@ describe('json()', function () {
 
     it('should error from verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x5b) throw new Error('no arrays');
         },
       });
@@ -404,7 +404,7 @@ describe('json()', function () {
 
     it('should allow custom codes', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x5b) return;
           const err = new Error('no arrays');
           err.status = 400;
@@ -421,7 +421,7 @@ describe('json()', function () {
 
     it('should allow custom type', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x5b) return;
           const err = new Error('no arrays');
           err.type = 'foo.bar';
@@ -438,7 +438,7 @@ describe('json()', function () {
 
     it('should include original body on error object', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x5b) throw new Error('no arrays');
         },
       });
@@ -453,7 +453,7 @@ describe('json()', function () {
 
     it('should allow pass-through', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x5b) throw new Error('no arrays');
         },
       });
@@ -467,7 +467,7 @@ describe('json()', function () {
 
     it('should work with different charsets', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x5b) throw new Error('no arrays');
         },
       });
@@ -480,7 +480,7 @@ describe('json()', function () {
 
     it('should 415 on unknown charset prior to verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           throw new Error('unexpected verify call');
         },
       });

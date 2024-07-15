@@ -15,7 +15,7 @@ import querystring from 'node:querystring';
 import { IncomingMessage } from 'node:http';
 
 import read from '../read.mjs';
-import { Req, Res, UrlencodedOptions } from '../types.mjs';
+import { Req, UrlencodedOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:urlencoded');
 
@@ -53,7 +53,7 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return async function urlencodedParser(req: Req, res: Res) {
+  return async function urlencodedParser(req: Req) {
     const body = {};
 
     // skip requests without bodies
@@ -85,7 +85,7 @@ export function urlencoded(options: UrlencodedOptions) {
     }
 
     // read
-    return read(req, res, parse, debug, {
+    return read(req, parse, debug, {
       debug,
       encoding: charset,
       inflate,

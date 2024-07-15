@@ -23,9 +23,9 @@ describe('raw()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       req.headers['content-length'] = '20'; // bad length
-      return rawParser(req, res);
+      return rawParser(req);
     });
 
     request(server)
@@ -54,11 +54,11 @@ describe('raw()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const rawParser = raw();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await rawParser(req, res);
+            const body = await rawParser(req);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -273,7 +273,7 @@ describe('raw()', function () {
 
     it('should error from verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x00) throw new Error('no leading null');
         },
       });
@@ -286,7 +286,7 @@ describe('raw()', function () {
 
     it('should allow custom codes', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x00) return;
           const err = new Error('no leading null');
           err.status = 400;
@@ -302,7 +302,7 @@ describe('raw()', function () {
 
     it('should allow pass-through', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x00) throw new Error('no leading null');
         },
       });

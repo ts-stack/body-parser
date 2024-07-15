@@ -23,9 +23,9 @@ describe('text()', function () {
 
   it('should 400 when invalid content-length', function (done) {
     const textParser = text();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       req.headers['content-length'] = '20'; // bad length
-      return textParser(req, res);
+      return textParser(req);
     });
 
     request(server)
@@ -54,11 +54,11 @@ describe('text()', function () {
 
   it('should 500 if stream not readable', function (done) {
     const textParser = text();
-    const server = createServer(function (req, res) {
+    const server = createServer(function (req) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
           try {
-            const body = await textParser(req, res);
+            const body = await textParser(req);
             resolve(body);
           } catch (error) {
             reject(error);
@@ -286,7 +286,7 @@ describe('text()', function () {
 
     it('should error from verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x20) throw new Error('no leading space');
         },
       });
@@ -300,7 +300,7 @@ describe('text()', function () {
 
     it('should allow custom codes', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] !== 0x20) return;
           const err = new Error('no leading space');
           err.status = 400;
@@ -317,7 +317,7 @@ describe('text()', function () {
 
     it('should allow pass-through', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           if (buf[0] === 0x20) throw new Error('no leading space');
         },
       });
@@ -331,7 +331,7 @@ describe('text()', function () {
 
     it('should 415 on unknown charset prior to verify', function (done) {
       const server = createServer({
-        verify: function (req, res, buf) {
+        verify: function (req, buf) {
           throw new Error('unexpected verify call');
         },
       });

@@ -25,10 +25,12 @@ This module provides the following parsers:
 npm install @ts-stack/body-parser
 ```
 
+Please make sure that Node.js (version >= 20.6.0) is installed on your operating system.
+
 ## API
 
 ```ts
-var bodyParser = require('@ts-stack/body-parser')
+import { json, raw, text, urlencoded } from '@ts-stack/body-parser';
 ```
 
 The `bodyParser` object exposes various factories to create middlewares. All

@@ -10,7 +10,7 @@ const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? 
 
 describe('urlencoded()', function () {
   before(function () {
-    this.server = createServer();
+    this.server = createServer({ extended: true });
   });
 
   it('should parse x-www-form-urlencoded', function (done) {

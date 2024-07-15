@@ -35,12 +35,7 @@ deprecate('body-parser');
 export function urlencoded(options: UrlencodedOptions) {
   const opts = options || {};
 
-  // notice because option default will flip in next major
-  if (opts.extended === undefined) {
-    deprecate('undefined extended: provide extended option');
-  }
-
-  const extended = opts.extended !== false;
+  const extended = opts.extended || false;
   const inflate = opts.inflate !== false;
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
   const type = opts.type || 'application/x-www-form-urlencoded';

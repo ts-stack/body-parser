@@ -61,7 +61,7 @@
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "lint": "eslint .",
-    "test": "npm run build && node --enable-source-maps --env-file=test/support/.env node_modules/mocha/bin/mocha.js --reporter spec --check-leaks --bail test/",
+    "test": "npm run build && node --enable-source-maps --env-file=test/.env node_modules/mocha/bin/mocha.js --reporter spec --check-leaks --bail test/",
     "test-ci": "nyc --reporter=lcov --reporter=text npm test",
     "test-cov": "nyc --reporter=html --reporter=text npm test"
   }

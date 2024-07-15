@@ -48,11 +48,11 @@ export function urlencoded(options: UrlencodedOptions) {
 
   const extended = opts.extended !== false;
   const inflate = opts.inflate !== false;
-  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
   const type = opts.type || 'application/x-www-form-urlencoded';
   const verify = opts.verify || false;
 
-  if (verify !== false && typeof verify !== 'function') {
+  if (verify !== false && typeof verify != 'function') {
     throw new TypeError('option verify must be function');
   }
 
@@ -60,7 +60,7 @@ export function urlencoded(options: UrlencodedOptions) {
   const queryparse = extended ? extendedparser(opts) : simpleparser(opts);
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
   function parse(body: any) {
     return body.length ? queryparse(body) : {};

@@ -54,7 +54,7 @@ export function getRawBody(stream: Readable, callbackOrOptions?: RawBodyOptions 
     throw new TypeError('argument stream must be a stream');
   }
 
-  if (callbackOrOptions === true || typeof callbackOrOptions === 'string') {
+  if (callbackOrOptions === true || typeof callbackOrOptions == 'string') {
     // short cut for encoding
     opts = {
       encoding: callbackOrOptions,
@@ -67,7 +67,7 @@ export function getRawBody(stream: Readable, callbackOrOptions?: RawBodyOptions 
   }
 
   // validate callback is a function, if provided
-  if (done !== undefined && typeof done !== 'function') {
+  if (done !== undefined && typeof done != 'function') {
     throw new TypeError('argument callback must be a function');
   }
 
@@ -140,7 +140,7 @@ function readStream(
     );
   }
 
-  if (typeof stream.readable !== 'undefined' && !stream.readable) {
+  if (stream.readable !== undefined && !stream.readable) {
     return done(
       createError(500, 'stream is not readable', {
         type: 'stream.not.readable',
@@ -187,7 +187,7 @@ function readStream(
         halt(stream);
       }
 
-      callback.apply(null, args);
+      callback(...args);
     }
   }
 

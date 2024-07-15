@@ -33,7 +33,7 @@ export default function unpipe(stream: any) {
     throw new TypeError('argument stream is required');
   }
 
-  if (typeof stream.unpipe === 'function') {
+  if (typeof stream.unpipe == 'function') {
     // new-style
     stream.unpipe();
     return;

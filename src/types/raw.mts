@@ -27,11 +27,11 @@ export function raw(options: RawOptions) {
   const opts = options || {};
 
   const inflate = opts.inflate !== false;
-  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
   const type = opts.type || 'application/octet-stream';
   const verify = opts.verify || false;
 
-  if (verify !== false && typeof verify !== 'function') {
+  if (verify !== false && typeof verify != 'function') {
     throw new TypeError('option verify must be function');
   }
 

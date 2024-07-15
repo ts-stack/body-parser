@@ -50,7 +50,7 @@ export default function destroy(stream: any, suppress: any) {
 function destroyReadStream(stream: any) {
   stream.destroy();
 
-  if (typeof stream.close === 'function') {
+  if (typeof stream.close == 'function') {
     // node.js core bug work-around
     stream.on('open', onOpenClose);
   }
@@ -97,7 +97,7 @@ function closeZlibStream(stream: any) {
  */
 
 function destroyZlibStream(stream: any) {
-  if (typeof stream.destroy === 'function') {
+  if (typeof stream.destroy == 'function') {
     // node.js core bug work-around
     // istanbul ignore if: node.js 0.8
     if (stream._binding) {
@@ -112,7 +112,7 @@ function destroyZlibStream(stream: any) {
     } else if (stream._destroy && stream._destroy !== Stream.Transform.prototype._destroy) {
       // node.js >= 12, ^11.1.0, ^10.15.1
       stream.destroy();
-    } else if (stream._destroy && typeof stream.close === 'function') {
+    } else if (stream._destroy && typeof stream.close == 'function') {
       // node.js 7, 8
       stream.destroyed = true;
       stream.close();
@@ -121,7 +121,7 @@ function destroyZlibStream(stream: any) {
       // istanbul ignore next
       stream.destroy();
     }
-  } else if (typeof stream.close === 'function') {
+  } else if (typeof stream.close == 'function') {
     // node.js < 8 fallback
     closeZlibStream(stream);
   }
@@ -185,7 +185,7 @@ function onDrainClearBinding(this: any) {
  */
 
 function onOpenClose(this: any) {
-  if (typeof this.fd === 'number') {
+  if (typeof this.fd == 'number') {
     // actually close down the fd
     this.close();
   }

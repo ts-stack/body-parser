@@ -29,16 +29,16 @@ export function text(options: TextOptions) {
 
   const defaultCharset = opts.defaultCharset || 'utf-8';
   const inflate = opts.inflate !== false;
-  const limit = typeof opts.limit !== 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
   const type = opts.type || 'text/plain';
   const verify = opts.verify || false;
 
-  if (verify !== false && typeof verify !== 'function') {
+  if (verify !== false && typeof verify != 'function') {
     throw new TypeError('option verify must be function');
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
   function parse(buf: any) {
     return buf;

@@ -8,10 +8,11 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 
 import read from '../read.mjs';
-import { Req, TextOptions } from '../types.mjs';
+import { TextOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:text');
 
@@ -44,7 +45,7 @@ export function text(options: TextOptions) {
     return buf;
   }
 
-  return async function textParser(req: Req, headers: IncomingHttpHeaders) {
+  return async function textParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -77,7 +78,7 @@ export function text(options: TextOptions) {
 /**
  * Get the charset of a request.
  */
-function getCharset(req: Req) {
+function getCharset(req: Readable) {
   try {
     return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
   } catch (e) {
@@ -89,7 +90,7 @@ function getCharset(req: Req) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Req) {
+  return function checkType(req: Readable) {
     return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

@@ -10,10 +10,11 @@ import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 
 import read from '../read.mjs';
-import type { JsonOptions, Req } from '../types.mjs';
+import type { JsonOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:json');
 
@@ -87,7 +88,7 @@ export function json(options: JsonOptions) {
     }
   }
 
-  return async function jsonParser(req: Req, headers: IncomingHttpHeaders) {
+  return async function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -164,7 +165,7 @@ function firstchar(str: string) {
 /**
  * Get the charset of a request.
  */
-function getCharset(req: Req) {
+function getCharset(req: Readable) {
   try {
     return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
   } catch (e) {
@@ -196,7 +197,7 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Req) {
+  return function checkType(req: Readable) {
     return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

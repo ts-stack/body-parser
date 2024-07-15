@@ -6,7 +6,7 @@
  */
 
 import asyncHooks from 'node:async_hooks';
-import { Readable } from 'stream';
+import type { Readable } from 'stream';
 import bytes from 'bytes';
 import createError from 'http-errors';
 import iconv from 'iconv-lite';

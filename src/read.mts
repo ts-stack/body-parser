@@ -8,22 +8,23 @@ import createError from 'http-errors';
 import iconv from 'iconv-lite';
 import onFinished from 'on-finished';
 import zlib from 'node:zlib';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 
 import { getRawBody } from './raw-body.mjs';
 import destroy from './destroy.mjs';
 import unpipe from './unpipe.mjs';
-import type { Fn, ParseFn, ReadOptions, Req } from './types.mjs';
+import type { Fn, ParseFn, ReadOptions } from './types.mjs';
 import { Writable } from 'node:stream';
 
-type ReqWithLength = Req & { length?: string };
+type ReqWithLength = Readable & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 
 /**
  * Read a request into a buffer and parse.
  */
 export default async function read(
-  req: Req,
+  req: Readable,
   headers: IncomingHttpHeaders,
   parse: ParseFn,
   debug: Fn,
@@ -118,7 +119,7 @@ export default async function read(
 /**
  * Get the content stream of the request.
  */
-function getContentStream(req: Req, headers: IncomingHttpHeaders, debug: Fn, inflate?: boolean): ContentStream {
+function getContentStream(req: Readable, headers: IncomingHttpHeaders, debug: Fn, inflate?: boolean): ContentStream {
   const encoding = (headers['content-encoding'] || 'identity').toLowerCase();
   const length = headers['content-length'];
   let stream: ContentStream;
@@ -160,7 +161,7 @@ function getContentStream(req: Req, headers: IncomingHttpHeaders, debug: Fn, inf
 /**
  * Dump the contents of a request.
  */
-function dump(req: Req, callback: Fn) {
+function dump(req: Readable, callback: Fn) {
   if (onFinished.isFinished(req as IncomingMessage)) {
     callback(null);
   } else {

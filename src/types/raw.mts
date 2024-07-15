@@ -7,10 +7,11 @@
 import bytes from 'bytes';
 import debugInit from 'debug';
 import typeis from 'type-is';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 
 import read from '../read.mjs';
-import type { RawOptions, Req } from '../types.mjs';
+import type { RawOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:raw');
 
@@ -42,7 +43,7 @@ export function raw(options: RawOptions) {
     return buf;
   }
 
-  return async function rawParser(req: Req, headers: IncomingHttpHeaders) {
+  return async function rawParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -73,7 +74,7 @@ export function raw(options: RawOptions) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Req) {
+  return function checkType(req: Readable) {
     return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

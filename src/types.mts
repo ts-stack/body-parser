@@ -1,9 +1,8 @@
-import { Readable } from 'node:stream';
+import type { Readable } from 'node:stream';
 
-export type Req = Readable;
 export type Fn = (...args: any[]) => any;
 export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
-export type VerifyFn = (req: Req, buf: Buffer, encoding: string | null) => void;
+export type VerifyFn = (req: Readable, buf: Buffer, encoding: string | null) => void;
 export interface ReadOptions {
   encoding: string | null;
   inflate?: boolean;
@@ -45,7 +44,7 @@ export interface RawOptions extends BaseOptions {
    * and the request is parsed if it returns a truthy value. Defaults to
    * `application/octet-stream`.
    */
-  type?: string | string[] | ((req: Req) => any);
+  type?: string | string[] | ((req: Readable) => any);
 }
 
 export interface JsonOptions extends BaseOptions {
@@ -71,7 +70,7 @@ export interface JsonOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a truthy
    * value. Defaults to `application/json`.
    */
-  type?: string | string[] | ((req: Req) => any);
+  type?: string | string[] | ((req: Readable) => any);
 }
 
 export interface TextOptions extends BaseOptions {
@@ -90,7 +89,7 @@ export interface TextOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a
    * truthy value. Defaults to `text/plain`.
    */
-  type?: string | string[] | ((req: Req) => any);
+  type?: string | string[] | ((req: Readable) => any);
 }
 
 export interface UrlencodedOptions extends BaseOptions {
@@ -122,5 +121,5 @@ export interface UrlencodedOptions extends BaseOptions {
    * `fn(req)` and the request is parsed if it returns a truthy value. Defaults
    * to `application/x-www-form-urlencoded`.
    */
-  type?: string | string[] | ((req: Req) => any);
+  type?: string | string[] | ((req: Readable) => any);
 }

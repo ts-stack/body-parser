@@ -12,10 +12,11 @@ import debugInit from 'debug';
 import typeis from 'type-is';
 import qs from 'qs';
 import querystring from 'node:querystring';
-import { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { Readable } from 'node:stream';
 
 import read from '../read.mjs';
-import { Req, UrlencodedOptions } from '../types.mjs';
+import { UrlencodedOptions } from '../types.mjs';
 
 const debug = debugInit('body-parser:urlencoded');
 
@@ -53,7 +54,7 @@ export function urlencoded(options: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return async function urlencodedParser(req: Req, headers: IncomingHttpHeaders) {
+  return async function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -185,7 +186,7 @@ function simpleparser(options: UrlencodedOptions) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Req) {
+  return function checkType(req: Readable) {
     return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

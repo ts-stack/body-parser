@@ -22,12 +22,6 @@ const debug = debugInit('body-parser:urlencoded');
 deprecate('body-parser');
 
 /**
- * Cache of parser modules.
- */
-
-const parsers = Object.create(null);
-
-/**
  * Returns middleware that only parses `urlencoded` bodies and only looks at
  * requests where the `Content-Type` header matches the `type` option. This
  * parser accepts only UTF-8 encoding of the body and supports automatic
@@ -62,7 +56,7 @@ export function urlencoded(options: UrlencodedOptions) {
   // create the appropriate type checking function
   const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
-  function parse(body: any) {
+  function parse(body: string) {
     return body.length ? queryparse(body) : {};
   }
 
@@ -84,7 +78,11 @@ export function urlencoded(options: UrlencodedOptions) {
     }
 
     // assert charset
-    const charset = getCharset(req) || 'utf-8';
+    let charset = 'utf-8';
+    try {
+      charset = (contentType.parse(req).parameters.charset || '').toLowerCase() || 'utf-8';
+    } catch (e) {}
+
     if (charset !== 'utf-8') {
       debug('invalid charset');
       throw createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
@@ -109,7 +107,7 @@ export function urlencoded(options: UrlencodedOptions) {
  */
 function extendedparser(options: UrlencodedOptions) {
   let parameterLimit = options.parameterLimit !== undefined ? options.parameterLimit : 1000;
-  const parse = parser('qs');
+  const parse = qs.parse;
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
     throw new TypeError('option parameterLimit must be a positive number');
@@ -119,7 +117,7 @@ function extendedparser(options: UrlencodedOptions) {
     parameterLimit = parameterLimit | 0;
   }
 
-  return function queryparse(body: any) {
+  return function queryparse(body: string) {
     const paramCount = parameterCount(body, parameterLimit);
 
     if (paramCount === undefined) {
@@ -142,29 +140,9 @@ function extendedparser(options: UrlencodedOptions) {
 }
 
 /**
- * Get the charset of a request.
- *
- * @param {object} req
- * @api private
+ * Count the number of parameters, stopping once limit reached.
  */
-
-function getCharset(req: Req) {
-  try {
-    return (contentType.parse(req).parameters.charset || '').toLowerCase();
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Count the number of parameters, stopping once limit reached
- *
- * @param {string} body
- * @param {number} limit
- * @api private
- */
-
-function parameterCount(body: any, limit: any) {
+function parameterCount(body: string, limit: number) {
   let count = 0;
   let index = 0;
 
@@ -181,42 +159,11 @@ function parameterCount(body: any, limit: any) {
 }
 
 /**
- * Get parser for module name dynamically.
- *
- * @param {string} name
- * @return {function}
- * @api private
- */
-
-function parser(name: string) {
-  let mod = parsers[name];
-
-  if (mod !== undefined) {
-    return mod.parse;
-  }
-
-  // this uses a switch for static require analysis
-  switch (name) {
-    case 'qs':
-      mod = qs;
-      break;
-    case 'querystring':
-      mod = querystring;
-      break;
-  }
-
-  // store to prevent invoking require()
-  parsers[name] = mod;
-
-  return mod.parse;
-}
-
-/**
  * Get the simple query parser.
  */
 function simpleparser(options: UrlencodedOptions) {
   let parameterLimit = options.parameterLimit !== undefined ? options.parameterLimit : 1000;
-  const parse = parser('querystring');
+  const parse = querystring.parse;
 
   if (isNaN(parameterLimit) || parameterLimit < 1) {
     throw new TypeError('option parameterLimit must be a positive number');
@@ -226,7 +173,7 @@ function simpleparser(options: UrlencodedOptions) {
     parameterLimit = parameterLimit | 0;
   }
 
-  return function queryparse(body: any) {
+  return function queryparse(body: string) {
     const paramCount = parameterCount(body, parameterLimit);
 
     if (paramCount === undefined) {
@@ -243,13 +190,9 @@ function simpleparser(options: UrlencodedOptions) {
 
 /**
  * Get the simple type checker.
- *
- * @param {string} type
- * @return {function}
  */
-
-function typeChecker(type: any) {
+function typeChecker(type: string | string[]) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req as IncomingMessage, type));
+    return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

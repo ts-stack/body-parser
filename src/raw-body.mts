@@ -258,9 +258,7 @@ function readStream(
 /**
  * Wrap function with async resource, if possible.
  * AsyncResource.bind static method backported.
- * @private
  */
-
 function wrap(fn: Fn) {
   let res;
 

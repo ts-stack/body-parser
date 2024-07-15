@@ -144,7 +144,7 @@ function createStrictSyntaxError(str: string, char: string) {
     /* istanbul ignore next */ throw new SyntaxError('strict violation');
   } catch (e: any) {
     return normalizeJsonSyntaxError(e, {
-      message: e.message.replace(JSON_SYNTAX_REGEXP, function (placeholder: any) {
+      message: e.message.replace(JSON_SYNTAX_REGEXP, function (placeholder: string) {
         return str.substring(index, index + placeholder.length);
       }),
       stack: e.stack,
@@ -163,11 +163,7 @@ function firstchar(str: string) {
 
 /**
  * Get the charset of a request.
- *
- * @param {object} req
- * @api private
  */
-
 function getCharset(req: Req) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
@@ -198,13 +194,9 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
 
 /**
  * Get the simple type checker.
- *
- * @param {string} type
- * @return {function}
  */
-
-function typeChecker(type: any) {
+function typeChecker(type: string | string[]) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req as IncomingMessage, type));
+    return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

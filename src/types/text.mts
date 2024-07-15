@@ -40,7 +40,7 @@ export function text(options: TextOptions) {
   // create the appropriate type checking function
   const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
-  function parse(buf: any) {
+  function parse(buf: Buffer) {
     return buf;
   }
 
@@ -76,11 +76,7 @@ export function text(options: TextOptions) {
 
 /**
  * Get the charset of a request.
- *
- * @param {object} req
- * @api private
  */
-
 function getCharset(req: Req) {
   try {
     return (contentType.parse(req).parameters.charset || '').toLowerCase();
@@ -91,13 +87,9 @@ function getCharset(req: Req) {
 
 /**
  * Get the simple type checker.
- *
- * @param {string} type
- * @return {function}
  */
-
-function typeChecker(type: any) {
+function typeChecker(type: string | string[]) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req as IncomingMessage, type));
+    return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

@@ -38,7 +38,7 @@ export function raw(options: RawOptions) {
   // create the appropriate type checking function
   const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
 
-  function parse(buf: any) {
+  function parse(buf: Buffer) {
     return buf;
   }
 
@@ -71,13 +71,9 @@ export function raw(options: RawOptions) {
 
 /**
  * Get the simple type checker.
- *
- * @param {string} type
- * @return {function}
  */
-
-function typeChecker(type: any) {
+function typeChecker(type: string | string[]) {
   return function checkType(req: Req) {
-    return Boolean(typeis(req as IncomingMessage, type));
+    return Boolean(typeis(req as IncomingMessage, type as string[]));
   };
 }

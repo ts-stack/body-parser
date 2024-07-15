@@ -1,33 +1,16 @@
-# body-parser
+# @ts-stack/body-parser
 
-[![NPM Version][npm-version-image]][npm-url]
-[![NPM Downloads][npm-downloads-image]][npm-url]
-[![Build Status][ci-image]][ci-url]
-[![Test Coverage][coveralls-image]][coveralls-url]
+Node.js body parser.
 
-Node.js body parsing middleware.
-
-Parse incoming request bodies in a middleware before your handlers, available
-under the `req.body` property.
-
-**Note** As `req.body`'s shape is based on user-controlled input, all
+**Note** As request body's shape is based on user-controlled input, all
 properties and values in this object are untrusted and should be validated
-before trusting. For example, `req.body.foo.toString()` may fail in multiple
+before trusting. For example, `body.foo.toString()` may fail in multiple
 ways, for example the `foo` property may not be there or may not be a string,
 and `toString` may not be a function and instead a string or other user input.
 
 [Learn about the anatomy of an HTTP transaction in Node.js](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/).
 
-_This does not handle multipart bodies_, due to their complex and typically
-large nature. For multipart bodies, you may be interested in the following
-modules:
-
-  * [busboy](https://www.npmjs.org/package/busboy#readme) and
-    [connect-busboy](https://www.npmjs.org/package/connect-busboy#readme)
-  * [multiparty](https://www.npmjs.org/package/multiparty#readme) and
-    [connect-multiparty](https://www.npmjs.org/package/connect-multiparty#readme)
-  * [formidable](https://www.npmjs.org/package/formidable#readme)
-  * [multer](https://www.npmjs.org/package/multer#readme)
+_This does not handle multipart bodies_, due to their complex and typically large nature. For multipart bodies, you may be interested in [@ts-stack/multiparty][multiparty].
 
 This module provides the following parsers:
 
@@ -36,21 +19,16 @@ This module provides the following parsers:
   * [Text body parser](#bodyparsertextoptions)
   * [URL-encoded form body parser](#bodyparserurlencodedoptions)
 
-Other body parsers you might be interested in:
-
-- [body](https://www.npmjs.org/package/body#readme)
-- [co-body](https://www.npmjs.org/package/co-body#readme)
-
 ## Installation
 
 ```sh
-$ npm install body-parser
+npm install @ts-stack/body-parser
 ```
 
 ## API
 
-```js
-var bodyParser = require('body-parser')
+```ts
+var bodyParser = require('@ts-stack/body-parser')
 ```
 
 The `bodyParser` object exposes various factories to create middlewares. All
@@ -381,9 +359,9 @@ This example demonstrates adding a generic JSON and URL-encoded parser as a
 top-level middleware, which will parse the bodies of all incoming requests.
 This is the simplest setup.
 
-```js
+```ts
 var express = require('express')
-var bodyParser = require('body-parser')
+var bodyParser = require('@ts-stack/body-parser')
 
 var app = express()
 
@@ -403,12 +381,12 @@ app.use(function (req, res) {
 ### Express route-specific
 
 This example demonstrates adding body parsers specifically to the routes that
-need them. In general, this is the most recommended way to use body-parser with
+need them. In general, this is the most recommended way to use @ts-stack/body-parser with
 Express.
 
-```js
+```ts
 var express = require('express')
-var bodyParser = require('body-parser')
+var bodyParser = require('@ts-stack/body-parser')
 
 var app = express()
 
@@ -434,9 +412,9 @@ app.post('/api/users', jsonParser, function (req, res) {
 All the parsers accept a `type` option which allows you to change the
 `Content-Type` that the middleware will parse.
 
-```js
+```ts
 var express = require('express')
-var bodyParser = require('body-parser')
+var bodyParser = require('@ts-stack/body-parser')
 
 var app = express()
 
@@ -454,12 +432,11 @@ app.use(bodyParser.text({ type: 'text/html' }))
 
 [MIT](LICENSE)
 
+
 [ci-image]: https://badgen.net/github/checks/expressjs/body-parser/master?label=ci
-[ci-url]: https://github.com/expressjs/body-parser/actions/workflows/ci.yml
 [coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/body-parser/master
-[coveralls-url]: https://coveralls.io/r/expressjs/body-parser?branch=master
 [node-version-image]: https://badgen.net/npm/node/body-parser
 [node-version-url]: https://nodejs.org/en/download
 [npm-downloads-image]: https://badgen.net/npm/dm/body-parser
-[npm-url]: https://npmjs.org/package/body-parser
 [npm-version-image]: https://badgen.net/npm/v/body-parser
+[multiparty]: https://github.com/ts-stack/multiparty#readme

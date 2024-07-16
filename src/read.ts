@@ -12,7 +12,6 @@ import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import { getRawBody } from './raw-body.js';
-import destroy from './destroy.js';
 import unpipe from './unpipe.js';
 import type { Fn, ParseFn, ReadOptions } from './types.js';
 import { Writable } from 'node:stream';
@@ -76,7 +75,7 @@ export default async function read(
       // unpipe from stream and destroy
       if (stream !== req) {
         unpipe(req);
-        destroy(stream, true);
+        stream.destroy();
       }
 
       // read off entire request

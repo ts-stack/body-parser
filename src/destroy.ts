@@ -5,11 +5,6 @@
  * MIT Licensed
  */
 
-/**
- * Module dependencies.
- * @private
- */
-
 import { EventEmitter } from 'node:events';
 import { ReadStream } from 'node:fs';
 import Stream from 'node:stream';

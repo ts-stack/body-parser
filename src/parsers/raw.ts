@@ -17,13 +17,12 @@ import { typeChecker } from '../utils.js';
 const debug = debugInit('body-parser:raw');
 
 /**
- * Returns middleware that parses all bodies as a `Buffer` and only looks at
+ * Returns parser that parses all bodies as a `Buffer` and only looks at
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
- * A new `body` object containing the parsed data is populated on the `request`
- * object after the middleware (i.e. `req.body`). This will be a `Buffer` object
- * of the body.
+ * A new object containing the parsed data is returned by the parser in Promise style.
+ * This will be a `Buffer` object of the body.
  */
 export function getRawParser(options?: RawOptions) {
   const opts = options || {};

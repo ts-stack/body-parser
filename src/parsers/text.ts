@@ -17,13 +17,12 @@ import { getCharset, typeChecker } from '../utils.js';
 const debug = debugInit('body-parser:text');
 
 /**
- * Returns middleware that parses all bodies as a string and only looks at
+ * Returns parser that parses all bodies as a string and only looks at
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
- * A new `body` string containing the parsed data is populated on the `request`
- * object after the middleware (i.e. `req.body`). This will be a string of the
- * body.
+ * A new object containing the parsed data is returned by the parser in Promise style.
+ * This will be a string of the body.
  */
 export function getTextParser(options?: TextOptions) {
   const opts = options || {};

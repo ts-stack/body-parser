@@ -36,13 +36,12 @@ const JSON_SYNTAX_CHAR = '#';
 const JSON_SYNTAX_REGEXP = /#+/g;
 
 /**
- * Returns middleware that only parses `json` and only looks at requests where
+ * Returns parser that only parses `json` and only looks at requests where
  * the `Content-Type` header matches the `type` option. This parser accepts any
  * Unicode encoding of the body and supports automatic inflation of `gzip` and
  * `deflate` encodings.
  *
- * A new `body` object containing the parsed data is populated on the `request`
- * object after the middleware (i.e. `req.body`).
+ * A new object containing the parsed data is returned by the parser in Promise style.
  */
 export function getJsonParser(options?: JsonOptions) {
   const opts = options || {};

@@ -4,8 +4,8 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { getRawParser } from './raw.mjs';
-import type { RawOptions } from '../types.mjs';
+import { getRawParser } from './raw.js';
+import type { RawOptions } from '../types.js';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 

@@ -4,8 +4,8 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { getUrlencodedParser } from './urlencoded.mjs';
-import type { UrlencodedOptions } from '../types.mjs';
+import { getUrlencodedParser } from './urlencoded.js';
+import type { UrlencodedOptions } from '../types.js';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 

@@ -5,31 +5,33 @@
  */
 
 import bytes from 'bytes';
+import contentType from 'content-type';
 import debugInit from 'debug';
 import typeis from 'type-is';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
-import read from '../read.mjs';
-import type { RawOptions } from '../types.mjs';
+import read from '../read.js';
+import { TextOptions } from '../types.js';
 
-const debug = debugInit('body-parser:raw');
+const debug = debugInit('body-parser:text');
 
 /**
- * Returns middleware that parses all bodies as a `Buffer` and only looks at
+ * Returns middleware that parses all bodies as a string and only looks at
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
- * A new `body` object containing the parsed data is populated on the `request`
- * object after the middleware (i.e. `req.body`). This will be a `Buffer` object
- * of the body.
+ * A new `body` string containing the parsed data is populated on the `request`
+ * object after the middleware (i.e. `req.body`). This will be a string of the
+ * body.
  */
-export function getRawParser(options?: RawOptions) {
+export function getTextParser(options?: TextOptions) {
   const opts = options || {};
 
+  const defaultCharset = opts.defaultCharset || 'utf-8';
   const inflate = opts.inflate !== false;
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
-  const type = opts.type || 'application/octet-stream';
+  const type = opts.type || 'text/plain';
   const verify = opts.verify || false;
 
   if (verify !== false && typeof verify != 'function') {
@@ -37,13 +39,13 @@ export function getRawParser(options?: RawOptions) {
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
   function parse(buf: Buffer) {
     return buf;
   }
 
-  return async function rawParser(req: Readable, headers: IncomingHttpHeaders) {
+  return async function textParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -60,14 +62,28 @@ export function getRawParser(options?: RawOptions) {
       return body;
     }
 
+    // get charset
+    const charset = getCharset(req) || defaultCharset;
+
     // read
     return read(req, headers, parse, debug, {
-      encoding: null,
+      encoding: charset,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
   };
+}
+
+/**
+ * Get the charset of a request.
+ */
+function getCharset(req: Readable) {
+  try {
+    return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
+  } catch (e) {
+    return undefined;
+  }
 }
 
 /**

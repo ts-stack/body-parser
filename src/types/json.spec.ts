@@ -4,8 +4,8 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { getJsonParser } from './json.mjs';
-import type { JsonOptions } from '../types.mjs';
+import { getJsonParser } from './json.js';
+import type { JsonOptions } from '../types.js';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 

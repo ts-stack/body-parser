@@ -11,10 +11,10 @@ import zlib from 'node:zlib';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
-import { getRawBody } from './raw-body.mjs';
-import destroy from './destroy.mjs';
-import unpipe from './unpipe.mjs';
-import type { Fn, ParseFn, ReadOptions } from './types.mjs';
+import { getRawBody } from './raw-body.js';
+import destroy from './destroy.js';
+import unpipe from './unpipe.js';
+import type { Fn, ParseFn, ReadOptions } from './types.js';
 import { Writable } from 'node:stream';
 
 type ReqWithLength = Readable & { length?: string };

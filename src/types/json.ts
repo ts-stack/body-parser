@@ -13,8 +13,8 @@ import typeis from 'type-is';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
-import read from '../read.mjs';
-import type { JsonOptions } from '../types.mjs';
+import read from '../read.js';
+import type { JsonOptions } from '../types.js';
 
 const debug = debugInit('body-parser:json');
 

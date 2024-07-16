@@ -4,8 +4,8 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { getTextParser } from './text.mjs';
-import type { TextOptions } from '../types.mjs';
+import { getTextParser } from './text.js';
+import type { TextOptions } from '../types.js';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 

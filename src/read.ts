@@ -6,15 +6,15 @@
 
 import createError from 'http-errors';
 import iconv from 'iconv-lite';
-import onFinished from 'on-finished';
 import zlib from 'node:zlib';
-import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
+import { Writable } from 'node:stream';
+import onFinished from 'on-finished';
 
 import { getRawBody } from './raw-body.js';
 import unpipe from './unpipe.js';
 import type { Fn, ParseFn, ReadOptions } from './types.js';
-import { Writable } from 'node:stream';
 
 type ReqWithLength = Readable & { length?: string };
 export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
@@ -160,11 +160,11 @@ function getContentStream(req: Readable, headers: IncomingHttpHeaders, debug: Fn
 /**
  * Dump the contents of a request.
  */
-function dump(req: Readable, callback: Fn) {
-  if (onFinished.isFinished(req as IncomingMessage)) {
+function dump(stream: Readable, callback: Fn) {
+  if (!stream.readable) {
     callback(null);
   } else {
-    onFinished(req, callback);
-    req.resume();
+    onFinished(stream, callback);
+    stream.resume();
   }
 }

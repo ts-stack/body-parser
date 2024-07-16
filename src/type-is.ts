@@ -10,7 +10,7 @@ import typer from 'media-typer';
 import mime from 'mime-types';
 
 /**
- * Compare a `value` content-type with `types`.
+ * Compare a `mediaType` content-type with `types`.
  * Each `type` can be an extension like `html`,
  * a special shortcut like `multipart` or `urlencoded`,
  * or a mime type.
@@ -18,24 +18,15 @@ import mime from 'mime-types';
  * If no types match, `false` is returned.
  * Otherwise, the first `type` that matches is returned.
  */
-export function typeis(value: string, types_: string[]) {
+export function is(mediaType?: string | null, ...types: string[]): string | false {
   let i: number;
-  let types = types_;
 
   // remove parameters and normalize
-  const val = tryNormalizeType(value);
+  const val = tryNormalizeType(mediaType);
 
   // no type or invalid
   if (!val) {
     return false;
-  }
-
-  // support flattened arguments
-  if (types && !Array.isArray(types)) {
-    types = new Array(arguments.length - 1);
-    for (i = 0; i < types.length; i++) {
-      types[i] = arguments[i + 1];
-    }
   }
 
   // no types, return the content type
@@ -87,26 +78,16 @@ export function hasBody(headers: IncomingHttpHeaders): boolean {
  *     this.is('html'); // => false
  */
 
-export function typeOfRequest(headers: IncomingHttpHeaders, ...types_: string[]): string | false | null {
-  let types = types_;
-
+export function typeOfRequest(headers: IncomingHttpHeaders, ...types: string[]): string | false | null {
   // no body
   if (!hasBody(headers)) {
     return null;
   }
 
-  // support flattened arguments
-  if (types_.length > 2) {
-    types = new Array(types_.length - 1);
-    for (let i = 0; i < types.length; i++) {
-      types[i] = types_[i + 1];
-    }
-  }
-
   // request content type
   const value = headers['content-type'] as string;
 
-  return typeis(value, types);
+  return is(value, ...types);
 }
 
 /**
@@ -186,9 +167,9 @@ export function mimeMatch(expected: string | false, actual: string): boolean {
 /**
  * Normalize a type and remove parameters.
  */
-function normalizeType(value: string): string {
+function normalizeType(mediaType: string): string {
   // parse the type
-  const type = typer.parse(value);
+  const type = typer.parse(mediaType);
 
   // reformat it
   return typer.format(type);
@@ -196,19 +177,14 @@ function normalizeType(value: string): string {
 
 /**
  * Try to normalize a type and remove parameters.
- *
- * @param {string} value
- * @return {string}
- * @private
  */
-
-function tryNormalizeType(value: string): string | null {
-  if (!value) {
+function tryNormalizeType(mediaType?: string | null): string | null {
+  if (!mediaType) {
     return null;
   }
 
   try {
-    return normalizeType(value);
+    return normalizeType(mediaType);
   } catch (err) {
     return null;
   }

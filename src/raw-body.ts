@@ -149,7 +149,7 @@ function readStream(
   }
 
   let received = 0;
-  let decoder: any;
+  let decoder: iconv.DecoderStream | null;
 
   try {
     decoder = getDecoder(encoding as string);
@@ -157,7 +157,7 @@ function readStream(
     return done(err);
   }
 
-  var buffer: string | any[] | null = decoder ? '' : [];
+  var buffer: string | Buffer[] | null = decoder ? '' : [];
 
   // attach listeners
   stream.on('aborted', onAborted);
@@ -205,7 +205,7 @@ function readStream(
     );
   }
 
-  function onData(chunk: string) {
+  function onData(chunk: Buffer) {
     if (complete) return;
 
     received += chunk.length;
@@ -221,7 +221,7 @@ function readStream(
     } else if (decoder) {
       buffer += decoder.write(chunk);
     } else {
-      (buffer as any[]).push(chunk);
+      (buffer as Buffer[]).push(chunk);
     }
   }
 

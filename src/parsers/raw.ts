@@ -76,6 +76,6 @@ export function getRawParser(options?: RawOptions) {
 function typeChecker(type: string | string[]) {
   type = Array.isArray(type) ? type : [type];
   return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, ...type));
+    return Boolean(typeOfRequest(headers, type));
   };
 }

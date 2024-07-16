@@ -63,7 +63,7 @@ export function getTextParser(options?: TextOptions) {
     }
 
     // get charset
-    const charset = getCharset(req) || defaultCharset;
+    const charset = getCharset(headers) || defaultCharset;
 
     // read
     return read(req, headers, parse, debug, {
@@ -78,9 +78,10 @@ export function getTextParser(options?: TextOptions) {
 /**
  * Get the charset of a request.
  */
-function getCharset(req: Readable) {
+function getCharset(headers: IncomingHttpHeaders) {
   try {
-    return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
+    const parsedMediaType = contentType.parse(headers['content-type'] || '');
+    return (parsedMediaType.parameters.charset || '').toLowerCase();
   } catch (e) {
     return undefined;
   }
@@ -92,6 +93,6 @@ function getCharset(req: Readable) {
 function typeChecker(type: string | string[]) {
   type = Array.isArray(type) ? type : [type];
   return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, ...type));
+    return Boolean(typeOfRequest(headers, type));
   };
 }

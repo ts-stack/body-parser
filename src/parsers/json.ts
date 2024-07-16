@@ -9,7 +9,7 @@ import bytes from 'bytes';
 import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
-import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';
@@ -106,7 +106,7 @@ export function getJsonParser(options?: JsonOptions) {
     }
 
     // assert charset per RFC 7159 sec 8.1
-    const charset = getCharset(req) || 'utf-8';
+    const charset = getCharset(headers) || 'utf-8';
     if (charset.slice(0, 4) !== 'utf-') {
       debug('invalid charset');
       throw createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
@@ -165,9 +165,10 @@ function firstchar(str: string) {
 /**
  * Get the charset of a request.
  */
-function getCharset(req: Readable) {
+function getCharset(headers: IncomingHttpHeaders) {
   try {
-    return (contentType.parse(req as IncomingMessage).parameters.charset || '').toLowerCase();
+    const parsedMediaType = contentType.parse(headers['content-type'] || '');
+    return (parsedMediaType.parameters.charset || '').toLowerCase();
   } catch (e) {
     return undefined;
   }
@@ -199,6 +200,6 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
 function typeChecker(type: string | string[]) {
   type = Array.isArray(type) ? type : [type];
   return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, ...type));
+    return Boolean(typeOfRequest(headers, type));
   };
 }

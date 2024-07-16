@@ -4,12 +4,12 @@
  * MIT Licensed
  */
 
+import { Readable } from 'stream';
+
 /**
  * Determine if there are Node.js pipe-like data listeners.
- * @private
  */
-
-function hasPipeDataListeners(stream: any) {
+function hasPipeDataListeners(stream: Readable) {
   const listeners = stream.listeners('data');
 
   for (let i = 0; i < listeners.length; i++) {
@@ -23,12 +23,8 @@ function hasPipeDataListeners(stream: any) {
 
 /**
  * Unpipe a stream from all destinations.
- *
- * @param {object} stream
- * @public
  */
-
-export default function unpipe(stream: any) {
+export default function unpipe(stream: Readable) {
   if (!stream) {
     throw new TypeError('argument stream is required');
   }

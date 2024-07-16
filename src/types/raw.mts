@@ -24,7 +24,7 @@ const debug = debugInit('body-parser:raw');
  * object after the middleware (i.e. `req.body`). This will be a `Buffer` object
  * of the body.
  */
-export function raw(options?: RawOptions) {
+export function getRawParser(options?: RawOptions) {
   const opts = options || {};
 
   const inflate = opts.inflate !== false;

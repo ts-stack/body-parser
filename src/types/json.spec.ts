@@ -4,7 +4,7 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { json } from './json.mjs';
+import { getJsonParser } from './json.mjs';
 import type { JsonOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
@@ -51,7 +51,7 @@ describe('json()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const jsonParser = json();
+    const jsonParser = getJsonParser();
     const server = createServer(function (req: any, headers: any) {
       headers['content-length'] = '20'; // bad length
       return jsonParser(req, headers);
@@ -65,7 +65,7 @@ describe('json()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const jsonParser = json();
+    const jsonParser = getJsonParser();
     const server = createServer(function (req: any, headers: any) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
@@ -495,7 +495,7 @@ describe('json()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const jsonParser = json();
+      const jsonParser = getJsonParser();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req: any, headers: any, res: any) {
@@ -691,7 +691,7 @@ describe('json()', function () {
 });
 
 function createServer(optsOrCallback?: JsonOptions | Function) {
-  const _bodyParser = typeof optsOrCallback != 'function' ? json(optsOrCallback || {}) : optsOrCallback;
+  const _bodyParser = typeof optsOrCallback != 'function' ? getJsonParser(optsOrCallback || {}) : optsOrCallback;
 
   return http.createServer(async function (req, res) {
     try {

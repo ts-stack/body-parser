@@ -4,7 +4,7 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { raw } from './raw.mjs';
+import { getRawParser } from './raw.mjs';
 import type { RawOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
@@ -23,7 +23,7 @@ describe('raw()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const rawParser = raw();
+    const rawParser = getRawParser();
     const server = createServer(function (req: any, headers: any) {
       headers['content-length'] = '20'; // bad length
       return rawParser(req, headers);
@@ -54,7 +54,7 @@ describe('raw()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const rawParser = raw();
+    const rawParser = getRawParser();
     const server = createServer(function (req: any, headers: any) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
@@ -317,7 +317,7 @@ describe('raw()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const rawParser = raw();
+      const rawParser = getRawParser();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req: any, headers: any, res: any) {
@@ -455,7 +455,7 @@ describe('raw()', function () {
 });
 
 function createServer(opts?: RawOptions | Function) {
-  const _bodyParser: any = typeof opts != 'function' ? raw(opts) : opts;
+  const _bodyParser: any = typeof opts != 'function' ? getRawParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {

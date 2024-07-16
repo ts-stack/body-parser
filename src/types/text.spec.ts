@@ -4,7 +4,7 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { text } from './text.mjs';
+import { getTextParser } from './text.mjs';
 import type { TextOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
@@ -23,7 +23,7 @@ describe('text()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const textParser = text();
+    const textParser = getTextParser();
     const server = createServer(function (req: any, headers: any) {
       headers['content-length'] = '20'; // bad length
       return textParser(req, headers);
@@ -54,7 +54,7 @@ describe('text()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const textParser = text();
+    const textParser = getTextParser();
     const server = createServer(function (req: any, headers: any) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
@@ -346,7 +346,7 @@ describe('text()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const textParser = text();
+      const textParser = getTextParser();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req: any, headers: any, res: any) {
@@ -513,7 +513,7 @@ describe('text()', function () {
 });
 
 function createServer(opts?: TextOptions | Function) {
-  const _bodyParser = typeof opts != 'function' ? text(opts) : opts;
+  const _bodyParser = typeof opts != 'function' ? getTextParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {

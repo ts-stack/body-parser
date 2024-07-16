@@ -4,7 +4,7 @@ import http from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
-import { urlencoded } from './urlencoded.mjs';
+import { getUrlencodedParser } from './urlencoded.mjs';
 import type { UrlencodedOptions } from '../types.mjs';
 
 const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
@@ -23,7 +23,7 @@ describe('urlencoded()', function () {
   });
 
   it('should 400 when invalid content-length', function (done) {
-    const urlencodedParser = urlencoded();
+    const urlencodedParser = getUrlencodedParser();
     const server = createServer(function (req: any, headers: any) {
       headers['content-length'] = '20'; // bad length
       return urlencodedParser(req, headers);
@@ -55,7 +55,7 @@ describe('urlencoded()', function () {
   });
 
   it('should 500 if stream not readable', function (done) {
-    const urlencodedParser = urlencoded();
+    const urlencodedParser = getUrlencodedParser();
     const server = createServer(function (req: any, headers: any) {
       return new Promise((resolve, reject) => {
         req.on('end', async function () {
@@ -613,7 +613,7 @@ describe('urlencoded()', function () {
 
   describeAsyncHooks('async local storage', function () {
     before(function () {
-      const urlencodedParser = urlencoded();
+      const urlencodedParser = getUrlencodedParser();
       const store = { foo: 'bar' };
 
       this.server = createServer(function (req: any, headers: any, res: any) {
@@ -790,7 +790,7 @@ function createManyParams(count: number) {
 }
 
 function createServer(opts?: UrlencodedOptions | Function) {
-  const _bodyParser: any = typeof opts != 'function' ? urlencoded(opts) : opts;
+  const _bodyParser: any = typeof opts != 'function' ? getUrlencodedParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {

@@ -31,7 +31,7 @@ const debug = debugInit('body-parser:urlencoded');
  * key-value pairs, where the value can be a string or array (when `extended` is
  * `false`), or any type (when `extended` is `true`).
  */
-export function urlencoded(options?: UrlencodedOptions) {
+export function getUrlencodedParser(options?: UrlencodedOptions) {
   const opts = options || {};
 
   const extended = opts.extended || false;

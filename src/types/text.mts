@@ -25,7 +25,7 @@ const debug = debugInit('body-parser:text');
  * object after the middleware (i.e. `req.body`). This will be a string of the
  * body.
  */
-export function text(options?: TextOptions) {
+export function getTextParser(options?: TextOptions) {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';

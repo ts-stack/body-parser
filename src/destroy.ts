@@ -53,7 +53,7 @@ function destroyReadStream(stream: any) {
  */
 function closeZlibStream(stream: any) {
   if (stream._hadError === true) {
-    var prop = stream._binding === null ? '_binding' : '_handle';
+    const prop = stream._binding === null ? '_binding' : '_handle';
 
     stream[prop] = {
       close: function () {

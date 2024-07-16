@@ -10,9 +10,9 @@
  */
 
 function hasPipeDataListeners(stream: any) {
-  var listeners = stream.listeners('data');
+  const listeners = stream.listeners('data');
 
-  for (var i = 0; i < listeners.length; i++) {
+  for (let i = 0; i < listeners.length; i++) {
     if (listeners[i].name === 'ondata') {
       return true;
     }
@@ -44,10 +44,10 @@ export default function unpipe(stream: any) {
     return;
   }
 
-  var listener;
-  var listeners = stream.listeners('close');
+  let listener;
+  const listeners = stream.listeners('close');
 
-  for (var i = 0; i < listeners.length; i++) {
+  for (let i = 0; i < listeners.length; i++) {
     listener = listeners[i];
 
     if (listener.name !== 'cleanup' && listener.name !== 'onclose') {

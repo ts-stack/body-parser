@@ -23,7 +23,6 @@
     "iconv-lite": "0.6.3",
     "media-typer": "0.3.0",
     "mime-types": "~2.1.24",
-    "on-finished": "2.4.1",
     "qs": "6.12.3"
   },
   "devDependencies": {
@@ -37,7 +36,6 @@
     "@types/methods": "^1.1.4",
     "@types/mime-types": "~2.1.4",
     "@types/node": "^20.14.10",
-    "@types/on-finished": "^2.3.4",
     "@types/qs": "^6.9.15",
     "@types/supertest": "^6.0.2",
     "@typescript-eslint/eslint-plugin": "^7.16.0",

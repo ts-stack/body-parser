@@ -9,8 +9,8 @@ import iconv from 'iconv-lite';
 import zlib from 'node:zlib';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
+import { AsyncResource } from 'async_hooks';
 import { Writable } from 'node:stream';
-import onFinished from 'on-finished';
 
 import { getRawBody } from './raw-body.js';
 import unpipe from './unpipe.js';
@@ -167,4 +167,30 @@ function dump(stream: Readable, callback: Fn) {
     onFinished(stream, callback);
     stream.resume();
   }
+}
+
+/**
+ * Invoke callback when the response has finished, useful for
+ * cleaning up resources afterwards.
+ */
+function onFinished(stream: Readable, listener: Fn) {
+  if (!stream.readable) {
+    setImmediate(listener, null, stream);
+    return stream;
+  }
+
+  stream.once('end', wrap(listener));
+
+  return stream;
+}
+
+/**
+ * Wrap function with async resource, if possible.
+ * AsyncResource.bind static method backported.
+ */
+function wrap(fn: Fn) {
+  const resource = new AsyncResource(fn.name || 'bound-anonymous-fn');
+
+  // return bound function
+  return resource.runInAsyncScope.bind(resource, fn, null);
 }

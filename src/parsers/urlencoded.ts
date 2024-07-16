@@ -16,7 +16,8 @@ import type { Readable } from 'node:stream';
 
 import read from '../read.js';
 import type { UrlencodedOptions } from '../types.js';
-import { hasBody, typeOfRequest } from '../type-is.js';
+import { hasBody } from '../type-is.js';
+import { typeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:urlencoded');
 
@@ -179,15 +180,5 @@ function simpleparser(options: UrlencodedOptions) {
 
     debug('parse urlencoding');
     return parse(body, undefined, undefined, { maxKeys: parameterLimit });
-  };
-}
-
-/**
- * Get the simple type checker.
- */
-function typeChecker(type: string | string[]) {
-  type = Array.isArray(type) ? type : [type];
-  return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, type));
   };
 }

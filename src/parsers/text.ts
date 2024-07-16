@@ -5,14 +5,14 @@
  */
 
 import bytes from 'bytes';
-import contentType from 'content-type';
 import debugInit from 'debug';
-import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
-import { typeOfRequest, hasBody } from '../type-is.js';
+import { hasBody } from '../type-is.js';
 import read from '../read.js';
 import { TextOptions } from '../types.js';
+import { getCharset, typeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:text');
 
@@ -72,27 +72,5 @@ export function getTextParser(options?: TextOptions) {
       limit: limit,
       verify: verify,
     });
-  };
-}
-
-/**
- * Get the charset of a request.
- */
-function getCharset(headers: IncomingHttpHeaders) {
-  try {
-    const parsedMediaType = contentType.parse(headers['content-type'] || '');
-    return (parsedMediaType.parameters.charset || '').toLowerCase();
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
- * Get the simple type checker.
- */
-function typeChecker(type: string | string[]) {
-  type = Array.isArray(type) ? type : [type];
-  return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, type));
   };
 }

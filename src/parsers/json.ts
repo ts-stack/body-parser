@@ -6,7 +6,6 @@
  */
 
 import bytes from 'bytes';
-import contentType from 'content-type';
 import createError from 'http-errors';
 import debugInit from 'debug';
 import type { IncomingHttpHeaders } from 'node:http';
@@ -14,7 +13,8 @@ import type { Readable } from 'node:stream';
 
 import read from '../read.js';
 import type { JsonOptions } from '../types.js';
-import { hasBody, typeOfRequest } from '../type-is.js';
+import { hasBody } from '../type-is.js';
+import { getCharset, typeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:json');
 
@@ -163,18 +163,6 @@ function firstchar(str: string) {
 }
 
 /**
- * Get the charset of a request.
- */
-function getCharset(headers: IncomingHttpHeaders) {
-  try {
-    const parsedMediaType = contentType.parse(headers['content-type'] || '');
-    return (parsedMediaType.parameters.charset || '').toLowerCase();
-  } catch (e) {
-    return undefined;
-  }
-}
-
-/**
  * Normalize a SyntaxError for JSON.parse.
  */
 function normalizeJsonSyntaxError(error: any, obj: any) {
@@ -192,14 +180,4 @@ function normalizeJsonSyntaxError(error: any, obj: any) {
   error.message = obj.message;
 
   return error;
-}
-
-/**
- * Get the simple type checker.
- */
-function typeChecker(type: string | string[]) {
-  type = Array.isArray(type) ? type : [type];
-  return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, type));
-  };
 }

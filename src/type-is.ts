@@ -10,7 +10,7 @@ import typer from 'media-typer';
 import mime from 'mime-types';
 
 /**
- * Compare a `mediaType` content-type with `types`.
+ * Compare a `value` content-type with `types`.
  * Each `type` can be an extension like `html`,
  * a special shortcut like `multipart` or `urlencoded`,
  * or a mime type.
@@ -18,15 +18,26 @@ import mime from 'mime-types';
  * If no types match, `false` is returned.
  * Otherwise, the first `type` that matches is returned.
  */
-export function is(mediaType?: string | null, ...types: string[]): string | false {
+export function is(value?: any, ...types_: string[]): string | false;
+export function is(value?: any, types_?: string[]): string | false;
+export function is(value?: string | null, types_?: string | string[]): string | false {
   let i: number;
+  let types = types_;
 
   // remove parameters and normalize
-  const val = tryNormalizeType(mediaType);
+  const val = tryNormalizeType(value);
 
   // no type or invalid
   if (!val) {
     return false;
+  }
+
+  // support flattened arguments
+  if (types && !Array.isArray(types)) {
+    types = new Array(arguments.length - 1);
+    for (i = 0; i < types.length; i++) {
+      types[i] = arguments[i + 1];
+    }
   }
 
   // no types, return the content type
@@ -52,7 +63,7 @@ export function is(mediaType?: string | null, ...types: string[]): string | fals
  * or `content-length` headers set.
  * http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.3
  */
-export function hasBody(headers: IncomingHttpHeaders): boolean {
+export function hasBody(headers: IncomingHttpHeaders) {
   return headers['transfer-encoding'] !== undefined || !isNaN(headers['content-length'] as unknown as number);
 }
 
@@ -77,17 +88,28 @@ export function hasBody(headers: IncomingHttpHeaders): boolean {
  *
  *     this.is('html'); // => false
  */
+export function typeOfRequest(headers: IncomingHttpHeaders, ...types_: string[]): string | false | null;
+export function typeOfRequest(headers: IncomingHttpHeaders, types_?: string[]): string | false | null;
+export function typeOfRequest(headers: IncomingHttpHeaders, types_?: string | string[]): string | false | null {
+  let types = types_;
 
-export function typeOfRequest(headers: IncomingHttpHeaders, ...types: string[]): string | false | null {
   // no body
   if (!hasBody(headers)) {
     return null;
   }
 
-  // request content type
-  const value = headers['content-type'] as string;
+  // support flattened arguments
+  if (arguments.length > 2) {
+    types = new Array(arguments.length - 1);
+    for (let i = 0; i < types.length; i++) {
+      types[i] = arguments[i + 1];
+    }
+  }
 
-  return is(value, ...types);
+  // request content type
+  const value = headers['content-type'];
+
+  return is(value, types as string[]);
 }
 
 /**
@@ -96,7 +118,7 @@ export function typeOfRequest(headers: IncomingHttpHeaders, ...types: string[]):
  *
  * In general, you probably want:
  *
- *   const type = is(req, ['urlencoded', 'json', 'multipart']);
+ *   const type = is(headers, ['urlencoded', 'json', 'multipart']);
  *
  * Then use the appropriate body parsers.
  * These three are the most common request body types
@@ -149,10 +171,10 @@ export function mimeMatch(expected: string | false, actual: string): boolean {
   }
 
   // validate suffix wildcard
-  if (expectedParts[1].substr(0, 2) === '*+') {
+  if (expectedParts[1].slice(0, 2) === '*+') {
     return (
       expectedParts[1].length <= actualParts[1].length + 1 &&
-      expectedParts[1].substr(1) === actualParts[1].substr(1 - expectedParts[1].length)
+      expectedParts[1].slice(1) === actualParts[1].slice(1 - expectedParts[1].length)
     );
   }
 
@@ -167,9 +189,12 @@ export function mimeMatch(expected: string | false, actual: string): boolean {
 /**
  * Normalize a type and remove parameters.
  */
-function normalizeType(mediaType: string): string {
+function normalizeType(value: string): string {
   // parse the type
-  const type = typer.parse(mediaType);
+  const type = typer.parse(value);
+
+  // remove the parameters
+  (type as any).parameters = undefined;
 
   // reformat it
   return typer.format(type);
@@ -178,13 +203,13 @@ function normalizeType(mediaType: string): string {
 /**
  * Try to normalize a type and remove parameters.
  */
-function tryNormalizeType(mediaType?: string | null): string | null {
-  if (!mediaType) {
+function tryNormalizeType(value?: string | null): string | null {
+  if (!value) {
     return null;
   }
 
   try {
-    return normalizeType(mediaType);
+    return normalizeType(value);
   } catch (err) {
     return null;
   }

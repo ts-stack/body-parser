@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import asyncHooks from 'node:async_hooks';
-import http, { Server } from 'node:http';
+import http, { IncomingHttpHeaders, Server } from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
@@ -494,8 +494,8 @@ describe('urlencoded()', function () {
       it('should parse when truthy value returned', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
-          return req.headers['content-type'] === 'application/vnd.something';
+        function accept(headers: IncomingHttpHeaders) {
+          return headers['content-type'] === 'application/vnd.something';
         }
 
         request(server)
@@ -508,7 +508,7 @@ describe('urlencoded()', function () {
       it('should work without content-type', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           return true;
         }
 
@@ -520,7 +520,7 @@ describe('urlencoded()', function () {
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           throw new Error('oops!');
         }
 

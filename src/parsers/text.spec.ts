@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import asyncHooks from 'node:async_hooks';
-import http, { Server } from 'node:http';
+import http, { IncomingHttpHeaders, Server } from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
@@ -244,8 +244,8 @@ describe('text()', function () {
       it('should parse when truthy value returned', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
-          return req.headers['content-type'] === 'text/vnd.something';
+        function accept(headers: IncomingHttpHeaders) {
+          return headers['content-type'] === 'text/vnd.something';
         }
 
         request(server)
@@ -258,7 +258,7 @@ describe('text()', function () {
       it('should work without content-type', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           return true;
         }
 
@@ -270,7 +270,7 @@ describe('text()', function () {
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           throw new Error('oops!');
         }
 

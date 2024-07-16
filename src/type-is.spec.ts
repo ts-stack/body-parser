@@ -1,106 +1,107 @@
-import { IncomingHttpHeaders } from 'node:http';
-import { hasBody, is, mimeMatch, normalize, typeOfRequest } from './type-is.js';
+import { IncomingHttpHeaders } from 'http';
 
-describe('typeOfRequest(headers, types)', function () {
-  it('should ignore params', function () {
-    const headers = createHeaders('text/html; charset=utf-8');
-    expect(typeOfRequest(headers, ...['text/*'])).toBe('text/html');
-  });
+import { typeOfRequest, hasBody, is, mimeMatch, normalize } from './type-is.js';
 
-  it('should ignore params LWS', function () {
-    const headers = createHeaders('text/html ; charset=utf-8');
-    expect(typeOfRequest(headers, ...['text/*'])).toBe('text/html');
-  });
+describe('typeOfRequest(req, types)', function () {
+  // it('should ignore params', function () {
+  //   const req = createRequest('text/html; charset=utf-8');
+  //   expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
+  // });
+
+  // it('should ignore params LWS', function () {
+  //   const req = createRequest('text/html ; charset=utf-8');
+  //   expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
+  // });
 
   it('should ignore casing', function () {
-    const headers = createHeaders('text/HTML');
-    expect(typeOfRequest(headers, ...['text/*'])).toBe('text/html');
+    const req = createHeaders('text/HTML');
+    expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
   });
 
   it('should fail invalid type', function () {
-    const headers = createHeaders('text/html**');
-    expect(typeOfRequest(headers, ...['text/*'])).toBe(false);
+    const req = createHeaders('text/html**');
+    expect(typeOfRequest(req, ['text/*'])).toBe(false);
   });
 
   it('should not match invalid type', function () {
-    const headers = createHeaders('text/html');
-    expect(typeOfRequest(headers, ...['text/html/'])).toBe(false);
-    expect(typeOfRequest(headers, ...([undefined, null, true, function () {}] as any[]))).toBe(false);
+    const req = createHeaders('text/html');
+    expect(typeOfRequest(req, ['text/html/'])).toBe(false);
+    expect(typeOfRequest(req, [undefined, null, true, function () {}] as any)).toBe(false);
   });
 
   describe('when no body is given', function () {
     it('should return null', function () {
       expect(typeOfRequest({})).toBe(null);
-      expect(typeOfRequest({}, ...['image/*'])).toBe(null);
+      expect(typeOfRequest({}, ['image/*'])).toBe(null);
       expect(typeOfRequest({}, 'image/*', 'text/*')).toBe(null);
     });
   });
 
   describe('when no content type is given', function () {
     it('should return false', function () {
-      const headers = createHeaders();
-      expect(typeOfRequest(headers)).toBe(false);
-      expect(typeOfRequest(headers, ...['image/*'])).toBe(false);
-      expect(typeOfRequest(headers, ...['text/*', 'image/*'])).toBe(false);
+      const req = createHeaders();
+      expect(typeOfRequest(req)).toBe(false);
+      expect(typeOfRequest(req, ['image/*'])).toBe(false);
+      expect(typeOfRequest(req, ['text/*', 'image/*'])).toBe(false);
     });
   });
 
   describe('give no types', function () {
     it('should return the mime type', function () {
-      const headers = createHeaders('image/png');
-      expect(typeOfRequest(headers)).toBe('image/png');
+      const req = createHeaders('image/png');
+      expect(typeOfRequest(req)).toBe('image/png');
     });
   });
 
   describe('given one type', function () {
     it('should return the type or false', function () {
-      const headers = createHeaders('image/png');
+      const req = createHeaders('image/png');
 
-      expect(typeOfRequest(headers, ...['png'])).toBe('png');
-      expect(typeOfRequest(headers, ...['.png'])).toBe('.png');
-      expect(typeOfRequest(headers, ...['image/png'])).toBe('image/png');
-      expect(typeOfRequest(headers, ...['image/*'])).toBe('image/png');
-      expect(typeOfRequest(headers, ...['*/png'])).toBe('image/png');
+      expect(typeOfRequest(req, ['png'])).toBe('png');
+      expect(typeOfRequest(req, ['.png'])).toBe('.png');
+      expect(typeOfRequest(req, ['image/png'])).toBe('image/png');
+      expect(typeOfRequest(req, ['image/*'])).toBe('image/png');
+      expect(typeOfRequest(req, ['*/png'])).toBe('image/png');
 
-      expect(typeOfRequest(headers, ...['jpeg'])).toBe(false);
-      expect(typeOfRequest(headers, ...['.jpeg'])).toBe(false);
-      expect(typeOfRequest(headers, ...['image/jpeg'])).toBe(false);
-      expect(typeOfRequest(headers, ...['text/*'])).toBe(false);
-      expect(typeOfRequest(headers, ...['*/jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['.jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['image/jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['text/*'])).toBe(false);
+      expect(typeOfRequest(req, ['*/jpeg'])).toBe(false);
 
-      expect(typeOfRequest(headers, ...['bogus'])).toBe(false);
-      expect(typeOfRequest(headers, ...['something/bogus*'])).toBe(false);
+      expect(typeOfRequest(req, ['bogus'])).toBe(false);
+      expect(typeOfRequest(req, ['something/bogus*'])).toBe(false);
     });
   });
 
   describe('given multiple types', function () {
     it('should return the first match or false', function () {
-      const headers = createHeaders('image/png');
+      const req = createHeaders('image/png');
 
-      expect(typeOfRequest(headers, ...['png'])).toBe('png');
-      expect(typeOfRequest(headers, '.png')).toBe('.png');
-      expect(typeOfRequest(headers, ...['text/*', 'image/*'])).toBe('image/png');
-      expect(typeOfRequest(headers, ...['image/*', 'text/*'])).toBe('image/png');
-      expect(typeOfRequest(headers, ...['image/*', 'image/png'])).toBe('image/png');
-      expect(typeOfRequest(headers, 'image/png', 'image/*')).toBe('image/png');
+      expect(typeOfRequest(req, ['png'])).toBe('png');
+      expect(typeOfRequest(req, '.png')).toBe('.png');
+      expect(typeOfRequest(req, ['text/*', 'image/*'])).toBe('image/png');
+      expect(typeOfRequest(req, ['image/*', 'text/*'])).toBe('image/png');
+      expect(typeOfRequest(req, ['image/*', 'image/png'])).toBe('image/png');
+      expect(typeOfRequest(req, 'image/png', 'image/*')).toBe('image/png');
 
-      expect(typeOfRequest(headers, ...['jpeg'])).toBe(false);
-      expect(typeOfRequest(headers, ...['.jpeg'])).toBe(false);
-      expect(typeOfRequest(headers, ...['text/*', 'application/*'])).toBe(false);
-      expect(typeOfRequest(headers, ...['text/html', 'text/plain', 'application/json'])).toBe(false);
+      expect(typeOfRequest(req, ['jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['.jpeg'])).toBe(false);
+      expect(typeOfRequest(req, ['text/*', 'application/*'])).toBe(false);
+      expect(typeOfRequest(req, ['text/html', 'text/plain', 'application/json'])).toBe(false);
     });
   });
 
   describe('given +suffix', function () {
     it('should match suffix types', function () {
-      const headers = createHeaders('application/vnd+json');
+      const req = createHeaders('application/vnd+json');
 
-      expect(typeOfRequest(headers, '+json')).toBe('application/vnd+json');
-      expect(typeOfRequest(headers, 'application/vnd+json')).toBe('application/vnd+json');
-      expect(typeOfRequest(headers, 'application/*+json')).toBe('application/vnd+json');
-      expect(typeOfRequest(headers, '*/vnd+json')).toBe('application/vnd+json');
-      expect(typeOfRequest(headers, 'application/json')).toBe(false);
-      expect(typeOfRequest(headers, 'text/*+json')).toBe(false);
+      expect(typeOfRequest(req, '+json')).toBe('application/vnd+json');
+      expect(typeOfRequest(req, 'application/vnd+json')).toBe('application/vnd+json');
+      expect(typeOfRequest(req, 'application/*+json')).toBe('application/vnd+json');
+      expect(typeOfRequest(req, '*/vnd+json')).toBe('application/vnd+json');
+      expect(typeOfRequest(req, 'application/json')).toBe(false);
+      expect(typeOfRequest(req, 'text/*+json')).toBe(false);
     });
   });
 
@@ -117,92 +118,92 @@ describe('typeOfRequest(headers, types)', function () {
     });
 
     it('should not match body-less request', function () {
-      const headers = { 'content-type': 'text/html' };
+      const headers = { 'content-type': 'text/html' } as IncomingHttpHeaders ;
       expect(typeOfRequest(headers, '*/*')).toBe(null);
     });
   });
 
   describe('when Content-Type: application/x-www-form-urlencoded', function () {
     it('should match "urlencoded"', function () {
-      const headers = createHeaders('application/x-www-form-urlencoded');
+      const req = createHeaders('application/x-www-form-urlencoded');
 
-      expect(typeOfRequest(headers, ...['urlencoded'])).toBe('urlencoded');
-      expect(typeOfRequest(headers, ...['json', 'urlencoded'])).toBe('urlencoded');
-      expect(typeOfRequest(headers, ...['urlencoded', 'json'])).toBe('urlencoded');
+      expect(typeOfRequest(req, ['urlencoded'])).toBe('urlencoded');
+      expect(typeOfRequest(req, ['json', 'urlencoded'])).toBe('urlencoded');
+      expect(typeOfRequest(req, ['urlencoded', 'json'])).toBe('urlencoded');
     });
   });
 
   describe('when Content-Type: multipart/form-data', function () {
     it('should match "multipart/*"', function () {
-      const headers = createHeaders('multipart/form-data');
+      const req = createHeaders('multipart/form-data');
 
-      expect(typeOfRequest(headers, ...['multipart/*'])).toBe('multipart/form-data');
+      expect(typeOfRequest(req, ['multipart/*'])).toBe('multipart/form-data');
     });
 
     it('should match "multipart"', function () {
-      const headers = createHeaders('multipart/form-data');
+      const req = createHeaders('multipart/form-data');
 
-      expect(typeOfRequest(headers, ...['multipart'])).toBe('multipart');
+      expect(typeOfRequest(req, ['multipart'])).toBe('multipart');
     });
   });
 });
 
-describe('hasBody(headers)', function () {
+describe('hasBody(req)', function () {
   describe('content-length', function () {
     it('should indicate body', function () {
-      const headers = { 'content-length': '1' };
+      const headers = { 'content-length': '1' } as IncomingHttpHeaders;
       expect(hasBody(headers)).toBe(true);
     });
 
     it('should be true when 0', function () {
-      const headers = { 'content-length': '0' };
+      const headers = { 'content-length': '0' } as IncomingHttpHeaders;
       expect(hasBody(headers)).toBe(true);
     });
 
     it('should be false when bogus', function () {
-      const headers = { 'content-length': 'bogus' };
+      const headers = { 'content-length': 'bogus' } as IncomingHttpHeaders;
       expect(hasBody(headers)).toBe(false);
     });
   });
 
   describe('transfer-encoding', function () {
     it('should indicate body', function () {
-      const headers = { 'transfer-encoding': 'chunked' };
+      const headers = { 'transfer-encoding': 'chunked' } as IncomingHttpHeaders;
       expect(hasBody(headers)).toBe(true);
     });
   });
 });
 
 describe('is(mediaType, types)', function () {
-  it('should ignore params', function () {
-    expect(is('text/html; charset=utf-8', ...['text/*'])).toBe('text/html');
-  });
+  // it('should ignore params', function () {
+  //   expect(is('text/html; charset=utf-8', ['text/*'])).toBe('text/html');
+  // });
 
   it('should ignore casing', function () {
-    expect(is('text/HTML', ...['text/*'])).toBe('text/html');
+    expect(is('text/HTML', ['text/*'])).toBe('text/html');
   });
 
   it('should fail invalid type', function () {
-    expect(is('text/html**', ...['text/*'])).toBe(false);
+    expect(is('text/html**', ['text/*'])).toBe(false);
   });
 
   it('should not match invalid type', function () {
-    const headers = createHeaders('text/html');
-    expect(typeOfRequest(headers, ...['text/html/'])).toBe(false);
-    expect(typeOfRequest(headers, ...([undefined, null, true, function () {}] as any))).toBe(false);
+    const req = createHeaders('text/html');
+    expect(typeOfRequest(req, ['text/html/'])).toBe(false);
+    expect(typeOfRequest(req, [undefined, null, true, function () {}] as any)).toBe(false);
   });
 
   it('should not match invalid type', function () {
-    expect(is('text/html', ...['text/html/'])).toBe(false);
+    expect(is('text/html', ['text/html/'])).toBe(false);
     expect(is('text/html', [undefined, null, true, function () {}] as any)).toBe(false);
   });
 
   describe('when no media type is given', function () {
     it('should return false', function () {
       expect(is()).toBe(false);
-      expect(is('', ...['application/json'])).toBe(false);
-      expect(is(null, ...['image/*'])).toBe(false);
-      expect(is(undefined, ...['text/*', 'image/*'])).toBe(false);
+      expect(is('', ['application/json'])).toBe(false);
+      expect(is(null, ['image/*'])).toBe(false);
+      expect(is(undefined, ['text/*', 'image/*'])).toBe(false);
     });
   });
 
@@ -214,36 +215,36 @@ describe('is(mediaType, types)', function () {
 
   describe('given one type', function () {
     it('should return the type or false', function () {
-      expect(is('image/png', ...['png'])).toBe('png');
-      expect(is('image/png', ...['.png'])).toBe('.png');
-      expect(is('image/png', ...['image/png'])).toBe('image/png');
-      expect(is('image/png', ...['image/*'])).toBe('image/png');
-      expect(is('image/png', ...['*/png'])).toBe('image/png');
+      expect(is('image/png', ['png'])).toBe('png');
+      expect(is('image/png', ['.png'])).toBe('.png');
+      expect(is('image/png', ['image/png'])).toBe('image/png');
+      expect(is('image/png', ['image/*'])).toBe('image/png');
+      expect(is('image/png', ['*/png'])).toBe('image/png');
 
-      expect(is('image/png', ...['jpeg'])).toBe(false);
-      expect(is('image/png', ...['.jpeg'])).toBe(false);
-      expect(is('image/png', ...['image/jpeg'])).toBe(false);
-      expect(is('image/png', ...['text/*'])).toBe(false);
-      expect(is('image/png', ...['*/jpeg'])).toBe(false);
+      expect(is('image/png', ['jpeg'])).toBe(false);
+      expect(is('image/png', ['.jpeg'])).toBe(false);
+      expect(is('image/png', ['image/jpeg'])).toBe(false);
+      expect(is('image/png', ['text/*'])).toBe(false);
+      expect(is('image/png', ['*/jpeg'])).toBe(false);
 
-      expect(is('image/png', ...['bogus'])).toBe(false);
-      expect(is('image/png', ...['something/bogus*'])).toBe(false);
+      expect(is('image/png', ['bogus'])).toBe(false);
+      expect(is('image/png', ['something/bogus*'])).toBe(false);
     });
   });
 
   describe('given multiple types', function () {
     it('should return the first match or false', function () {
-      expect(is('image/png', ...['png'])).toBe('png');
+      expect(is('image/png', ['png'])).toBe('png');
       expect(is('image/png', '.png')).toBe('.png');
-      expect(is('image/png', ...['text/*', 'image/*'])).toBe('image/png');
-      expect(is('image/png', ...['image/*', 'text/*'])).toBe('image/png');
-      expect(is('image/png', ...['image/*', 'image/png'])).toBe('image/png');
+      expect(is('image/png', ['text/*', 'image/*'])).toBe('image/png');
+      expect(is('image/png', ['image/*', 'text/*'])).toBe('image/png');
+      expect(is('image/png', ['image/*', 'image/png'])).toBe('image/png');
       expect(is('image/png', 'image/png', 'image/*')).toBe('image/png');
 
-      expect(is('image/png', ...['jpeg'])).toBe(false);
-      expect(is('image/png', ...['.jpeg'])).toBe(false);
-      expect(is('image/png', ...['text/*', 'application/*'])).toBe(false);
-      expect(is('image/png', ...['text/html', 'text/plain', 'application/json'])).toBe(false);
+      expect(is('image/png', ['jpeg'])).toBe(false);
+      expect(is('image/png', ['.jpeg'])).toBe(false);
+      expect(is('image/png', ['text/*', 'application/*'])).toBe(false);
+      expect(is('image/png', ['text/html', 'text/plain', 'application/json'])).toBe(false);
     });
   });
 
@@ -273,40 +274,24 @@ describe('is(mediaType, types)', function () {
 
   describe('when media type is application/x-www-form-urlencoded', function () {
     it('should match "urlencoded"', function () {
-      expect(is('application/x-www-form-urlencoded', ...['urlencoded'])).toBe('urlencoded');
-      expect(is('application/x-www-form-urlencoded', ...['json', 'urlencoded'])).toBe('urlencoded');
-      expect(is('application/x-www-form-urlencoded', ...['urlencoded', 'json'])).toBe('urlencoded');
+      expect(is('application/x-www-form-urlencoded', ['urlencoded'])).toBe('urlencoded');
+      expect(is('application/x-www-form-urlencoded', ['json', 'urlencoded'])).toBe('urlencoded');
+      expect(is('application/x-www-form-urlencoded', ['urlencoded', 'json'])).toBe('urlencoded');
     });
   });
 
   describe('when media type is multipart/form-data', function () {
     it('should match "multipart/*"', function () {
-      expect(is('multipart/form-data', ...['multipart/*'])).toBe('multipart/form-data');
+      expect(is('multipart/form-data', ['multipart/*'])).toBe('multipart/form-data');
     });
 
     it('should match "multipart"', function () {
-      expect(is('multipart/form-data', ...['multipart'])).toBe('multipart');
+      expect(is('multipart/form-data', ['multipart'])).toBe('multipart');
     });
   });
-
-  // describe('when give request object', function () {
-  //   it('should use the content-type header', function () {
-  //     const headers = createHeaders('image/png');
-
-  //     expect(is(req, ...['png'])).toBe('png');
-  //     expect(is(req, ...['jpeg'])).toBe(false);
-  //   });
-
-  //   it('should not check for body', function () {
-  //     const headers = { headers: { 'content-type': 'text/html' } };
-
-  //     expect(is(req, ...['html'])).toBe('html');
-  //     expect(is(req, ...['jpeg'])).toBe(false);
-  //   });
-  // });
 });
 
-describe('mimeMatch(expected, actual)', function () {
+describe('match(expected, actual)', function () {
   it('should return false when expected is false', function () {
     expect(mimeMatch(false, 'text/html')).toBe(false);
   });

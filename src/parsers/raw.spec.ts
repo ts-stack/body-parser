@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import asyncHooks from 'node:async_hooks';
-import http, { Server } from 'node:http';
+import http, { IncomingHttpHeaders, Server } from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
@@ -232,8 +232,8 @@ describe('raw()', function () {
       it('should parse when truthy value returned', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
-          return req.headers['content-type'] === 'application/vnd.octet';
+        function accept(headers: IncomingHttpHeaders) {
+          return headers['content-type'] === 'application/vnd.octet';
         }
 
         const test = request(server).post('/');
@@ -245,7 +245,7 @@ describe('raw()', function () {
       it('should work without content-type', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           return true;
         }
 
@@ -257,7 +257,7 @@ describe('raw()', function () {
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           throw new Error('oops!');
         }
 
@@ -467,6 +467,8 @@ function createServer(opts?: RawOptions | Function) {
       res.end(JSON.stringify(body));
     } catch (err: any) {
       res.statusCode = err.status || 500;
+      // if (res.statusCode === 500)
+      // console.log('-'.repeat(50), 'catch error:', 'status', err.status, err);
       res.end('[' + err.type + '] ' + err.message);
       return;
     }

@@ -6,7 +6,7 @@
 
 import bytes from 'bytes';
 import debugInit from 'debug';
-import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
+import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';

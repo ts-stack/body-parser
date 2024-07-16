@@ -1,6 +1,6 @@
 import assert from 'node:assert';
 import asyncHooks from 'node:async_hooks';
-import http from 'node:http';
+import http, { IncomingHttpHeaders } from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
@@ -349,8 +349,8 @@ describe('json()', function () {
       it('should parse when truthy value returned', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
-          return req.headers['content-type'] === 'application/vnd.api+json';
+        function accept(headers: IncomingHttpHeaders) {
+          return headers['content-type'] === 'application/vnd.api+json';
         }
 
         request(server)
@@ -363,7 +363,7 @@ describe('json()', function () {
       it('should work without content-type', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           return true;
         }
 
@@ -375,7 +375,7 @@ describe('json()', function () {
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(req: any) {
+        function accept(headers: IncomingHttpHeaders) {
           throw new Error('oops!');
         }
 

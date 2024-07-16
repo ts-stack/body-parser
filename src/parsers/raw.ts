@@ -6,12 +6,12 @@
 
 import bytes from 'bytes';
 import debugInit from 'debug';
-import typeis from 'type-is';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';
 import type { RawOptions } from '../types.js';
+import { hasBody, typeOfRequest } from '../type-is.js';
 
 const debug = debugInit('body-parser:raw');
 
@@ -47,7 +47,7 @@ export function getRawParser(options?: RawOptions) {
     const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req as IncomingMessage)) {
+    if (!hasBody(headers)) {
       debug('skip empty body');
       return body;
     }
@@ -55,7 +55,7 @@ export function getRawParser(options?: RawOptions) {
     debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
-    if (!shouldParse(req)) {
+    if (!shouldParse(headers)) {
       debug('skip parsing');
       return body;
     }
@@ -74,7 +74,8 @@ export function getRawParser(options?: RawOptions) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Readable) {
-    return Boolean(typeis(req as IncomingMessage, type as string[]));
+  type = Array.isArray(type) ? type : [type];
+  return function checkType(headers: IncomingHttpHeaders) {
+    return Boolean(typeOfRequest(headers, ...type));
   };
 }

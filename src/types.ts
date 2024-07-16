@@ -1,3 +1,4 @@
+import { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 export type Fn = (...args: any[]) => any;
@@ -44,7 +45,7 @@ export interface RawOptions extends BaseOptions {
    * and the request is parsed if it returns a truthy value. Defaults to
    * `application/octet-stream`.
    */
-  type?: string | string[] | ((req: Readable) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
 }
 
 export interface JsonOptions extends BaseOptions {
@@ -70,7 +71,7 @@ export interface JsonOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a truthy
    * value. Defaults to `application/json`.
    */
-  type?: string | string[] | ((req: Readable) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
 }
 
 export interface TextOptions extends BaseOptions {
@@ -89,7 +90,7 @@ export interface TextOptions extends BaseOptions {
    * option is called as `fn(req)` and the request is parsed if it returns a
    * truthy value. Defaults to `text/plain`.
    */
-  type?: string | string[] | ((req: Readable) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
 }
 
 export interface UrlencodedOptions extends BaseOptions {
@@ -121,5 +122,5 @@ export interface UrlencodedOptions extends BaseOptions {
    * `fn(req)` and the request is parsed if it returns a truthy value. Defaults
    * to `application/x-www-form-urlencoded`.
    */
-  type?: string | string[] | ((req: Readable) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
 }

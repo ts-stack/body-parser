@@ -7,10 +7,10 @@
 import bytes from 'bytes';
 import contentType from 'content-type';
 import debugInit from 'debug';
-import typeis from 'type-is';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
+import { typeOfRequest, hasBody } from '../type-is.js';
 import read from '../read.js';
 import { TextOptions } from '../types.js';
 
@@ -49,7 +49,7 @@ export function getTextParser(options?: TextOptions) {
     const body = {};
 
     // skip requests without bodies
-    if (!typeis.hasBody(req as IncomingMessage)) {
+    if (!hasBody(headers)) {
       debug('skip empty body');
       return body;
     }
@@ -57,7 +57,7 @@ export function getTextParser(options?: TextOptions) {
     debug(`content-type ${headers['content-type']}`);
 
     // determine if request should be parsed
-    if (!shouldParse(req)) {
+    if (!shouldParse(headers)) {
       debug('skip parsing');
       return body;
     }
@@ -90,7 +90,8 @@ function getCharset(req: Readable) {
  * Get the simple type checker.
  */
 function typeChecker(type: string | string[]) {
-  return function checkType(req: Readable) {
-    return Boolean(typeis(req as IncomingMessage, type as string[]));
+  type = Array.isArray(type) ? type : [type];
+  return function checkType(headers: IncomingHttpHeaders) {
+    return Boolean(typeOfRequest(headers, ...type));
   };
 }

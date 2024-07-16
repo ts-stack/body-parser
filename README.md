@@ -1,12 +1,8 @@
 # @ts-stack/body-parser
 
-Node.js body parser.
+Node.js body parser writen in TypeScript, in [promise][2] style, in ESM format, without support Node.js version < 20.6.0. This library is a fork of the well-known [ExpressJS body parser library][0] (from [this commit][1]).
 
-**Note** As request body's shape is based on user-controlled input, all
-properties and values in this object are untrusted and should be validated
-before trusting. For example, `body.foo.toString()` may fail in multiple
-ways, for example the `foo` property may not be there or may not be a string,
-and `toString` may not be a function and instead a string or other user input.
+**Note** As request body's shape is based on user-controlled input, all properties and values in this object are untrusted and should be validated before trusting. For example, `body.foo.toString()` may fail in multiple ways, for example the `foo` property may not be there or may not be a string, and `toString` may not be a function and instead a string or other user input.
 
 [Learn about the anatomy of an HTTP transaction in Node.js](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/).
 
@@ -27,20 +23,29 @@ npm install @ts-stack/body-parser
 
 Please make sure that Node.js (version >= 20.6.0) is installed on your operating system.
 
-## API
+## Usage
 
-```ts
-import { json, raw, text, urlencoded } from '@ts-stack/body-parser';
-```
-
-The `bodyParser` object exposes various factories to create middlewares. All
-middlewares will populate the `req.body` property with the parsed body when
-the `Content-Type` request header matches the `type` option, or an empty
-object (`{}`) if there was no body to parse, the `Content-Type` was not matched,
-or an error occurred.
+The `@ts-stack/body-parser` module exposes various factories to create parsers. All parsers return parsed body in [Promise][2] when the `Content-Type` request header matches the `type` option, or an empty object (`{}`) if there was no body to parse, the `Content-Type` was not matched.
 
 The various errors returned by this module are described in the
 [errors section](#errors).
+
+```ts
+import http from 'http';
+import { getJsonParser } from '@ts-stack/body-parser';
+
+const jsonParser = getJsonParser({ limit: '1kb' });
+
+http.createServer(async function (req, res) {
+  try {
+    const body = await jsonParser(req, req.headers);
+    res.statusCode = 200;
+    res.end(JSON.stringify(body));
+  } catch (err: any) {
+    // handling an error
+  }
+});
+```
 
 ### bodyParser.json([options])
 
@@ -435,6 +440,9 @@ app.use(bodyParser.text({ type: 'text/html' }))
 [MIT](LICENSE)
 
 
+[0]: https://github.com/expressjs/body-parser
+[1]: https://github.com/expressjs/body-parser/commit/83db46a1e5512135ce01ed90b9132ee16a2657a8
+[2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
 [ci-image]: https://badgen.net/github/checks/expressjs/body-parser/master?label=ci
 [coveralls-image]: https://badgen.net/coveralls/c/github/expressjs/body-parser/master
 [node-version-image]: https://badgen.net/npm/node/body-parser

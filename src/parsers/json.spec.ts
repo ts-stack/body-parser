@@ -1,15 +1,14 @@
 import assert from 'node:assert';
 import asyncHooks from 'node:async_hooks';
-import http, { IncomingHttpHeaders } from 'node:http';
+import http, { IncomingHttpHeaders, Server } from 'node:http';
 import { Buffer } from 'safe-buffer';
 import request from 'supertest';
 
 import { getJsonParser } from './json.js';
 import type { JsonOptions } from '../types.js';
 
-const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
-
 describe('json()', function () {
+  let server: Server;
   it('should parse JSON', function (done) {
     request(createServer())
       .post('/')
@@ -88,12 +87,12 @@ describe('json()', function () {
   });
 
   describe('when JSON is invalid', function () {
-    before(function () {
-      this.server = createServer();
+    beforeAll(function () {
+      server = createServer();
     });
 
     it('should 400 for bad token', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .send('{:')
@@ -101,7 +100,7 @@ describe('json()', function () {
     });
 
     it('should 400 for incomplete', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .send('{"user"')
@@ -109,7 +108,7 @@ describe('json()', function () {
     });
 
     it('should include original body on error object', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .set('X-Error-Property', 'body')
@@ -195,12 +194,12 @@ describe('json()', function () {
 
   describe('with inflate option', function () {
     describe('when false', function () {
-      before(function () {
-        this.server = createServer({ inflate: false });
+      beforeAll(function () {
+        server = createServer({ inflate: false });
       });
 
       it('should not accept content-encoding', function (done) {
-        const test = request(this.server).post('/');
+        const test = request(server).post('/');
         test.set('Content-Encoding', 'gzip');
         test.set('Content-Type', 'application/json');
         test.write(Buffer.from('1f8b080000000000000bab56ca4bcc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any as any);
@@ -209,12 +208,12 @@ describe('json()', function () {
     });
 
     describe('when true', function () {
-      before(function () {
-        this.server = createServer({ inflate: true });
+      beforeAll(function () {
+        server = createServer({ inflate: true });
       });
 
       it('should accept content-encoding', function (done) {
-        const test = request(this.server).post('/');
+        const test = request(server).post('/');
         test.set('Content-Encoding', 'gzip');
         test.set('Content-Type', 'application/json');
         test.write(Buffer.from('1f8b080000000000000bab56ca4bcc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any as any);
@@ -225,12 +224,12 @@ describe('json()', function () {
 
   describe('with strict option', function () {
     describe('when undefined', function () {
-      before(function () {
-        this.server = createServer();
+      beforeAll(function () {
+        server = createServer();
       });
 
       it('should 400 on primitives', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('true')
@@ -239,22 +238,22 @@ describe('json()', function () {
     });
 
     describe('when false', function () {
-      before(function () {
-        this.server = createServer({ strict: false });
+      beforeAll(function () {
+        server = createServer({ strict: false });
       });
 
       it('should parse primitives', function (done) {
-        request(this.server).post('/').set('Content-Type', 'application/json').send('true').expect(200, 'true', done);
+        request(server).post('/').set('Content-Type', 'application/json').send('true').expect(200, 'true', done);
       });
     });
 
     describe('when true', function () {
-      before(function () {
-        this.server = createServer({ strict: true });
+      beforeAll(function () {
+        server = createServer({ strict: true });
       });
 
       it('should not parse primitives', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('true')
@@ -262,7 +261,7 @@ describe('json()', function () {
       });
 
       it('should not parse primitives with leading whitespaces', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('    true')
@@ -270,7 +269,7 @@ describe('json()', function () {
       });
 
       it('should allow leading whitespaces in JSON', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('   { "user": "tobi" }')
@@ -278,7 +277,7 @@ describe('json()', function () {
       });
 
       it('should include correct message in stack trace', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .set('X-Error-Property', 'stack')
@@ -292,12 +291,12 @@ describe('json()', function () {
 
   describe('with type option', function () {
     describe('when "application/vnd.api+json"', function () {
-      before(function () {
-        this.server = createServer({ type: 'application/vnd.api+json' });
+      beforeAll(function () {
+        server = createServer({ type: 'application/vnd.api+json' });
       });
 
       it('should parse JSON for custom type', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/vnd.api+json')
           .send('{"user":"tobi"}')
@@ -305,7 +304,7 @@ describe('json()', function () {
       });
 
       it('should ignore standard type', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('{"user":"tobi"}')
@@ -314,14 +313,14 @@ describe('json()', function () {
     });
 
     describe('when ["application/json", "application/vnd.api+json"]', function () {
-      before(function () {
-        this.server = createServer({
+      beforeAll(function () {
+        server = createServer({
           type: ['application/json', 'application/vnd.api+json'],
         });
       });
 
       it('should parse JSON for "application/json"', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/json')
           .send('{"user":"tobi"}')
@@ -329,7 +328,7 @@ describe('json()', function () {
       });
 
       it('should parse JSON for "application/vnd.api+json"', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/vnd.api+json')
           .send('{"user":"tobi"}')
@@ -337,7 +336,7 @@ describe('json()', function () {
       });
 
       it('should ignore "application/x-json"', function (done) {
-        request(this.server)
+        request(server)
           .post('/')
           .set('Content-Type', 'application/x-json')
           .send('{"user":"tobi"}')
@@ -493,12 +492,12 @@ describe('json()', function () {
     });
   });
 
-  describeAsyncHooks('async local storage', function () {
-    before(function () {
+  describe('async local storage', function () {
+    beforeAll(function () {
       const jsonParser = getJsonParser();
       const store = { foo: 'bar' };
 
-      this.server = createServer(function (req: any, headers: any, res: any) {
+      server = createServer(function (req: any, headers: any, res: any) {
         const asyncLocalStorage = new asyncHooks.AsyncLocalStorage();
 
         return asyncLocalStorage.run(store, async function () {
@@ -512,7 +511,7 @@ describe('json()', function () {
     });
 
     it('should presist store', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .send('{"user":"tobi"}')
@@ -523,7 +522,7 @@ describe('json()', function () {
     });
 
     it('should presist store when unmatched content-type', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/fizzbuzz')
         .send('buzz')
@@ -534,7 +533,7 @@ describe('json()', function () {
     });
 
     it('should presist store when inflated', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bab56ca4bcc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any as any);
@@ -545,7 +544,7 @@ describe('json()', function () {
     });
 
     it('should presist store when inflate error', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bab56cc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any as any);
@@ -555,7 +554,7 @@ describe('json()', function () {
     });
 
     it('should presist store when parse error', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .send('{"user":')
@@ -565,7 +564,7 @@ describe('json()', function () {
     });
 
     it('should presist store when limit exceeded', function (done) {
-      request(this.server)
+      request(server)
         .post('/')
         .set('Content-Type', 'application/json')
         .send('{"user":"' + Buffer.alloc(1024 * 100, '.').toString() + '"}')
@@ -576,26 +575,26 @@ describe('json()', function () {
   });
 
   describe('charset', function () {
-    before(function () {
-      this.server = createServer();
+    beforeAll(function () {
+      server = createServer();
     });
 
     it('should parse utf-8', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json; charset=utf-8');
       test.write(Buffer.from('7b226e616d65223a22e8aeba227d', 'hex') as any as any);
       test.expect(200, '{"name":"论"}', done);
     });
 
     it('should parse utf-16', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json; charset=utf-16');
       test.write(Buffer.from('feff007b0022006e0061006d00650022003a00228bba0022007d', 'hex') as any);
       test.expect(200, '{"name":"论"}', done);
     });
 
     it('should parse when content-length != char length', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json; charset=utf-8');
       test.set('Content-Length', '13');
       test.write(Buffer.from('7b2274657374223a22c3a5227d', 'hex') as any);
@@ -603,14 +602,14 @@ describe('json()', function () {
     });
 
     it('should default to utf-8', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('7b226e616d65223a22e8aeba227d', 'hex') as any);
       test.expect(200, '{"name":"论"}', done);
     });
 
     it('should fail on unknown charset', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json; charset=koi8-r');
       test.write(Buffer.from('7b226e616d65223a22cec5d4227d', 'hex') as any);
       test.expect(415, '[charset.unsupported] unsupported charset "KOI8-R"', done);
@@ -618,19 +617,19 @@ describe('json()', function () {
   });
 
   describe('encoding', function () {
-    before(function () {
-      this.server = createServer({ limit: '1kb' });
+    beforeAll(function () {
+      server = createServer({ limit: '1kb' });
     });
 
     it('should parse without encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('7b226e616d65223a22e8aeba227d', 'hex') as any);
       test.expect(200, '{"name":"论"}', done);
     });
 
     it('should support identity encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'identity');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('7b226e616d65223a22e8aeba227d', 'hex') as any);
@@ -638,7 +637,7 @@ describe('json()', function () {
     });
 
     it('should support gzip encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bab56ca4bcc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any);
@@ -646,7 +645,7 @@ describe('json()', function () {
     });
 
     it('should support deflate encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'deflate');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('789cab56ca4bcc4d55b2527ab16e97522d00274505ac', 'hex') as any);
@@ -654,7 +653,7 @@ describe('json()', function () {
     });
 
     it('should be case-insensitive', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'GZIP');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bab56ca4bcc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any);
@@ -662,7 +661,7 @@ describe('json()', function () {
     });
 
     it('should 415 on unknown encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'nulls');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('000000000000', 'hex') as any);
@@ -670,7 +669,7 @@ describe('json()', function () {
     });
 
     it('should 400 on malformed encoding', function (done) {
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bab56cc4d55b2527ab16e97522d00515be1cc0e000000', 'hex') as any);
@@ -679,7 +678,7 @@ describe('json()', function () {
 
     it('should 413 when inflated value exceeds limit', function (done) {
       // gzip'd data exceeds 1kb, but deflated below 1kb
-      const test = request(this.server).post('/');
+      const test = request(server).post('/');
       test.set('Content-Encoding', 'gzip');
       test.set('Content-Type', 'application/json');
       test.write(Buffer.from('1f8b080000000000000bedc1010d000000c2a0f74f6d0f071400000000000000', 'hex') as any);

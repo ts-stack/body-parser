@@ -1,17 +1,16 @@
 import { IncomingHttpHeaders } from 'http';
-
 import { typeOfRequest, hasBody, is, mimeMatch, normalize } from './type-is.js';
 
 describe('typeOfRequest(req, types)', function () {
-  // it('should ignore params', function () {
-  //   const req = createRequest('text/html; charset=utf-8');
-  //   expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
-  // });
+  it('should ignore params', function () {
+    const req = createHeaders('text/html; charset=utf-8');
+    expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
+  });
 
-  // it('should ignore params LWS', function () {
-  //   const req = createRequest('text/html ; charset=utf-8');
-  //   expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
-  // });
+  it('should ignore params LWS', function () {
+    const req = createHeaders('text/html ; charset=utf-8');
+    expect(typeOfRequest(req, ['text/*'])).toBe('text/html');
+  });
 
   it('should ignore casing', function () {
     const req = createHeaders('text/HTML');
@@ -175,9 +174,9 @@ describe('hasBody(req)', function () {
 });
 
 describe('is(mediaType, types)', function () {
-  // it('should ignore params', function () {
-  //   expect(is('text/html; charset=utf-8', ['text/*'])).toBe('text/html');
-  // });
+  it('should ignore params', function () {
+    expect(is('text/html; charset=utf-8', ['text/*'])).toBe('text/html');
+  });
 
   it('should ignore casing', function () {
     expect(is('text/HTML', ['text/*'])).toBe('text/html');

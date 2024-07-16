@@ -7,7 +7,7 @@ import request from 'supertest';
 import { getTextParser } from './text.mjs';
 import type { TextOptions } from '../types.mjs';
 
-const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
+const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 
 describe('text()', function () {
   before(function () {

@@ -7,7 +7,7 @@ import request from 'supertest';
 import { getJsonParser } from './json.mjs';
 import type { JsonOptions } from '../types.mjs';
 
-const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
+const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 
 describe('json()', function () {
   it('should parse JSON', function (done) {

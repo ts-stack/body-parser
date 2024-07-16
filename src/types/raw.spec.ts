@@ -7,7 +7,7 @@ import request from 'supertest';
 import { getRawParser } from './raw.mjs';
 import type { RawOptions } from '../types.mjs';
 
-const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage === 'function' ? describe : describe.skip;
+const describeAsyncHooks = typeof asyncHooks.AsyncLocalStorage == 'function' ? describe : describe.skip;
 
 describe('raw()', function () {
   before(function () {

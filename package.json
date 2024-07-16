@@ -5,6 +5,7 @@
   "version": "1.0.0-alpha.0",
   "license": "MIT",
   "repository": "ts-stack/body-parser",
+  "exports": "./dist/index.js",
   "dependencies": {
     "bytes": "3.1.2",
     "content-type": "~1.0.5",

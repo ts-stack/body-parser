@@ -6,7 +6,7 @@ Node.js body parser writen in TypeScript, in [promise][2] style, in ESM format, 
 
 [Learn about the anatomy of an HTTP transaction in Node.js](https://nodejs.org/en/docs/guides/anatomy-of-an-http-transaction/).
 
-_This does not handle multipart bodies_, due to their complex and typically large nature. For multipart bodies, you may be interested in [@ts-stack/multiparty][3].
+_This does not handle multipart bodies_, due to their complex and typically large nature. For multipart bodies, you may be interested in [form-data][3].
 
 This module provides the following parsers: JSON, Raw, Text, URL-encoded body parsers.
 
@@ -165,4 +165,4 @@ property is set to the encoding that is unsupported.
 [0]: https://github.com/expressjs/body-parser
 [1]: https://github.com/expressjs/body-parser/commit/83db46a1e5512135ce01ed90b9132ee16a2657a8
 [2]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise
-[3]: https://github.com/ts-stack/multiparty#readme
+[3]: https://github.com/octet-stream/form-data

@@ -12,6 +12,8 @@ lib-cov
 *.pid
 *.gz
 *.swp
+*.tgz
+.env
 
 pids
 logs

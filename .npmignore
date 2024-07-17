@@ -1,11 +1,13 @@
 *.tgz
 *.log
-*.spec.ts
+*.spec.*
+*.test.*
 yarn.*
 jest.*
 .*
 nodemon.json
 CHANGELOG.md
+SECURITY.md
 *.tsbuildinfo
 tsconfig.*
 test

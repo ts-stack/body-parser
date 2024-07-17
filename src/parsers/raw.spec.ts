@@ -454,11 +454,11 @@ describe('raw()', function () {
 });
 
 function createServer(opts?: RawOptions | Function) {
-  const _bodyParser: any = typeof opts != 'function' ? getRawParser(opts) : opts;
+  const bodyParserOrCallback: any = typeof opts != 'function' ? getRawParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, req.headers, res);
+      const body = await bodyParserOrCallback(req, req.headers, res);
       if (Buffer.isBuffer(body)) {
         res.end('buf:' + body.toString('hex'));
         return;

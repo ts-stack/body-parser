@@ -512,11 +512,11 @@ describe('text()', function () {
 });
 
 function createServer(opts?: TextOptions | Function) {
-  const _bodyParser = typeof opts != 'function' ? getTextParser(opts) : opts;
+  const bodyParserOrCallback = typeof opts != 'function' ? getTextParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, req.headers, res);
+      const body = await bodyParserOrCallback(req, req.headers, res);
       res.statusCode = 200;
       res.end(JSON.stringify(body));
     } catch (err: any) {

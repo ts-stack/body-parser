@@ -690,11 +690,11 @@ describe('json()', function () {
 });
 
 function createServer(optsOrCallback?: JsonOptions | Function) {
-  const _bodyParser = typeof optsOrCallback != 'function' ? getJsonParser(optsOrCallback || {}) : optsOrCallback;
+  const bodyParserOrCallback = typeof optsOrCallback != 'function' ? getJsonParser(optsOrCallback || {}) : optsOrCallback;
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, req.headers, res);
+      const body = await bodyParserOrCallback(req, req.headers, res);
       // console.log('-'.repeat(50), 'success response');
       res.statusCode = 200;
       res.end(JSON.stringify(body));

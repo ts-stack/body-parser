@@ -789,11 +789,11 @@ function createManyParams(count: number) {
 }
 
 function createServer(opts?: UrlencodedOptions | Function) {
-  const _bodyParser: any = typeof opts != 'function' ? getUrlencodedParser(opts) : opts;
+  const bodyParserOrCallback: any = typeof opts != 'function' ? getUrlencodedParser(opts) : opts;
 
   return http.createServer(async function (req, res) {
     try {
-      const body = await _bodyParser(req, req.headers, res);
+      const body = await bodyParserOrCallback(req, req.headers, res);
       res.statusCode = 200;
       res.end(JSON.stringify(body));
     } catch (err: any) {

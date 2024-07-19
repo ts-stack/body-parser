@@ -12,7 +12,7 @@ import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';
-import type { JsonOptions } from '../types.js';
+import type { BodyParser, JsonOptions } from '../types.js';
 import { hasBody } from '../type-is.js';
 import { getCharset, typeChecker } from '../utils.js';
 
@@ -41,9 +41,9 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  * Unicode encoding of the body and supports automatic inflation of `gzip` and
  * `deflate` encodings.
  *
- * A new object containing the parsed data is returned by the parser in Promise style.
+ * The parser returns the request body in a Promise.
  */
-export function getJsonParser(options?: JsonOptions) {
+export function getJsonParser(options?: JsonOptions): BodyParser {
   const opts = options || {};
 
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
@@ -109,7 +109,7 @@ export function getJsonParser(options?: JsonOptions) {
     if (charset.slice(0, 4) !== 'utf-') {
       debug('invalid charset');
       throw createError(415, 'unsupported charset "' + charset.toUpperCase() + '"', {
-        charset: charset,
+        charset,
         type: 'charset.unsupported',
       });
     }

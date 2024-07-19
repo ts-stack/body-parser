@@ -21,8 +21,7 @@ const debug = debugInit('body-parser:text');
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
- * A new object containing the parsed data is returned by the parser in Promise style.
- * This will be a string of the body.
+ * The parser returns the request body in a Promise, that will be a string of the body.
  */
 export function getTextParser(options?: TextOptions) {
   const opts = options || {};

@@ -21,8 +21,7 @@ const debug = debugInit('body-parser:raw');
  * requests where the `Content-Type` header matches the `type` option. This
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
- * A new object containing the parsed data is returned by the parser in Promise style.
- * This will be a `Buffer` object of the body.
+ * The parser returns the request body in a Promise, that will be a `Buffer` object of the body.
  */
 export function getRawParser(options?: RawOptions) {
   const opts = options || {};

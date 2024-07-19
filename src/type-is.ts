@@ -6,7 +6,7 @@
  */
 
 import { IncomingHttpHeaders } from 'node:http';
-import typer from 'media-typer';
+import contentType from 'content-type';
 import mime from 'mime-types';
 
 /**
@@ -18,8 +18,8 @@ import mime from 'mime-types';
  * If no types match, `false` is returned.
  * Otherwise, the first `type` that matches is returned.
  */
-export function is(value?: any, ...types_: string[]): string | false;
-export function is(value?: any, types_?: string[]): string | false;
+export function is(value?: any, ...types: string[]): string | false;
+export function is(value?: any, types?: string[]): string | false;
 export function is(value?: string | null, types_?: string | string[]): string | false {
   let i: number;
   let types = types_;
@@ -88,8 +88,8 @@ export function hasBody(headers: IncomingHttpHeaders) {
  *
  *     this.is('html'); // => false
  */
-export function typeOfRequest(headers: IncomingHttpHeaders, ...types_: string[]): string | false | null;
-export function typeOfRequest(headers: IncomingHttpHeaders, types_?: string[]): string | false | null;
+export function typeOfRequest(headers: IncomingHttpHeaders, ...types: string[]): string | false | null;
+export function typeOfRequest(headers: IncomingHttpHeaders, types?: string[]): string | false | null;
 export function typeOfRequest(headers: IncomingHttpHeaders, types_?: string | string[]): string | false | null {
   let types = types_;
 
@@ -191,13 +191,13 @@ export function mimeMatch(expected: string | false, actual: string): boolean {
  */
 function normalizeType(value: string): string {
   // parse the type
-  const type = typer.parse(value);
+  const type = contentType.parse(value);
 
   // remove the parameters
-  (type as any).parameters = undefined;
+  type.parameters = {};
 
   // reformat it
-  return typer.format(type);
+  return contentType.format(type);
 }
 
 /**

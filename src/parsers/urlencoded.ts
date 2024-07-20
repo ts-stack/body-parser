@@ -53,7 +53,7 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
     return body.length ? queryparse(body) : {};
   }
 
-  return async function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
+  async function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -92,7 +92,10 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
       limit,
       verify,
     });
-  };
+  }
+
+  urlencodedParser.shouldParse = shouldParse;
+  return urlencodedParser;
 }
 
 /**

@@ -43,7 +43,7 @@ export function getTextParser(options?: TextOptions) {
     return buf;
   }
 
-  return async function textParser(req: Readable, headers: IncomingHttpHeaders) {
+  async function textParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -70,5 +70,8 @@ export function getTextParser(options?: TextOptions) {
       limit: limit,
       verify: verify,
     });
-  };
+  }
+
+  textParser.shouldParse = shouldParse;
+  return textParser;
 }

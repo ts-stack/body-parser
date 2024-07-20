@@ -15,7 +15,10 @@ export interface ReadOptions {
 /**
  * The function type returned by get*Parser() factories.
  */
-export type BodyParser<T extends object = {}> = (req: Readable, headers: IncomingHttpHeaders) => Promise<T>;
+export interface BodyParser<T extends object = {}> {
+  (req: Readable, headers: IncomingHttpHeaders): Promise<T>;
+  shouldParse: (headers: IncomingHttpHeaders) => boolean;
+}
 
 export type ReviverFn = (key: string, value: any) => any;
 

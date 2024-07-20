@@ -8,19 +8,14 @@ export class BodyParsers {
   urlencoded: BodyParser;
   raw: BodyParser;
 
-  parse(req: Readable, headers: IncomingHttpHeaders, acceptHeaders: string[]) {
-    const parserKey = typeIs(headers, acceptHeaders);
-    if (!parserKey) {
-      return parserKey;
-    }
-
-    if (parserKey == 'application/json') {
+  parse(req: Readable, headers: IncomingHttpHeaders) {
+    if (this.json.shouldParse(headers)) {
       return this.json(req, headers);
-    } else if (parserKey == 'text/plain') {
+    } else if (this.text.shouldParse(headers)) {
       return this.text(req, headers);
-    } else if (parserKey == 'application/x-www-form-urlencoded') {
+    } else if (this.urlencoded.shouldParse(headers)) {
       return this.urlencoded(req, headers);
-    } else if (parserKey == 'application/octet-stream') {
+    } else if (this.raw.shouldParse(headers)) {
       return this.raw(req, headers);
     }
 

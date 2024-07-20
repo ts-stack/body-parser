@@ -42,7 +42,7 @@ export function getRawParser(options?: RawOptions) {
     return buf;
   }
 
-  return async function rawParser(req: Readable, headers: IncomingHttpHeaders) {
+  async function rawParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -66,5 +66,8 @@ export function getRawParser(options?: RawOptions) {
       limit: limit,
       verify: verify,
     });
-  };
+  }
+
+  rawParser.shouldParse = shouldParse;
+  return rawParser;
 }

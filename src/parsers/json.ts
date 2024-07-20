@@ -83,7 +83,7 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
     }
   }
 
-  return async function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
+  async function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
     const body = {};
 
     // skip requests without bodies
@@ -117,7 +117,10 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
       limit,
       verify,
     });
-  };
+  }
+
+  jsonParser.shouldParse = shouldParse;
+  return jsonParser;
 }
 
 /**

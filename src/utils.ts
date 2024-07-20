@@ -1,7 +1,7 @@
 import { IncomingHttpHeaders } from 'http';
 import contentType from 'content-type';
 
-import { typeOfRequest } from './type-is.js';
+import { typeIs } from './type-is.js';
 
 /**
  * Get the simple type checker.
@@ -9,7 +9,7 @@ import { typeOfRequest } from './type-is.js';
 export function typeChecker(type: string | string[]) {
   type = Array.isArray(type) ? type : [type];
   return function checkType(headers: IncomingHttpHeaders) {
-    return Boolean(typeOfRequest(headers, type));
+    return Boolean(typeIs(headers, type));
   };
 }
 

@@ -77,20 +77,20 @@ export function hasBody(headers: IncomingHttpHeaders) {
  * Examples:
  *
  *     // With Content-Type: text/html; charset=utf-8
- *     this.is('html'); // => 'html'
- *     this.is('text/html'); // => 'text/html'
- *     this.is('text/*', 'application/json'); // => 'text/html'
+ *     typeIs(headers, 'html'); // => 'html'
+ *     typeIs(headers, 'text/html'); // => 'text/html'
+ *     typeIs(headers, 'text/*', 'application/json'); // => 'text/html'
  *
  *     // When Content-Type is application/json
- *     this.is('json', 'urlencoded'); // => 'json'
- *     this.is('application/json'); // => 'application/json'
- *     this.is('html', 'application/*'); // => 'application/json'
+ *     typeIs(headers, 'json', 'urlencoded'); // => 'json'
+ *     typeIs(headers, 'application/json'); // => 'application/json'
+ *     typeIs(headers, 'html', 'application/*'); // => 'application/json'
  *
- *     this.is('html'); // => false
+ *     typeIs(headers, 'html'); // => false
  */
-export function typeOfRequest(headers: IncomingHttpHeaders, ...types: string[]): string | false | null;
-export function typeOfRequest(headers: IncomingHttpHeaders, types?: string[]): string | false | null;
-export function typeOfRequest(headers: IncomingHttpHeaders, types_?: string | string[]): string | false | null {
+export function typeIs(headers: IncomingHttpHeaders, ...types: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, types?: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, types_?: string | string[]): string | false | null {
   let types = types_;
 
   // no body

@@ -17,7 +17,7 @@ import type { Readable } from 'node:stream';
 import read from '../read.js';
 import type { UrlencodedOptions } from '../types.js';
 import { hasBody } from '../type-is.js';
-import { typeChecker } from '../utils.js';
+import { getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:urlencoded');
 
@@ -47,7 +47,7 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
   const queryparse = extended ? extendedparser(opts) : simpleparser(opts);
 
   // create the appropriate type checking function
-  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? getTypeChecker(type) : type;
 
   function parse(body: string) {
     return body.length ? queryparse(body) : {};

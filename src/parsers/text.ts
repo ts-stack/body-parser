@@ -12,7 +12,7 @@ import type { Readable } from 'node:stream';
 import { hasBody } from '../type-is.js';
 import read from '../read.js';
 import { TextOptions } from '../types.js';
-import { getCharset, typeChecker } from '../utils.js';
+import { getCharset, getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:text');
 
@@ -37,7 +37,7 @@ export function getTextParser(options?: TextOptions) {
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? getTypeChecker(type) : type;
 
   function parse(buf: Buffer) {
     return buf;

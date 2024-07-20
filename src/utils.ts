@@ -6,7 +6,7 @@ import { typeIs } from './type-is.js';
 /**
  * Get the simple type checker.
  */
-export function typeChecker(type: string | string[]) {
+export function getTypeChecker(type: string | string[]) {
   type = Array.isArray(type) ? type : [type];
   return function checkType(headers: IncomingHttpHeaders) {
     return Boolean(typeIs(headers, type));

@@ -14,7 +14,7 @@ import type { Readable } from 'node:stream';
 import read from '../read.js';
 import type { BodyParser, JsonOptions } from '../types.js';
 import { hasBody } from '../type-is.js';
-import { getCharset, typeChecker } from '../utils.js';
+import { getCharset, getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:json');
 
@@ -54,7 +54,7 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? getTypeChecker(type) : type;
 
   function parse(body: string) {
     if (body.length === 0) {

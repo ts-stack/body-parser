@@ -10,46 +10,43 @@ import contentType from 'content-type';
 import mime from 'mime-types';
 
 /**
- * Compare a `value` content-type with `types`.
- * Each `type` can be an extension like `html`,
+ * Compare a `actual` content-type with `expected`.
+ * Each `expected` can be an extension like `html`,
  * a special shortcut like `multipart` or `urlencoded`,
  * or a mime type.
  *
  * If no types match, `false` is returned.
  * Otherwise, the first `type` that matches is returned.
  */
-export function is(value?: any, ...types: string[]): string | false;
-export function is(value?: any, types?: string[]): string | false;
-export function is(value?: string | null, types_?: string | string[]): string | false {
-  let i: number;
-  let types = types_;
-
+export function is(actual?: any, ...expected: string[]): string | false;
+export function is(actual?: any, expected?: string[]): string | false;
+export function is(actual_?: string | null, expected?: string | string[]): string | false {
   // remove parameters and normalize
-  const val = tryNormalizeType(value);
+  const actual = tryNormalizeType(actual_);
 
   // no type or invalid
-  if (!val) {
+  if (!actual) {
     return false;
   }
 
   // support flattened arguments
-  if (types && !Array.isArray(types)) {
-    types = new Array(arguments.length - 1);
-    for (i = 0; i < types.length; i++) {
-      types[i] = arguments[i + 1];
+  if (!Array.isArray(expected)) {
+    expected = new Array(arguments.length - 1);
+    for (let i = 0; i < expected.length; i++) {
+      expected[i] = arguments[i + 1];
     }
   }
 
   // no types, return the content type
-  if (!types || !types.length) {
-    return val;
+  if (!expected || !expected.length) {
+    return actual;
   }
 
   let type;
-  for (i = 0; i < types.length; i++) {
-    const normalized = normalize((type = types[i])) ?? false;
-    if (mimeMatch(normalized, val)) {
-      return type[0] === '+' || type.indexOf('*') !== -1 ? val : type;
+  for (let i = 0; i < expected.length; i++) {
+    const normalized = normalize((type = expected[i])) ?? false;
+    if (mimeMatch(normalized, actual)) {
+      return type[0] === '+' || type.indexOf('*') !== -1 ? actual : type;
     }
   }
 
@@ -68,8 +65,8 @@ export function hasBody(headers: IncomingHttpHeaders) {
 }
 
 /**
- * Check if the incoming request contains the "Content-Type"
- * header field, and it contains any of the give mime `type`s.
+ * Check if the `headers` contains the "Content-Type"
+ * field, and it contains any of the give mime `expected` types.
  * If there is no request body, `null` is returned.
  * If there is no content type, `false` is returned.
  * Otherwise, it returns the first `type` that matches.
@@ -88,28 +85,26 @@ export function hasBody(headers: IncomingHttpHeaders) {
  *
  *     typeIs(headers, 'html'); // => false
  */
-export function typeIs(headers: IncomingHttpHeaders, ...types: string[]): string | false | null;
-export function typeIs(headers: IncomingHttpHeaders, types?: string[]): string | false | null;
-export function typeIs(headers: IncomingHttpHeaders, types_?: string | string[]): string | false | null {
-  let types = types_;
-
+export function typeIs(headers: IncomingHttpHeaders, ...expected: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, expected?: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, expected?: string | string[]): string | false | null {
   // no body
   if (!hasBody(headers)) {
     return null;
   }
 
   // support flattened arguments
-  if (arguments.length > 2) {
-    types = new Array(arguments.length - 1);
-    for (let i = 0; i < types.length; i++) {
-      types[i] = arguments[i + 1];
+  if (!Array.isArray(expected)) {
+    expected = new Array(arguments.length - 1);
+    for (let i = 0; i < expected.length; i++) {
+      expected[i] = arguments[i + 1];
     }
   }
 
   // request content type
   const value = headers['content-type'];
 
-  return is(value, types as string[]);
+  return is(value, expected);
 }
 
 /**

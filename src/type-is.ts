@@ -10,17 +10,17 @@ import contentType from 'content-type';
 import mime from 'mime-types';
 
 /**
- * Compare a `actual` content-type with `expected`.
- * Each `expected` can be an extension like `html`,
+ * Compare a `actual` content-type with `acceptable`.
+ * Each `acceptable` can be an extension like `html`,
  * a special shortcut like `multipart` or `urlencoded`,
  * or a mime type.
  *
  * If no types match, `false` is returned.
  * Otherwise, the first `type` that matches is returned.
  */
-export function is(actual?: any, ...expected: string[]): string | false;
-export function is(actual?: any, expected?: string[]): string | false;
-export function is(actual_?: string | null, expected?: string | string[]): string | false {
+export function is(actual?: any, ...acceptable: string[]): string | false;
+export function is(actual?: any, acceptable?: string[]): string | false;
+export function is(actual_?: string | null, acceptable?: string | string[]): string | false {
   // remove parameters and normalize
   const actual = tryNormalizeType(actual_);
 
@@ -30,21 +30,21 @@ export function is(actual_?: string | null, expected?: string | string[]): strin
   }
 
   // support flattened arguments
-  if (!Array.isArray(expected)) {
-    expected = new Array(arguments.length - 1);
-    for (let i = 0; i < expected.length; i++) {
-      expected[i] = arguments[i + 1];
+  if (!Array.isArray(acceptable)) {
+    acceptable = new Array(arguments.length - 1);
+    for (let i = 0; i < acceptable.length; i++) {
+      acceptable[i] = arguments[i + 1];
     }
   }
 
   // no types, return the content type
-  if (!expected || !expected.length) {
+  if (!acceptable || !acceptable.length) {
     return actual;
   }
 
   let type;
-  for (let i = 0; i < expected.length; i++) {
-    const normalized = normalize((type = expected[i])) ?? false;
+  for (let i = 0; i < acceptable.length; i++) {
+    const normalized = normalize((type = acceptable[i])) ?? false;
     if (mimeMatch(normalized, actual)) {
       return type[0] === '+' || type.indexOf('*') !== -1 ? actual : type;
     }
@@ -66,7 +66,7 @@ export function hasBody(headers: IncomingHttpHeaders) {
 
 /**
  * Check if the `headers` contains the "Content-Type"
- * field, and it contains any of the give mime `expected` types.
+ * field, and it contains any of the give mime `acceptable` types.
  * If there is no request body, `null` is returned.
  * If there is no content type, `false` is returned.
  * Otherwise, it returns the first `type` that matches.
@@ -85,26 +85,26 @@ export function hasBody(headers: IncomingHttpHeaders) {
  *
  *     typeIs(headers, 'html'); // => false
  */
-export function typeIs(headers: IncomingHttpHeaders, ...expected: string[]): string | false | null;
-export function typeIs(headers: IncomingHttpHeaders, expected?: string[]): string | false | null;
-export function typeIs(headers: IncomingHttpHeaders, expected?: string | string[]): string | false | null {
+export function typeIs(headers: IncomingHttpHeaders, ...acceptable: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, acceptable?: string[]): string | false | null;
+export function typeIs(headers: IncomingHttpHeaders, acceptable?: string | string[]): string | false | null {
   // no body
   if (!hasBody(headers)) {
     return null;
   }
 
   // support flattened arguments
-  if (!Array.isArray(expected)) {
-    expected = new Array(arguments.length - 1);
-    for (let i = 0; i < expected.length; i++) {
-      expected[i] = arguments[i + 1];
+  if (!Array.isArray(acceptable)) {
+    acceptable = new Array(arguments.length - 1);
+    for (let i = 0; i < acceptable.length; i++) {
+      acceptable[i] = arguments[i + 1];
     }
   }
 
   // request content type
   const value = headers['content-type'];
 
-  return is(value, expected);
+  return is(value, acceptable);
 }
 
 /**

@@ -22,13 +22,13 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 /**
  * Read a request into a buffer and parse.
  */
-export default async function read(
+export default async function read<T extends object = {}>(
   req: Readable,
   headers: IncomingHttpHeaders,
-  parse: ParseFn,
+  parse: ParseFn<T>,
   debug: Fn,
   opts: ReadOptions,
-): Promise<object | undefined> {
+): Promise<T> {
   let stream: ContentStream;
   let length: string | undefined;
 
@@ -86,7 +86,7 @@ export default async function read(
     });
   }
 
-  function cb(body: Buffer) {
+  function cb(body: Buffer): T {
     // verify
     if (verify) {
       try {

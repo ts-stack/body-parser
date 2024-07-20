@@ -2,7 +2,7 @@ import { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 export type Fn = (...args: any[]) => any;
-export type ParseFn = ((body: string) => object) | ((body: Buffer) => object);
+export type ParseFn<T extends object = {}> = ((body: string) => T) | ((body: Buffer) => T);
 export type VerifyFn = (req: Readable, buf: Buffer, encoding: string | null) => void;
 export interface ReadOptions {
   encoding: string | null;
@@ -12,6 +12,12 @@ export interface ReadOptions {
   debug?: Fn;
   length?: string;
 }
+/**
+ * The function type returned by get*Parser() factories.
+ */
+export type BodyParser<T extends object = {}> = (req: Readable, headers: IncomingHttpHeaders) => Promise<T>;
+
+export type ReviverFn = (key: string, value: any) => any;
 
 export interface BaseOptions {
   /**
@@ -55,7 +61,7 @@ export interface JsonOptions extends BaseOptions {
    *
    * [1]: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/parse#Example.3A_Using_the_reviver_parameter
    */
-  reviver?(key: string, value: any): any;
+  reviver?: ReviverFn;
   /**
    * When set to `true`, will only accept arrays and objects; when `false` will
    * accept anything `JSON.parse` accepts. Defaults to `true`.

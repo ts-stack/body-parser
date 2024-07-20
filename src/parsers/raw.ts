@@ -36,7 +36,7 @@ export function getRawParser(options?: RawOptions) {
   }
 
   // create the appropriate type checking function
-  const shouldParse = typeof type !== 'function' ? typeChecker(type) : type;
+  const shouldParse = typeof type != 'function' ? typeChecker(type) : type;
 
   function parse(buf: Buffer) {
     return buf;

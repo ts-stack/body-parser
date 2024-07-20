@@ -23,14 +23,10 @@ const debug = debugInit('body-parser:json');
  *
  * Allowed whitespace is defined in RFC 7159:
  *
- *    ws = *(
- *            %x20 /              ; Space
- *            %x09 /              ; Horizontal tab
- *            %x0A /              ; Line feed or New line
- *            %x0D )              ; Carriage return
+ * ['\x20', '\x09', '\x0a', '\x0d'] => [ ' ', '\t', '\n', '\r' ]
  */
 
-const FIRST_CHAR_REGEXP = /^[\x20\x09\x0a\x0d]*([^\x20\x09\x0a\x0d])/; // eslint-disable-line no-control-regex
+const FIRST_CHAR_REGEXP = /^[\x20\x09\x0a\x0d]*([^\x20\x09\x0a\x0d])/;
 
 const JSON_SYNTAX_CHAR = '#';
 const JSON_SYNTAX_REGEXP = /#+/g;
@@ -141,7 +137,7 @@ function createStrictSyntaxError(str: string, char: string) {
 
   try {
     JSON.parse(partial);
-    /* istanbul ignore next */ throw new SyntaxError('strict violation');
+    throw new SyntaxError('strict violation');
   } catch (e: any) {
     return normalizeJsonSyntaxError(e, {
       message: e.message.replace(JSON_SYNTAX_REGEXP, function (placeholder: string) {

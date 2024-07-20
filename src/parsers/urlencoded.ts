@@ -127,7 +127,7 @@ function extendedparser(options: UrlencodedOptions) {
       allowPrototypes: true,
       arrayLimit: arrayLimit,
       depth: Infinity,
-      parameterLimit: parameterLimit,
+      parameterLimit,
     });
   };
 }

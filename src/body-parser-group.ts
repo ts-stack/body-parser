@@ -31,10 +31,12 @@ export class BodyParserGroup {
     this.raw = getRawParser(bodyParsersOptions.jsonOptions!, true);
   }
 
-  parse<T = any>(req: Readable, headers: IncomingHttpHeaders): Promise<T | null | false> {
-    if(!hasBody(headers)) {
+  parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: undefined): Promise<T | null | false>;
+  parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue: T): Promise<T>;
+  parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: any): Promise<T | null | false> {
+    if (!hasBody(headers)) {
       debug('skip empty body');
-      return Promise.resolve(null);
+      return defaultValue !== undefined ? defaultValue : Promise.resolve(null);
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -50,6 +52,6 @@ export class BodyParserGroup {
     }
 
     debug('skip parsing: json, text, urlencoded and raw');
-    return Promise.resolve(false);
+    return defaultValue !== undefined ? defaultValue : Promise.resolve(false);
   }
 }

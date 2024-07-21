@@ -11,7 +11,7 @@ import type { Readable } from 'node:stream';
 
 import { hasBody } from '../type-is.js';
 import read from '../read.js';
-import { TextOptions } from '../types.js';
+import { BodyParser, BodyParserWithoutCheck, TextOptions } from '../types.js';
 import { getCharset, getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:text');
@@ -22,8 +22,16 @@ const debug = debugInit('body-parser:text');
  * parser supports automatic inflation of `gzip` and `deflate` encodings.
  *
  * The parser returns the request body in a Promise, that will be a string of the body.
+ *
+ * @param withoutCheck If you set this parameter to `true', the presence
+ * of the request body and the matching of headers will not be checked.
  */
-export function getTextParser(options?: TextOptions) {
+export function getTextParser(options?: TextOptions, withoutCheck?: false): BodyParser<string | Buffer>;
+export function getTextParser(options: TextOptions, withoutCheck: true): BodyParserWithoutCheck<string | Buffer>;
+export function getTextParser(
+  options?: TextOptions,
+  withoutCheck?: boolean,
+): BodyParser<string | Buffer> | BodyParserWithoutCheck<string | Buffer> {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';
@@ -43,33 +51,36 @@ export function getTextParser(options?: TextOptions) {
     return buf;
   }
 
-  async function textParser(req: Readable, headers: IncomingHttpHeaders) {
-    // skip requests without bodies
-    if (!hasBody(headers)) {
-      debug('skip empty body');
-      return {};
-    }
-
-    debug(`content-type ${headers['content-type']}`);
-
-    // determine if request should be parsed
-    if (!shouldParse(headers)) {
-      debug('skip parsing');
-      return {};
-    }
-
-    // get charset
-    const charset = getCharset(headers) || defaultCharset;
-
-    // read
-    return read(req, headers, parse, debug, {
-      encoding: charset,
+  function textParserWithoutCheck(req: Readable, headers: IncomingHttpHeaders) {
+    return read<string | Buffer>(req, headers, parse, debug, {
+      encoding: getCharset(headers) || defaultCharset,
       inflate: inflate,
       limit: limit,
       verify: verify,
     });
   }
 
-  textParser.shouldParse = shouldParse;
-  return textParser;
+  if (withoutCheck) {
+    textParserWithoutCheck.shouldParse = shouldParse;
+    return textParserWithoutCheck;
+  } else {
+    return function textParser(req: Readable, headers: IncomingHttpHeaders) {
+      // skip requests without bodies
+      if (!hasBody(headers)) {
+        debug('skip empty body');
+        return Promise.resolve({} as any);
+      }
+
+      debug(`content-type ${headers['content-type']}`);
+
+      // determine if request should be parsed
+      if (!shouldParse(headers)) {
+        debug('skip parsing');
+        return Promise.resolve({} as any);
+      }
+
+      // read
+      return textParserWithoutCheck(req, headers);
+    };
+  }
 }

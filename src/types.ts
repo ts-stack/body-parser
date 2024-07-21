@@ -2,7 +2,7 @@ import { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 export type Fn = (...args: any[]) => any;
-export type ParseFn<T extends object = {}> = ((body: string) => T) | ((body: Buffer) => T);
+export type ParseFn<T = any> = ((body: string) => T) | ((body: Buffer) => T);
 export type VerifyFn = (req: Readable, buf: Buffer, encoding: string | null) => void;
 export interface ReadOptions {
   encoding: string | null;
@@ -15,8 +15,11 @@ export interface ReadOptions {
 /**
  * The function type returned by get*Parser() factories.
  */
-export interface BodyParser<T extends object = {}> {
+export interface BodyParser<T = any> {
   (req: Readable, headers: IncomingHttpHeaders): Promise<T>;
+}
+
+export interface BodyParserWithoutCheck<T = any> extends BodyParser<T> {
   shouldParse: (headers: IncomingHttpHeaders) => boolean;
 }
 

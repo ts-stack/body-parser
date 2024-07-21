@@ -15,7 +15,7 @@ import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';
-import type { UrlencodedOptions } from '../types.js';
+import type { BodyParser, BodyParserWithoutCheck, UrlencodedOptions } from '../types.js';
 import { hasBody } from '../type-is.js';
 import { getTypeChecker } from '../utils.js';
 
@@ -29,8 +29,22 @@ const debug = debugInit('body-parser:urlencoded');
  * The parser returns the request body in a Promise, that will contain key-value pairs,
  * where the value can be a string or array (when `extended` is `false`),
  * or any type (when `extended` is `true`).
+ *
+ * @param withoutCheck If you set this parameter to `true', the presence
+ * of the request body and the matching of headers will not be checked.
  */
-export function getUrlencodedParser(options?: UrlencodedOptions) {
+export function getUrlencodedParser<T extends object = any>(
+  options?: UrlencodedOptions,
+  withoutCheck?: false,
+): BodyParser<T>;
+export function getUrlencodedParser<T extends object = any>(
+  options: UrlencodedOptions,
+  withoutCheck: true,
+): BodyParserWithoutCheck<T>;
+export function getUrlencodedParser<T extends object = any>(
+  options?: UrlencodedOptions,
+  withoutCheck?: boolean,
+): BodyParser<T> | BodyParserWithoutCheck<T> {
   const opts = options || {};
 
   const extended = opts.extended || false;
@@ -50,24 +64,10 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
   const shouldParse = typeof type != 'function' ? getTypeChecker(type) : type;
 
   function parse(body: string) {
-    return body.length ? queryparse(body) : {};
+    return (body.length ? queryparse(body) : {}) as T;
   }
 
-  async function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
-    // skip requests without bodies
-    if (!hasBody(headers)) {
-      debug('skip empty body');
-      return {};
-    }
-
-    debug(`content-type ${headers['content-type']}`);
-
-    // determine if request should be parsed
-    if (!shouldParse(headers)) {
-      debug('skip parsing');
-      return {};
-    }
-
+  function urlencodedParserWithoutCheck(req: Readable, headers: IncomingHttpHeaders) {
     // assert charset
     let charset = 'utf-8';
     try {
@@ -83,7 +83,7 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
     }
 
     // read
-    return read(req, headers, parse, debug, {
+    return read<T>(req, headers, parse, debug, {
       debug,
       encoding: charset,
       inflate,
@@ -92,8 +92,28 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
     });
   }
 
-  urlencodedParser.shouldParse = shouldParse;
-  return urlencodedParser;
+  if (withoutCheck) {
+    urlencodedParserWithoutCheck.shouldParse = shouldParse;
+    return urlencodedParserWithoutCheck;
+  } else {
+    return function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
+      // skip requests without bodies
+      if (!hasBody(headers)) {
+        debug('skip empty body');
+        return Promise.resolve({} as T);
+      }
+
+      debug(`content-type ${headers['content-type']}`);
+
+      // determine if request should be parsed
+      if (!shouldParse(headers)) {
+        debug('skip parsing');
+        return Promise.resolve({} as T);
+      }
+
+      return urlencodedParserWithoutCheck(req, headers);
+    };
+  }
 }
 
 /**

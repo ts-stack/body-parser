@@ -22,7 +22,7 @@ export type ContentStream = zlib.Inflate | zlib.Gunzip | ReqWithLength;
 /**
  * Read a request into a buffer and parse.
  */
-export default async function read<T extends object = {}>(
+export default async function read<T = any>(
   req: Readable,
   headers: IncomingHttpHeaders,
   parse: ParseFn<T>,

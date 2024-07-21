@@ -12,7 +12,7 @@ import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
 
 import read from '../read.js';
-import type { BodyParser, JsonOptions } from '../types.js';
+import type { BodyParser, BodyParserWithoutCheck, JsonOptions } from '../types.js';
 import { hasBody } from '../type-is.js';
 import { getCharset, getTypeChecker } from '../utils.js';
 
@@ -38,8 +38,19 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  * `deflate` encodings.
  *
  * The parser returns the request body in a Promise.
+ *
+ * @param withoutCheck If you set this parameter to `true', the presence
+ * of the request body and the matching of headers will not be checked.
  */
-export function getJsonParser(options?: JsonOptions): BodyParser {
+export function getJsonParser<T extends object = {}>(options?: JsonOptions, withoutCheck?: false): BodyParser<T>;
+export function getJsonParser<T extends object = {}>(
+  options: JsonOptions,
+  withoutCheck: true,
+): BodyParserWithoutCheck<T>;
+export function getJsonParser<T extends object = {}>(
+  options?: JsonOptions,
+  withoutCheck?: boolean,
+): BodyParser<T> | BodyParserWithoutCheck<T> {
   const opts = options || {};
 
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
@@ -83,21 +94,7 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
     }
   }
 
-  async function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
-    // skip requests without bodies
-    if (!hasBody(headers)) {
-      debug('skip empty body');
-      return {};
-    }
-
-    debug(`content-type ${headers['content-type']}`);
-
-    // determine if request should be parsed
-    if (!shouldParse(headers)) {
-      debug('skip parsing');
-      return {};
-    }
-
+  async function jsonParserWithoutCheck(req: Readable, headers: IncomingHttpHeaders) {
     // assert charset per RFC 7159 sec 8.1
     const charset = getCharset(headers) || 'utf-8';
     if (charset.slice(0, 4) !== 'utf-') {
@@ -117,8 +114,28 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
     });
   }
 
-  jsonParser.shouldParse = shouldParse;
-  return jsonParser;
+  if (withoutCheck) {
+    jsonParserWithoutCheck.shouldParse = shouldParse;
+    return jsonParserWithoutCheck;
+  } else {
+    return function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
+      // skip requests without bodies
+      if (!hasBody(headers)) {
+        debug('skip empty body');
+        return Promise.resolve({});
+      }
+
+      debug(`content-type ${headers['content-type']}`);
+
+      // determine if request should be parsed
+      if (!shouldParse(headers)) {
+        debug('skip parsing');
+        return Promise.resolve({});
+      }
+
+      return jsonParserWithoutCheck(req, headers);
+    };
+  }
 }
 
 /**

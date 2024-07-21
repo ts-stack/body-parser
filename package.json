@@ -5,7 +5,16 @@
   "version": "1.0.0",
   "license": "MIT",
   "repository": "https://github.com/ts-stack/body-parser",
-  "exports": "./dist/index.js",
+  "exports": {
+    "./package.json": {
+      "default": "./package.json"
+    },
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "types": "./src",
   "scripts": {
     "build": "tsc -b tsconfig.build.json",
     "build-test": "tsc -b tsconfig.unit.json",

@@ -12,4 +12,4 @@ export {
   BodyParserWithoutCheck,
 } from './types.js';
 export { typeIs, hasBody } from './type-is.js';
-export { BodyParsers } from './body-parsers.js';
+export { BodyParserGroup, BodyParserOptions } from './body-parser-group.js';

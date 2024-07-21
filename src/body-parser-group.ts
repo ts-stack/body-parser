@@ -11,20 +11,20 @@ import { getRawParser } from './parsers/raw.js';
 
 const debug = debugInit('body-parser:parse');
 
-export class BodyParsersOptions {
+export class BodyParserOptions {
   jsonOptions?: JsonOptions = {};
   textOptions?: TextOptions = {};
   urlencodedOptions?: UrlencodedOptions = {};
   rawOptions?: RawOptions = {};
 }
 
-export class BodyParsers {
+export class BodyParserGroup {
   protected json: BodyParserWithoutCheck<any>;
   protected text: BodyParserWithoutCheck<string | Buffer>;
   protected urlencoded: BodyParserWithoutCheck<any>;
   protected raw: BodyParserWithoutCheck<Buffer>;
 
-  constructor(bodyParsersOptions = new BodyParsersOptions()) {
+  constructor(bodyParsersOptions = new BodyParserOptions()) {
     this.json = getJsonParser<any>(bodyParsersOptions.jsonOptions!, true);
     this.text = getTextParser(bodyParsersOptions.jsonOptions!, true);
     this.urlencoded = getUrlencodedParser<any>(bodyParsersOptions.jsonOptions!, true);

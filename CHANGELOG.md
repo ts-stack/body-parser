@@ -1,5 +1,5 @@
 <a name="1.1.0"></a>
-# [1.1.0](https://github.com/ditsmod/ditsmod/releases/tag/1.1.0) (2024-07-21)
+# [1.1.0](https://github.com/ts-stack/body-parser/releases/tag/1.1.0) (2024-07-21)
 
 ### Features
 

@@ -520,7 +520,7 @@ describe('urlencoded()', function () {
       it('should not invoke without a body', function (done) {
         const server = createServer({ type: accept });
 
-        function accept(headers: IncomingHttpHeaders) {
+        function accept(headers: IncomingHttpHeaders): any {
           throw new Error('oops!');
         }
 

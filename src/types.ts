@@ -54,7 +54,7 @@ export interface RawOptions extends BaseOptions {
    * and the headers is parsed if it returns a truthy value. Defaults to
    * `application/octet-stream`.
    */
-  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => boolean);
 }
 
 export interface JsonOptions extends BaseOptions {
@@ -80,7 +80,7 @@ export interface JsonOptions extends BaseOptions {
    * option is called as `fn(headers)` and the headers is parsed if it returns a truthy
    * value. Defaults to `application/json`.
    */
-  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => boolean);
 }
 
 export interface TextOptions extends BaseOptions {
@@ -99,7 +99,7 @@ export interface TextOptions extends BaseOptions {
    * option is called as `fn(headers)` and the headers is parsed if it returns a
    * truthy value. Defaults to `text/plain`.
    */
-  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => boolean);
 }
 
 export interface UrlencodedOptions extends BaseOptions {
@@ -131,5 +131,5 @@ export interface UrlencodedOptions extends BaseOptions {
    * `fn(headers)` and the headers is parsed if it returns a truthy value. Defaults
    * to `application/x-www-form-urlencoded`.
    */
-  type?: string | string[] | ((headers: IncomingHttpHeaders) => any);
+  type?: string | string[] | ((headers: IncomingHttpHeaders) => boolean);
 }

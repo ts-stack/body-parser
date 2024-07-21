@@ -47,6 +47,8 @@ http.createServer(async function (req, res) {
 Alternatively, you can use the `BodyParserGroup` helper. It intended for cases when you do not know which parser should work for a particular route. To initialize it, you can first pass parser options to its constructor, and then you can use the `parse` method:
 
 ```ts
+import { BodyParserGroup } from '@ts-stack/body-parser';
+
 const bodyParserGroup = new BodyParserGroup({
   jsonOptions: config.jsonOptions,
   textOptions: config.textOptions,

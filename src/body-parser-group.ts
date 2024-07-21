@@ -18,6 +18,22 @@ export class BodyParserOptions {
   rawOptions?: RawOptions = {};
 }
 
+/**
+ * A helper intended for cases when you do not know which parser should work for a particular route.
+ * To initialize it, you can first pass parser options to its constructor,
+ * and then you can use the `parse` method:
+ * 
+ * ```ts
+  const bodyParserGroup = new BodyParserGroup({
+    jsonOptions: config.jsonOptions,
+    textOptions: config.textOptions,
+    urlencodedOptions: config.urlencodedOptions,
+    rawOptions: config.rawOptions,
+  });
+
+  const body = await bodyParserGroup.parse(req, req.headers, {});
+ * ```
+ */
 export class BodyParserGroup {
   protected json: BodyParserWithoutCheck<any>;
   protected text: BodyParserWithoutCheck<string | Buffer>;
@@ -31,6 +47,18 @@ export class BodyParserGroup {
     this.raw = getRawParser(bodyParsersOptions.jsonOptions!, true);
   }
 
+  /**
+   * This method consistently checks the correspondence between the headers accepted
+   * by a certain parser and the header passed to it in the `headers` parameter.
+   * When it finds a match, it uses the found parser for the current request.
+   * 
+   * If the request has no body, this method returns `null`. If no matching parser is found,
+   * this method returns `false`. But you can change this behavior if you pass
+   * a third parameter `defaultValue`, whose value will be returned in these
+   * two cases (request with no body, or no matching parser found).
+   *
+   * @param defaultValue
+   */
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: undefined): Promise<T | null | false>;
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue: T): Promise<T>;
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: any): Promise<T | null | false> {

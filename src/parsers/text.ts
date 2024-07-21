@@ -44,12 +44,10 @@ export function getTextParser(options?: TextOptions) {
   }
 
   async function textParser(req: Readable, headers: IncomingHttpHeaders) {
-    const body = {};
-
     // skip requests without bodies
     if (!hasBody(headers)) {
       debug('skip empty body');
-      return body;
+      return {};
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -57,7 +55,7 @@ export function getTextParser(options?: TextOptions) {
     // determine if request should be parsed
     if (!shouldParse(headers)) {
       debug('skip parsing');
-      return body;
+      return {};
     }
 
     // get charset

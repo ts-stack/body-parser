@@ -84,12 +84,10 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
   }
 
   async function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
-    const body = {};
-
     // skip requests without bodies
     if (!hasBody(headers)) {
       debug('skip empty body');
-      return body;
+      return {};
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -97,7 +95,7 @@ export function getJsonParser(options?: JsonOptions): BodyParser {
     // determine if request should be parsed
     if (!shouldParse(headers)) {
       debug('skip parsing');
-      return body;
+      return {};
     }
 
     // assert charset per RFC 7159 sec 8.1

@@ -43,12 +43,10 @@ export function getRawParser(options?: RawOptions) {
   }
 
   async function rawParser(req: Readable, headers: IncomingHttpHeaders) {
-    const body = {};
-
     // skip requests without bodies
     if (!hasBody(headers)) {
       debug('skip empty body');
-      return body;
+      return {};
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -56,7 +54,7 @@ export function getRawParser(options?: RawOptions) {
     // determine if request should be parsed
     if (!shouldParse(headers)) {
       debug('skip parsing');
-      return body;
+      return {};
     }
 
     // read

@@ -54,12 +54,10 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
   }
 
   async function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
-    const body = {};
-
     // skip requests without bodies
     if (!hasBody(headers)) {
       debug('skip empty body');
-      return body;
+      return {};
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -67,7 +65,7 @@ export function getUrlencodedParser(options?: UrlencodedOptions) {
     // determine if request should be parsed
     if (!shouldParse(headers)) {
       debug('skip parsing');
-      return body;
+      return {};
     }
 
     // assert charset

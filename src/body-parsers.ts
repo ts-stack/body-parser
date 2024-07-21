@@ -1,14 +1,26 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import { Readable } from 'node:stream';
-import { BodyParser, typeIs } from '@ts-stack/body-parser';
+import type { BodyParser } from '@ts-stack/body-parser';
+import debugInit from 'debug';
 
-export class BodyParsers {
-  json: BodyParser;
-  text: BodyParser;
-  urlencoded: BodyParser;
-  raw: BodyParser;
+import { hasBody } from './type-is.js';
 
-  parse(req: Readable, headers: IncomingHttpHeaders) {
+const debug = debugInit('body-parser:parse');
+
+export class BodyParsers<T extends {} = {}> {
+  json: BodyParser<T>;
+  text: BodyParser<T>;
+  urlencoded: BodyParser<T>;
+  raw: BodyParser<T>;
+
+  parse(req: Readable, headers: IncomingHttpHeaders): Promise<T | null | false> {
+    if(!hasBody(headers)) {
+      debug('skip empty body');
+      return Promise.resolve(null);
+    }
+
+    debug(`content-type ${headers['content-type']}`);
+
     if (this.json.shouldParse(headers)) {
       return this.json(req, headers);
     } else if (this.text.shouldParse(headers)) {
@@ -19,6 +31,7 @@ export class BodyParsers {
       return this.raw(req, headers);
     }
 
-    return;
+    debug('skip parsing: json, text, urlencoded and raw');
+    return Promise.resolve(false);
   }
 }

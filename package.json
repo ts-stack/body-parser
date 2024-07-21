@@ -2,7 +2,7 @@
   "name": "@ts-stack/body-parser",
   "type": "module",
   "description": "Node.js body parser writen in TypeScript, in promise style, in ESM format, without support Node.js version < 20.6.0.",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "license": "MIT",
   "repository": "https://github.com/ts-stack/body-parser",
   "exports": {

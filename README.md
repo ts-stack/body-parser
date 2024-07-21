@@ -44,6 +44,19 @@ http.createServer(async function (req, res) {
 });
 ```
 
+Alternatively, you can use the `BodyParserGroup` helper. It intended for cases when you do not know which parser should work for a particular route. To initialize it, you can first pass parser options to its constructor, and then you can use the `parse` method:
+
+```ts
+const bodyParserGroup = new BodyParserGroup({
+  jsonOptions: config.jsonOptions,
+  textOptions: config.textOptions,
+  urlencodedOptions: config.urlencodedOptions,
+  rawOptions: config.rawOptions,
+});
+
+const body = await bodyParserGroup.parse(req, req.headers, {});
+```
+
 ### Change accepted type for parsers
 
 All the parser factories accept a `type` option which allows you to change the `Content-Type` that the parser will parse.

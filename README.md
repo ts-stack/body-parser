@@ -44,7 +44,7 @@ http.createServer(async function (req, res) {
 });
 ```
 
-Alternatively, you can use the `BodyParserGroup` helper. It intended for cases when you do not know which parser should work for a particular route. To initialize it, you can first pass parser options to its constructor, and then you can use the `parse` method:
+Alternatively, you can use the `BodyParserGroup` helper. It is designed for cases when you do not know which parser is needed for a specific route. When creating an instance of the `BodyParserGroup` class, you can pass options for the corresponding parsers, after which you can use the `parse` method as follows:
 
 ```ts
 import { BodyParserGroup } from '@ts-stack/body-parser';

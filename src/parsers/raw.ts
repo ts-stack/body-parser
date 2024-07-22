@@ -26,7 +26,7 @@ const debug = debugInit('body-parser:raw');
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getRawParser(options?: RawOptions, withoutCheck?: false): BodyParser<Buffer>;
+export function getRawParser(options?: RawOptions, withoutCheck?: false | undefined): BodyParser<Buffer>;
 export function getRawParser(options: RawOptions, withoutCheck: true): BodyParserWithoutCheck<Buffer>;
 export function getRawParser(
   options?: RawOptions,

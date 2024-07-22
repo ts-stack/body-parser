@@ -35,7 +35,7 @@ const debug = debugInit('body-parser:urlencoded');
  */
 export function getUrlencodedParser<T extends object = any>(
   options?: UrlencodedOptions,
-  withoutCheck?: false,
+  withoutCheck?: false | undefined,
 ): BodyParser<T>;
 export function getUrlencodedParser<T extends object = any>(
   options: UrlencodedOptions,

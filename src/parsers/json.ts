@@ -42,7 +42,10 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getJsonParser<T extends object = {}>(options?: JsonOptions, withoutCheck?: false): BodyParser<T>;
+export function getJsonParser<T extends object = {}>(
+  options?: JsonOptions,
+  withoutCheck?: false | undefined,
+): BodyParser<T>;
 export function getJsonParser<T extends object = {}>(
   options: JsonOptions,
   withoutCheck: true,

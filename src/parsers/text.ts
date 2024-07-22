@@ -26,7 +26,7 @@ const debug = debugInit('body-parser:text');
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getTextParser(options?: TextOptions, withoutCheck?: false): BodyParser<string | Buffer>;
+export function getTextParser(options?: TextOptions, withoutCheck?: false | undefined): BodyParser<string | Buffer>;
 export function getTextParser(options: TextOptions, withoutCheck: true): BodyParserWithoutCheck<string | Buffer>;
 export function getTextParser(
   options?: TextOptions,

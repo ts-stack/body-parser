@@ -53,7 +53,7 @@ export class BodyParserGroup {
    * This method consistently checks the correspondence between the headers accepted
    * by a certain parser and the header passed to it in the `headers` parameter.
    * When it finds a match, it uses the found parser for the current request.
-   * 
+   *
    * If the request has no body, this method returns `null`. If no matching parser is found,
    * this method returns `false`. But you can change this behavior if you pass
    * a third parameter `defaultValue`, whose value will be returned in these
@@ -64,7 +64,7 @@ export class BodyParserGroup {
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: any): Promise<T | null | false> {
     if (!hasBody(headers)) {
       debug('skip empty body');
-      return defaultValue !== undefined ? defaultValue : Promise.resolve(null);
+      return Promise.resolve(defaultValue !== undefined ? defaultValue : null);
     }
 
     debug(`content-type ${headers['content-type']}`);
@@ -80,6 +80,6 @@ export class BodyParserGroup {
     }
 
     debug('skip parsing: json, text, urlencoded and raw');
-    return defaultValue !== undefined ? defaultValue : Promise.resolve(false);
+    return Promise.resolve(defaultValue !== undefined ? defaultValue : false);
   }
 }

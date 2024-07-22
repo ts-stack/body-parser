@@ -9,7 +9,7 @@ import { getTextParser } from './parsers/text.js';
 import { getUrlencodedParser } from './parsers/urlencoded.js';
 import { getRawParser } from './parsers/raw.js';
 
-const debug = debugInit('body-parser:parse');
+const debug = debugInit('body-parser:group');
 
 export class BodyParserOptions {
   jsonOptions?: JsonOptions = {};

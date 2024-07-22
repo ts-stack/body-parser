@@ -23,7 +23,7 @@ const debug = debugInit('body-parser:raw');
  *
  * The parser returns the request body in a Promise, that will be a `Buffer` object of the body.
  *
- * @param withoutCheck If you set this parameter to `true', the presence
+ * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
 export function getRawParser(options?: RawOptions, withoutCheck?: false): BodyParser<Buffer>;

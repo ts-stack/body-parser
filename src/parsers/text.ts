@@ -23,7 +23,7 @@ const debug = debugInit('body-parser:text');
  *
  * The parser returns the request body in a Promise, that will be a string of the body.
  *
- * @param withoutCheck If you set this parameter to `true', the presence
+ * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
 export function getTextParser(options?: TextOptions, withoutCheck?: false): BodyParser<string | Buffer>;

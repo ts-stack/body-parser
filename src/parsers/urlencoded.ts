@@ -30,7 +30,7 @@ const debug = debugInit('body-parser:urlencoded');
  * where the value can be a string or array (when `extended` is `false`),
  * or any type (when `extended` is `true`).
  *
- * @param withoutCheck If you set this parameter to `true', the presence
+ * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
 export function getUrlencodedParser<T extends object = any>(

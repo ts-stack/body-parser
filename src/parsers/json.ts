@@ -39,7 +39,7 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  *
  * The parser returns the request body in a Promise.
  *
- * @param withoutCheck If you set this parameter to `true', the presence
+ * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
 export function getJsonParser<T extends object = {}>(options?: JsonOptions, withoutCheck?: false): BodyParser<T>;

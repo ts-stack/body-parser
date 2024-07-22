@@ -24,14 +24,16 @@ export class BodyParserOptions {
  * and then you can use the `parse` method:
  * 
  * ```ts
-  const bodyParserGroup = new BodyParserGroup({
-    jsonOptions: config.jsonOptions,
-    textOptions: config.textOptions,
-    urlencodedOptions: config.urlencodedOptions,
-    rawOptions: config.rawOptions,
-  });
+import { BodyParserGroup } from '@ts-stack/body-parser';
 
-  const body = await bodyParserGroup.parse(req, req.headers, {});
+const bodyParserGroup = new BodyParserGroup({
+  jsonOptions: config.jsonOptions,
+  textOptions: config.textOptions,
+  urlencodedOptions: config.urlencodedOptions,
+  rawOptions: config.rawOptions,
+});
+
+const body = await bodyParserGroup.parse(req, req.headers, {});
  * ```
  */
 export class BodyParserGroup {
@@ -56,8 +58,6 @@ export class BodyParserGroup {
    * this method returns `false`. But you can change this behavior if you pass
    * a third parameter `defaultValue`, whose value will be returned in these
    * two cases (request with no body, or no matching parser found).
-   *
-   * @param defaultValue
    */
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue?: undefined): Promise<T | null | false>;
   parse<T = any>(req: Readable, headers: IncomingHttpHeaders, defaultValue: T): Promise<T>;

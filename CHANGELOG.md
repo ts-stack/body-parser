@@ -3,7 +3,7 @@
 
 ### Features
 
-- Added `BodyParserGroup` helper. Now you can use in this way:
+- Added `BodyParserGroup` helper. It intended for cases when you do not know which parser should work for a particular route. To initialize it, you can first pass parser options to its constructor, and then you can use the `parse` method:
 
 ```ts
 import { BodyParserGroup } from '@ts-stack/body-parser';

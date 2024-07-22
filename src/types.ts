@@ -50,7 +50,7 @@ export interface RawOptions extends BaseOptions {
    * The `type` option is used to determine what media type the parser will
    * parse. This option can be a string, array of strings, or a function.
    * If not a function, `type` option is passed directly to the
-   * [type-is](https://www.npmjs.org/package/type-is#readme) library and this
+   * `typeIs()` function and this
    * can be an extension name (like `bin`), a mime type (like
    * `application/octet-stream`), or a mime type with a wildcard (like `* /*` or
    * `application/*`). If a function, the `type` option is called as `fn(headers)`
@@ -77,7 +77,7 @@ export interface JsonOptions extends BaseOptions {
    * The `type` option is used to determine what media type the parser will
    * parse. This option can be a string, array of strings, or a function. If not a
    * function, `type` option is passed directly to the
-   * [type-is](https://www.npmjs.org/package/type-is#readme) library and this can
+   * `typeIs()` function and this can
    * be an extension name (like `json`), a mime type (like `application/json`), or
    * a mime type with a wildcard (like `* /*` or `* /json`). If a function, the `type`
    * option is called as `fn(headers)` and the headers is parsed if it returns a truthy
@@ -96,7 +96,7 @@ export interface TextOptions extends BaseOptions {
    * The `type` option is used to determine what media type the parser will
    * parse. This option can be a string, array of strings, or a function. If not
    * a function, `type` option is passed directly to the
-   * [type-is](https://www.npmjs.org/package/type-is#readme) library and this can
+   * `typeIs()` function and this can
    * be an extension name (like `txt`), a mime type (like `text/plain`), or a mime
    * type with a wildcard (like `* /*` or `text/*`). If a function, the `type`
    * option is called as `fn(headers)` and the headers is parsed if it returns a
@@ -127,7 +127,7 @@ export interface UrlencodedOptions extends BaseOptions {
    * The `type` option is used to determine what media type the parser will
    * parse. This option can be a string, array of strings, or a function. If not
    * a function, `type` option is passed directly to the
-   * [type-is](https://www.npmjs.org/package/type-is#readme) library and this can
+   * `typeIs()` function and this can
    * be an extension name (like `urlencoded`), a mime type (like
    * `application/x-www-form-urlencoded`), or a mime type with a wildcard (like
    * `* /x-www-form-urlencoded`). If a function, the `type` option is called as

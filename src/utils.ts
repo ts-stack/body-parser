@@ -1,7 +1,6 @@
 import { IncomingHttpHeaders } from 'http';
 import contentType from 'content-type';
-
-import { typeIs } from './type-is.js';
+import { typeIs } from '@ts-stack/type-is';
 
 /**
  * Get the simple type checker.

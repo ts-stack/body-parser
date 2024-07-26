@@ -8,10 +8,10 @@ import bytes from 'bytes';
 import debugInit from 'debug';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
+import { hasBody } from '@ts-stack/type-is';
 
 import read from '../read.js';
 import type { RawOptions, BodyParser, BodyParserWithoutCheck } from '../types.js';
-import { hasBody } from '../type-is.js';
 import { getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:raw');

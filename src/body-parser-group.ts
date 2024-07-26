@@ -1,9 +1,9 @@
 import type { IncomingHttpHeaders } from 'node:http';
 import { Readable } from 'node:stream';
 import debugInit from 'debug';
+import { hasBody } from '@ts-stack/type-is';
 
 import type { BodyParserWithoutCheck, JsonOptions, RawOptions, TextOptions, UrlencodedOptions } from './types.js';
-import { hasBody } from './type-is.js';
 import { getJsonParser } from './parsers/json.js';
 import { getTextParser } from './parsers/text.js';
 import { getUrlencodedParser } from './parsers/urlencoded.js';

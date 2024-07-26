@@ -8,8 +8,8 @@ import bytes from 'bytes';
 import debugInit from 'debug';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
+import { hasBody } from '@ts-stack/type-is';
 
-import { hasBody } from '../type-is.js';
 import read from '../read.js';
 import { BodyParser, BodyParserWithoutCheck, TextOptions } from '../types.js';
 import { getCharset, getTypeChecker } from '../utils.js';

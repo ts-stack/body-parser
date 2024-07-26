@@ -13,10 +13,10 @@ import qs from 'qs';
 import querystring from 'node:querystring';
 import type { IncomingHttpHeaders, IncomingMessage } from 'node:http';
 import type { Readable } from 'node:stream';
+import { hasBody } from '@ts-stack/type-is';
 
 import read from '../read.js';
 import type { BodyParser, BodyParserWithoutCheck, UrlencodedOptions } from '../types.js';
-import { hasBody } from '../type-is.js';
 import { getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:urlencoded');

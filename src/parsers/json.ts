@@ -10,10 +10,10 @@ import createError from 'http-errors';
 import debugInit from 'debug';
 import type { IncomingHttpHeaders } from 'node:http';
 import type { Readable } from 'node:stream';
+import { hasBody } from '@ts-stack/type-is';
 
 import read from '../read.js';
 import type { BodyParser, BodyParserWithoutCheck, JsonOptions } from '../types.js';
-import { hasBody } from '../type-is.js';
 import { getCharset, getTypeChecker } from '../utils.js';
 
 const debug = debugInit('body-parser:json');

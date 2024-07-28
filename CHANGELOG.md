@@ -1,5 +1,12 @@
+<a name="1.1.1"></a>
+# [1.1.1](https://github.com/ts-stack/body-parser/releases/tag/1.1.1) (2024-07-28)
+
+### Bugs fix
+
+- [Fixed `onFinished` function](https://github.com/ts-stack/body-parser/commit/df63009e76bba).
+
 <a name="1.1.0"></a>
-# [1.1.0](https://github.com/ts-stack/body-parser/releases/tag/1.1.0) (2024-07-21)
+## [1.1.0](https://github.com/ts-stack/body-parser/releases/tag/1.1.0) (2024-07-21)
 
 ### Features
 

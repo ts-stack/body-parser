@@ -174,7 +174,7 @@ function dump(stream: Readable, callback: Fn) {
  * cleaning up resources afterwards.
  */
 function onFinished(stream: Readable, listener: Fn) {
-  if (!stream.readable) {
+  if (isFinished(stream) !== false) {
     setImmediate(listener, null, stream);
     return stream;
   }
@@ -193,4 +193,21 @@ function wrap(fn: Fn) {
 
   // return bound function
   return resource.runInAsyncScope.bind(resource, fn, null);
+}
+
+function isFinished(stream: any) {
+  const socket = stream.socket;
+
+  if (typeof stream.finished === 'boolean') {
+    // OutgoingMessage
+    return Boolean(stream.finished || (socket && !socket.writable));
+  }
+
+  if (typeof stream.complete === 'boolean') {
+    // IncomingMessage
+    return Boolean(stream.upgrade || !socket || !socket.readable || (stream.complete && !stream.readable));
+  }
+
+  // don't know
+  return undefined;
 }

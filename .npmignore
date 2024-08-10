@@ -12,3 +12,4 @@ SECURITY.md
 tsconfig.*
 test
 tests
+coverage

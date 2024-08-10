@@ -1,5 +1,32 @@
+<a name="1.2.0"></a>
+# [1.2.0](https://github.com/ts-stack/body-parser/releases/tag/1.2.0) (2024-08-10)
+
+### Breaking changes
+
+- The location of the typed parameter has been changed. The parameter is now specified for a specific parser rather than for a parser factory:
+
+**Now**:
+
+```ts
+import { getJsonParser } from '@ts-stack/body-parser';
+import { InterfaceOfBody } from './types';
+
+const jsonParser = getJsonParser();
+const body = await jsonParser<InterfaceOfBody>();
+```
+
+**Before**:
+
+```ts
+import { getJsonParser } from '@ts-stack/body-parser';
+import { InterfaceOfBody } from './types';
+
+const jsonParser = getJsonParser<InterfaceOfBody>();
+const body = await jsonParser();
+```
+
 <a name="1.1.1"></a>
-# [1.1.1](https://github.com/ts-stack/body-parser/releases/tag/1.1.1) (2024-07-28)
+## [1.1.1](https://github.com/ts-stack/body-parser/releases/tag/1.1.1) (2024-07-28)
 
 ### Bugs fix
 

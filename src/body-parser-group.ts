@@ -37,15 +37,15 @@ const body = await bodyParserGroup.parse(req, req.headers, {});
  * ```
  */
 export class BodyParserGroup {
-  protected json: BodyParserWithoutCheck<any>;
-  protected text: BodyParserWithoutCheck<string | Buffer>;
-  protected urlencoded: BodyParserWithoutCheck<any>;
-  protected raw: BodyParserWithoutCheck<Buffer>;
+  protected json: BodyParserWithoutCheck;
+  protected text: BodyParserWithoutCheck;
+  protected urlencoded: BodyParserWithoutCheck;
+  protected raw: BodyParserWithoutCheck;
 
   constructor(bodyParsersOptions = new BodyParserOptions()) {
-    this.json = getJsonParser<any>(bodyParsersOptions.jsonOptions!, true);
+    this.json = getJsonParser(bodyParsersOptions.jsonOptions!, true);
     this.text = getTextParser(bodyParsersOptions.jsonOptions!, true);
-    this.urlencoded = getUrlencodedParser<any>(bodyParsersOptions.jsonOptions!, true);
+    this.urlencoded = getUrlencodedParser(bodyParsersOptions.jsonOptions!, true);
     this.raw = getRawParser(bodyParsersOptions.jsonOptions!, true);
   }
 

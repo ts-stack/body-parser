@@ -29,11 +29,13 @@ The various errors returned by this module are described in the
 import http from 'http';
 import { getJsonParser } from '@ts-stack/body-parser';
 
+import { InterfaceOfBody } from './types.js';
+
 const jsonParser = getJsonParser({ limit: '1kb' });
 
 http.createServer(async function (req, res) {
   try {
-    const body = await jsonParser(req, req.headers);
+    const body = await jsonParser<InterfaceOfBody>(req, req.headers);
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/plain')
     res.write('you posted:\n');

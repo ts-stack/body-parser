@@ -33,18 +33,18 @@ const debug = debugInit('body-parser:urlencoded');
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getUrlencodedParser<T extends object = any>(
+export function getUrlencodedParser(
   options?: UrlencodedOptions,
   withoutCheck?: false | undefined,
-): BodyParser<T>;
-export function getUrlencodedParser<T extends object = any>(
+): BodyParser;
+export function getUrlencodedParser(
   options: UrlencodedOptions,
   withoutCheck: true,
-): BodyParserWithoutCheck<T>;
-export function getUrlencodedParser<T extends object = any>(
+): BodyParserWithoutCheck;
+export function getUrlencodedParser(
   options?: UrlencodedOptions,
   withoutCheck?: boolean,
-): BodyParser<T> | BodyParserWithoutCheck<T> {
+): BodyParser | BodyParserWithoutCheck {
   const opts = options || {};
 
   const extended = opts.extended || false;
@@ -64,7 +64,7 @@ export function getUrlencodedParser<T extends object = any>(
   const shouldParse = typeof type != 'function' ? getTypeChecker(type) : type;
 
   function parse(body: string) {
-    return (body.length ? queryparse(body) : {}) as T;
+    return (body.length ? queryparse(body) : {});
   }
 
   function urlencodedParserWithoutCheck(req: Readable, headers: IncomingHttpHeaders) {
@@ -83,7 +83,7 @@ export function getUrlencodedParser<T extends object = any>(
     }
 
     // read
-    return read<T>(req, headers, parse, debug, {
+    return read(req, headers, parse, debug, {
       debug,
       encoding: charset,
       inflate,
@@ -94,13 +94,13 @@ export function getUrlencodedParser<T extends object = any>(
 
   if (withoutCheck) {
     urlencodedParserWithoutCheck.shouldParse = shouldParse;
-    return urlencodedParserWithoutCheck;
+    return urlencodedParserWithoutCheck as BodyParserWithoutCheck;
   } else {
     return function urlencodedParser(req: Readable, headers: IncomingHttpHeaders) {
       // skip requests without bodies
       if (!hasBody(headers)) {
         debug('skip empty body');
-        return Promise.resolve({} as T);
+        return Promise.resolve({});
       }
 
       debug(`content-type ${headers['content-type']}`);
@@ -108,11 +108,11 @@ export function getUrlencodedParser<T extends object = any>(
       // determine if request should be parsed
       if (!shouldParse(headers)) {
         debug('skip parsing');
-        return Promise.resolve({} as T);
+        return Promise.resolve({});
       }
 
       return urlencodedParserWithoutCheck(req, headers);
-    };
+    } as BodyParser;
   }
 }
 

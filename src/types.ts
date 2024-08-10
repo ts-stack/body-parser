@@ -15,11 +15,11 @@ export interface ReadOptions {
 /**
  * The function type returned by get*Parser() factories.
  */
-export interface BodyParser<T = any> {
-  (req: Readable, headers: IncomingHttpHeaders): Promise<T>;
+export interface BodyParser {
+  <T = any>(req: Readable, headers: IncomingHttpHeaders): Promise<T>;
 }
 
-export interface BodyParserWithoutCheck<T = any> extends BodyParser<T> {
+export interface BodyParserWithoutCheck extends BodyParser {
   shouldParse: (headers: IncomingHttpHeaders) => boolean;
 }
 

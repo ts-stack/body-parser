@@ -42,18 +42,9 @@ const JSON_SYNTAX_REGEXP = /#+/g;
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getJsonParser<T extends object = {}>(
-  options?: JsonOptions,
-  withoutCheck?: false | undefined,
-): BodyParser<T>;
-export function getJsonParser<T extends object = {}>(
-  options: JsonOptions,
-  withoutCheck: true,
-): BodyParserWithoutCheck<T>;
-export function getJsonParser<T extends object = {}>(
-  options?: JsonOptions,
-  withoutCheck?: boolean,
-): BodyParser<T> | BodyParserWithoutCheck<T> {
+export function getJsonParser(options?: JsonOptions, withoutCheck?: false | undefined): BodyParser;
+export function getJsonParser(options: JsonOptions, withoutCheck: true): BodyParserWithoutCheck;
+export function getJsonParser(options?: JsonOptions, withoutCheck?: boolean): BodyParser | BodyParserWithoutCheck {
   const opts = options || {};
 
   const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
@@ -119,7 +110,7 @@ export function getJsonParser<T extends object = {}>(
 
   if (withoutCheck) {
     jsonParserWithoutCheck.shouldParse = shouldParse;
-    return jsonParserWithoutCheck;
+    return jsonParserWithoutCheck as BodyParserWithoutCheck;
   } else {
     return function jsonParser(req: Readable, headers: IncomingHttpHeaders) {
       // skip requests without bodies
@@ -137,7 +128,7 @@ export function getJsonParser<T extends object = {}>(
       }
 
       return jsonParserWithoutCheck(req, headers);
-    };
+    } as BodyParser;
   }
 }
 

@@ -26,12 +26,12 @@ const debug = debugInit('body-parser:text');
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getTextParser(options?: TextOptions, withoutCheck?: false | undefined): BodyParser<string | Buffer>;
-export function getTextParser(options: TextOptions, withoutCheck: true): BodyParserWithoutCheck<string | Buffer>;
+export function getTextParser(options?: TextOptions, withoutCheck?: false | undefined): BodyParser;
+export function getTextParser(options: TextOptions, withoutCheck: true): BodyParserWithoutCheck;
 export function getTextParser(
   options?: TextOptions,
   withoutCheck?: boolean,
-): BodyParser<string | Buffer> | BodyParserWithoutCheck<string | Buffer> {
+): BodyParser | BodyParserWithoutCheck {
   const opts = options || {};
 
   const defaultCharset = opts.defaultCharset || 'utf-8';
@@ -62,7 +62,7 @@ export function getTextParser(
 
   if (withoutCheck) {
     textParserWithoutCheck.shouldParse = shouldParse;
-    return textParserWithoutCheck;
+    return textParserWithoutCheck as BodyParserWithoutCheck;
   } else {
     return function textParser(req: Readable, headers: IncomingHttpHeaders) {
       // skip requests without bodies
@@ -81,6 +81,6 @@ export function getTextParser(
 
       // read
       return textParserWithoutCheck(req, headers);
-    };
+    } as BodyParser;
   }
 }

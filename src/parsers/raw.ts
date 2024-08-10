@@ -26,12 +26,12 @@ const debug = debugInit('body-parser:raw');
  * @param withoutCheck If you set this parameter to `true`, the presence
  * of the request body and the matching of headers will not be checked.
  */
-export function getRawParser(options?: RawOptions, withoutCheck?: false | undefined): BodyParser<Buffer>;
-export function getRawParser(options: RawOptions, withoutCheck: true): BodyParserWithoutCheck<Buffer>;
+export function getRawParser(options?: RawOptions, withoutCheck?: false | undefined): BodyParser;
+export function getRawParser(options: RawOptions, withoutCheck: true): BodyParserWithoutCheck;
 export function getRawParser(
   options?: RawOptions,
   withoutCheck?: boolean,
-): BodyParser<Buffer> | BodyParserWithoutCheck<Buffer> {
+): BodyParser | BodyParserWithoutCheck {
   const opts = options || {};
 
   const inflate = opts.inflate !== false;
@@ -61,7 +61,7 @@ export function getRawParser(
 
   if (withoutCheck) {
     rawParserWithoutCheck.shouldParse = shouldParse;
-    return rawParserWithoutCheck;
+    return rawParserWithoutCheck as BodyParserWithoutCheck;
   } else {
     return function rawParser(req: Readable, headers: IncomingHttpHeaders) {
       // skip requests without bodies
@@ -79,6 +79,6 @@ export function getRawParser(
       }
 
       return rawParserWithoutCheck(req, headers);
-    };
+    } as BodyParser;
   }
 }

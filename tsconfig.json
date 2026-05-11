@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "strict": true,
+    "types": ["node", "jest"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
     "declaration": true,
@@ -12,7 +13,7 @@
     "forceConsistentCasingInFileNames": true,
     "noImplicitReturns": true,
     "skipLibCheck": true,
-    "target": "es2022",
+    "target": "esnext",
     "strictPropertyInitialization": false,
     "noImplicitAny": true,
     "emitDecoratorMetadata": false,

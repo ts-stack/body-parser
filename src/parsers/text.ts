@@ -36,7 +36,7 @@ export function getTextParser(
 
   const defaultCharset = opts.defaultCharset || 'utf-8';
   const inflate = opts.inflate !== false;
-  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb')! : opts.limit;
   const type = opts.type || 'text/plain';
   const verify = opts.verify || false;
 

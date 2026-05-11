@@ -80,7 +80,7 @@ export function getRawBody(stream: Readable, callbackOrOptions?: RawBodyOptions 
   const encoding: RawBodyEncoding | null | undefined = opts.encoding !== true ? opts.encoding : 'utf-8';
 
   // convert the limit to an integer
-  const limit = bytes.parse(opts.limit || '');
+  const limit = bytes.parse(opts.limit || '')!;
 
   // convert the expected length to an integer
   const length = opts.length != null && !isNaN(opts.length as number) ? parseInt(opts.length as string, 10) : null;

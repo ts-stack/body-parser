@@ -46,8 +46,8 @@ export default async function read<T = any>(
 
   // assert charset is supported
   if (opts.encoding === null && encoding !== null && !iconv.encodingExists(encoding)) {
-    throw createError(415, 'unsupported charset "' + encoding.toUpperCase() + '"', {
-      charset: encoding.toLowerCase(),
+    throw createError(415, 'unsupported charset "' + (encoding as any)?.toUpperCase() + '"', {
+      charset: (encoding as any)?.toLowerCase(),
       type: 'charset.unsupported',
     });
   }

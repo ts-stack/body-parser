@@ -47,7 +47,7 @@ export function getJsonParser(options: JsonOptions, withoutCheck: true): BodyPar
 export function getJsonParser(options?: JsonOptions, withoutCheck?: boolean): BodyParser | BodyParserWithoutCheck {
   const opts = options || {};
 
-  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb')! : opts.limit;
   const inflate = opts.inflate !== false;
   const reviver = opts.reviver;
   const strict = opts.strict !== false;

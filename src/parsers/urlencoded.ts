@@ -49,7 +49,7 @@ export function getUrlencodedParser(
 
   const extended = opts.extended || false;
   const inflate = opts.inflate !== false;
-  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb') : opts.limit;
+  const limit = typeof opts.limit != 'number' ? bytes.parse(opts.limit || '100kb')! : opts.limit;
   const type = opts.type || 'application/x-www-form-urlencoded';
   const verify = opts.verify || false;
 

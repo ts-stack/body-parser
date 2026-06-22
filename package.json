@@ -36,19 +36,17 @@
     "qs": "6.15.2"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/bytes": "^3.1.5",
     "@types/content-type": "^1.1.9",
     "@types/debug": "^4.1.13",
-    "@types/eslint": "^9.6.1",
     "@types/http-errors": "^2.0.5",
     "@types/jest": "^30.0.0",
     "@types/methods": "^1.1.4",
     "@types/node": "^25.6.2",
     "@types/qs": "^6.15.1",
     "@types/supertest": "^7.2.0",
-    "@typescript-eslint/eslint-plugin": "^8.59.2",
-    "@typescript-eslint/parser": "^8.59.2",
-    "eslint": "^10.3.0",
+    "eslint": "^10.5.0",
     "jest": "^30.4.2",
     "methods": "1.1.2",
     "prettier": "^3.8.3",
@@ -56,10 +54,11 @@
     "safe-buffer": "^5.2.1",
     "supertest": "7.2.2",
     "ts-node": "^10.9.2",
-    "typescript": "~6.0.3"
+    "typescript": "~6.0.3",
+    "typescript-eslint": "^8.61.1"
   },
   "engines": {
     "node": ">= 20.6.0"
   },
-  "packageManager": "yarn@4.14.1"
+  "packageManager": "yarn@4.17.0"
 }
